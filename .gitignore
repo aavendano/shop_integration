@@ -1,11 +1,6 @@
 .idea
 *.pyc
-MANIFEST
-build
-dist
-django_shopify_webhook.egg-info
 
-# Ignore secrets in '.env'
 .env
 
 db.sqlite3
