@@ -1,0 +1,10 @@
+django >=3.2
+ShopifyAPI >=8.0.0
+ua-parser
+pyjwt >=2.0.0
+requests
+python-dotenv
+jupyter
+notebook
+django-extensions
+
