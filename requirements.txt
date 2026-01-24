@@ -7,4 +7,5 @@ python-dotenv
 jupyter
 notebook
 django-extensions
+pandas
 
