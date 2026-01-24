@@ -47,10 +47,11 @@ INSTALLED_APPS = [
     'jupyter',
 
     # Local apps
-    'accounts',
-    'shopify_sync',
-    'shopify_auth',
-    'shopify_webhook',
+    'accounts.apps.AccountsConfig',
+    'shopify_sync.apps.ShopifySyncConfig',
+    'shopify_auth.apps.ShopifyAuthConfig',
+    'shopify_webhook.apps.ShopifyWebhookConfig',
+    
 ]
 
 MIDDLEWARE = [
