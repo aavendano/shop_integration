@@ -5,7 +5,7 @@ from shopify import ShopifyResource
 from django.conf import settings
 
 
-API_VERSION = settings.SHOPIFY_APP_API_VERSION
+API_VERSION = settings.API_VERSION
 
 
 class Session(models.Model):

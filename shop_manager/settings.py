@@ -29,7 +29,9 @@ SECRET_KEY = 'django-insecure-jf9wq(65+d1v9xm(0@6reel6s18l)d+2#za^uebz8$an!mx41q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'monkey-tight-lab.ngrok-free.app']
+
+CSRF_TRUSTED_ORIGINS = ['https://monkey-tight-lab.ngrok-free.app']
 
 
 # Application definition
@@ -45,13 +47,15 @@ INSTALLED_APPS = [
     # Third-party apps
     'django_extensions',
     'jupyter',
+    'shopify_auth',
+    'rest_framework',
 
     # Local apps
+    'core.apps.CoreConfig',
     'accounts.apps.AccountsConfig',
     'shopify_sync.apps.ShopifySyncConfig',
-    'shopify_auth.apps.ShopifyAuthConfig',
     'shopify_webhook.apps.ShopifyWebhookConfig',
-    
+
 ]
 
 MIDDLEWARE = [
@@ -60,6 +64,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "shopify_auth.session_tokens.middleware.SessionTokensAuthMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -132,6 +137,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
 
 NOTEBOOK_ARGUMENTS = [
     '--ip', '0.0.0.0',
@@ -144,26 +153,26 @@ NOTEBOOK_ARGUMENTS = [
 IPYTHON_KERNEL_DISPLAY_NAME = 'Django Kernel'
 
 # Configure Shopify Application settings
-SHOPIFY_APP_NAME = 'shop-manager'
+SHOPIFY_APP_NAME = 'FulfillmentCustom'
 SHOPIFY_APP_API_KEY = os.environ.get('SHOPIFY_APP_API_KEY')
 SHOPIFY_APP_API_SECRET = os.environ.get('SHOPIFY_APP_API_SECRET')
 SHOP_NAME = os.environ.get('SHOP_NAME')
 SHOPIFY_APP_API_SCOPE = ['read_products', 'read_orders']
-# Find API version to pin at https://help.shopify.com/en/api/versioning
-SHOPIFY_APP_API_VERSION = os.environ.get('API_VERSION')
-
-SHOPIFY_APP_DEV_MODE = True
-# Use the Shopify Auth authentication backend as the sole authentication backend.
-# AUTHENTICATION_BACKENDS = ('shopify_auth.backends.ShopUserBackend',)
-
+API_VERSION = os.environ.get("API_VERSION", "2025-10")
+SHOPIFY_APP_API_VERSION = os.environ.get("API_VERSION", "2025-10")
+AUTHENTICATION_BACKENDS = ('shopify_auth.backends.ShopUserBackend',)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Use the accounts User model.
 AUTH_USER_MODEL = 'accounts.User'
+SHOPIFY_AUTH_BOUNCE_PAGE_URL = '/accounts/login'
+SHOPIFY_APP_DEV_MODE = True
 
 # Set the login redirect URL to the "home" page for your app (where to go after logging on).
 LOGIN_REDIRECT_URL = '/'
-SHOPIFY_AUTH_BOUNCE_PAGE_URL = LOGIN_REDIRECT_URL
+LOGIN_URL = '/accounts/login'
+
 # Set secure proxy header to allow proper detection of secure URLs behind a proxy.
 # This ensures that correct 'https' URLs are generated when our Django app is running behind a proxy like nginx, or is
 # being tunneled (by ngrok, for example).
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": ["shopify_auth.session_tokens.authentication.ShopifyTokenAuthentication"]}

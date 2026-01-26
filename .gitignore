@@ -1,10 +1,13 @@
 .idea
 *.pyc
-
+.vscode
 .env
+.codex
 
 db.sqlite3
 venv/
 */__pycache__/*
 .qodo/
 .ipynb_checkpoints/
+node_modules
+sample_data/
