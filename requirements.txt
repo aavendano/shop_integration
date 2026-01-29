@@ -8,7 +8,6 @@ jupyter
 notebook
 django-extensions
 pandas
-django-shopify-auth
 djangorestframework
 markdown
 django-filter

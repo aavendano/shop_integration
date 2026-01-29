@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Session</h1>
+    <form method="post">{% csrf_token %}
+      {{ form.non_field_errors }}
+      <div class="field">
+        <label class="label">{{ form.site.label }}</label>
+        <div class="control">
+          {{ form.site }}
+        </div>
+        {{ form.site.errors }}
+      </div>
+      <div class="field">
+        <label class="label">{{ form.token.label }}</label>
+        <div class="control">
+          {{ form.token }}
+        </div>
+        {{ form.token.errors }}
+      </div>
+      <div class="field is-grouped">
+        <div class="control">
+          <button type="submit" class="button is-primary">Save</button>
+        </div>
+        <div class="control">
+          <a href="{% url 'core:session_list' %}" class="button is-light">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+

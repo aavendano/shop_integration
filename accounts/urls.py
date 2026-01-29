@@ -1,9 +1,9 @@
-from django.urls import path, include
+# from django.urls import path, include
 
 
-app_name = 'accounts'
+# app_name = 'accounts'
 
-urlpatterns = [
-    path('login/', include('shopify_auth.urls'), name='login'),
+# urlpatterns = [
+#     path('login/', include('shopify_auth.urls'), name='login'),
 
-]
+# ]

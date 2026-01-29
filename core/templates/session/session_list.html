@@ -1,0 +1,36 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">Session Management</h1>
+    <a href="{% url 'core:session_add' %}" class="button is-primary">Add Session</a>
+    <table class="table is-fullwidth is-striped" style="margin-top: 1rem;">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Site</th>
+          <th>Token</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for session in sessions %}
+        <tr>
+          <td>{{ session.id }}</td>
+          <td>{{ session.site }}</td>
+          <td>{{ session.token|truncatechars:30 }}</td>
+          <td>
+            <a href="{% url 'core:session_edit' session.id %}" class="button is-small is-info">Edit</a>
+            <a href="{% url 'core:session_delete' session.id %}" class="button is-small is-danger">Delete</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">No sessions found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
+

@@ -47,14 +47,14 @@ INSTALLED_APPS = [
     # Third-party apps
     'django_extensions',
     'jupyter',
-    'shopify_auth',
+    #'shopify_auth',
     'rest_framework',
 
     # Local apps
     'core.apps.CoreConfig',
     'accounts.apps.AccountsConfig',
     'shopify_sync.apps.ShopifySyncConfig',
-    'shopify_webhook.apps.ShopifyWebhookConfig',
+    #'shopify_webhook.apps.ShopifyWebhookConfig',
 
 ]
 
@@ -64,7 +64,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    "shopify_auth.session_tokens.middleware.SessionTokensAuthMiddleware",
+    #'shopify_auth.session_tokens.middleware.SessionTokensAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -81,7 +81,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'shopify_auth.context_processors.shopify_auth'
+                #'shopify_auth.context_processors.shopify_auth'
             ],
         },
     },
@@ -160,19 +160,19 @@ SHOP_NAME = os.environ.get('SHOP_NAME')
 SHOPIFY_APP_API_SCOPE = ['read_products', 'read_orders']
 API_VERSION = os.environ.get("API_VERSION", "2025-10")
 SHOPIFY_APP_API_VERSION = os.environ.get("API_VERSION", "2025-10")
-AUTHENTICATION_BACKENDS = ('shopify_auth.backends.ShopUserBackend',)
+#AUTHENTICATION_BACKENDS = ('shopify_auth.backends.ShopUserBackend',)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Use the accounts User model.
 AUTH_USER_MODEL = 'accounts.User'
-SHOPIFY_AUTH_BOUNCE_PAGE_URL = '/accounts/login'
-SHOPIFY_APP_DEV_MODE = True
+#SHOPIFY_AUTH_BOUNCE_PAGE_URL = '/accounts/login'
+#SHOPIFY_APP_DEV_MODE = True
 
 # Set the login redirect URL to the "home" page for your app (where to go after logging on).
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/accounts/login'
+LOGIN_URL = '/login/'
 
 # Set secure proxy header to allow proper detection of secure URLs behind a proxy.
 # This ensures that correct 'https' URLs are generated when our Django app is running behind a proxy like nginx, or is
 # being tunneled (by ngrok, for example).
-REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": ["shopify_auth.session_tokens.authentication.ShopifyTokenAuthentication"]}
+#REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": ["shopify_auth.session_tokens.authentication.ShopifyTokenAuthentication"]}
