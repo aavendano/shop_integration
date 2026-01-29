@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
-    ProductListView, ProductDetailView,
-    VariantCreateView, VariantUpdateView, VariantDeleteView
+    ProductListView, ProductDetailView, ProductSyncView,
+    VariantCreateView, UpdateView, VariantUpdateView, VariantDeleteView
 )
 
 app_name = 'shopify_sync'
@@ -9,6 +9,7 @@ app_name = 'shopify_sync'
 urlpatterns = [
     path('products/', ProductListView.as_view(), name='product_list'),
     path('products/<int:pk>/', ProductDetailView.as_view(), name='product_detail'),
+    path('products/<int:pk>/sync/', ProductSyncView.as_view(), name='product_sync'),
     
     # Variant CRUD
     path('products/<int:product_pk>/variants/create/', VariantCreateView.as_view(), name='variant_create'),

@@ -1,6 +1,8 @@
+from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
-from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy, reverse
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
 from django_filters.views import FilterView
 from .models import Product, Variant
 from .filters import ProductFilter
@@ -22,6 +24,19 @@ class ProductDetailView(DetailView):
     model = Product
     template_name = 'shopify_sync/product_detail.html'
     context_object_name = 'product'
+
+
+class ProductSyncView(View):
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        try:
+            # Trigger push to Shopify
+            product.save(push=True)
+            messages.success(request, f'Product "{product.title}" synchronized successfully with Shopify.')
+        except Exception as e:
+            messages.error(request, f'Failed to synchronize product "{product.title}": {str(e)}')
+            
+        return redirect('shopify_sync:product_detail', pk=pk)
 
 
 class VariantCreateView(CreateView):

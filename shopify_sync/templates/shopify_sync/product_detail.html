@@ -10,9 +10,39 @@
             </ul>
         </nav>
 
+        {% if messages %}
+        <div class="container mb-4">
+            {% for message in messages %}
+            <div class="notification is-{{ message.tags|default:'info' }} is-light">
+                <button class="delete"></button>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <div class="box">
-            <h1 class="title">{{ product.title }}</h1>
-            <h2 class="subtitle is-6 has-text-grey">{{ product.vendor|default:"No vendor" }}</h2>
+            <div class="level">
+                <div class="level-left">
+                    <div>
+                        <h1 class="title">{{ product.title }}</h1>
+                        <h2 class="subtitle is-6 has-text-grey">{{ product.vendor|default:"No vendor" }}</h2>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <form action="{% url 'shopify_sync:product_sync' product.pk %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="button is-info">
+                                <span class="icon">
+                                    <i data-lucide="refresh-cw"></i>
+                                </span>
+                                <span>Sync to Shopify</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
             <div class="columns">
                 <div class="column is-6">
