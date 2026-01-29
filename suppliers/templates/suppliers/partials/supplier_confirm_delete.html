@@ -1,0 +1,14 @@
+<h2 class="title is-4 has-text-danger">Confirm Delete</h2>
+<p class="mb-4">Are you sure you want to delete supplier <strong>{{ supplier.name }}</strong>?</p>
+
+<form method="post" hx-post="{{ request.path }}">
+    {% csrf_token %}
+    <div class="field is-grouped is-grouped-right mt-4">
+        <div class="control">
+            <button type="button" class="button" @click="modalOpen = false">Cancel</button>
+        </div>
+        <div class="control">
+            <button type="submit" class="button is-danger">Delete</button>
+        </div>
+    </div>
+</form>

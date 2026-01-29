@@ -49,11 +49,13 @@ INSTALLED_APPS = [
     'jupyter',
     #'shopify_auth',
     'rest_framework',
+    'django_filters',
 
     # Local apps
     'core.apps.CoreConfig',
     'accounts.apps.AccountsConfig',
     'shopify_sync.apps.ShopifySyncConfig',
+    'suppliers',
     #'shopify_webhook.apps.ShopifyWebhookConfig',
 
 ]
@@ -74,7 +76,7 @@ ROOT_URLCONF = 'shop_manager.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

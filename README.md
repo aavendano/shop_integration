@@ -46,6 +46,62 @@ The `changed_product` will get a local copy of the shopify_resource and then
 do a `.reload()` on it so that we make a request to shopify. Then we sync
 that back with our database.
 
+
+## Product Parsing - How to use
+
+The `product_parsing` module allows you to import products from external sources (CSV or JSON) and sync them to Shopify using a configuration file to map fields.
+
+### 1. The Configuration File
+You need a JSON configuration file to tell the parser how to read your data. This file defines `mappings` between your source data columns and our internal schema.
+
+Example `config.json`:
+```json
+{
+  "provider_id": "my_vendor",
+  "mappings": [
+    {
+      "source": "Vendor SKU", 
+      "destination": "identifiers.sku",
+      "transforms": [{"name": "trim"}]
+    },
+    {
+      "source": "Item Cost", 
+      "destination": "pricing.cost",
+      "transforms": [{"name": "parse_price"}]
+    }
+  ]
+}
+```
+
+- **source**: The column header in your CSV or key in your JSON.
+- **destination**: Where it goes in our system (e.g., `identifiers.sku`, `pricing.cost`).
+- **transforms**: Optional list of actions to clean up data (e.g., `trim` removes whitespace, `parse_price` converts "$10.00" to numbers).
+
+### 2. Loading and Running
+
+Here is how you can use the pipeline in a script or Django shell:
+
+```python
+from product_parsing import load_records_from_json, run_pipeline
+from shopify_sync.models import Session
+
+# 1. Get your Shopify session
+session = Session.objects.first()
+
+# 2. Load your raw data (supports .json or .csv)
+records = load_records_from_json("path/to/products.csv")
+
+# 3. Run the pipeline
+# This parses the data using your config and syncs it to the database
+summary, report = run_pipeline(
+    records=records,
+    config_path="path/to/config.json",
+    session=session
+)
+
+print(f"Created: {summary.created}, Updated: {summary.updated}")
+```
+
 ## How to publish a new version
 
 Use [commitizen](https://commitizen-tools.github.io/commitizen/commands/bump/) via the [bin/publish.sh](bin/publish.sh) script.

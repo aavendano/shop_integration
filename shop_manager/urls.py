@@ -19,6 +19,8 @@ from django.urls import path, include
 
 
 urlpatterns = [
+    path('suppliers/', include('suppliers.urls')),
+    path('shopify/', include('shopify_sync.urls')),
     path('', include('core.urls')),
     path('admin/', admin.site.urls),
     #path('accounts/', include('accounts.urls')),

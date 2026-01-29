@@ -145,10 +145,10 @@ class ShopifyResourceManager(models.Manager):
 
         defaults = self.model.get_defaults(shopify_resource)
 
-        # Synchronise instance.
+        # Synchronise instance using shopify_id instead of id
         try:
             instance, created = self.update_or_create(
-                id=shopify_resource.id, defaults=defaults
+                shopify_id=shopify_resource.id, defaults=defaults
             )
         except (utils.IntegrityError, Session.DoesNotExist):
             # This means that there needs to be the session in the defaults
@@ -157,7 +157,7 @@ class ShopifyResourceManager(models.Manager):
             else:
                 defaults.update({"session": shopify_resource.session})
             instance, created = self.update_or_create(
-                id=shopify_resource.id,
+                shopify_id=shopify_resource.id,
                 defaults=defaults,
             )
         except Exception as e:
@@ -445,6 +445,14 @@ class ShopifyResourceModelBase(ChangedFields, models.Model):
         """
         defaults = {}
 
+        # Map Shopify's id to our shopify_id field
+        if hasattr(shopify_resource, 'id') and shopify_resource.id is not None:
+            defaults['shopify_id'] = shopify_resource.id
+
+        # Map admin_graphql_api_id if present
+        if hasattr(shopify_resource, 'admin_graphql_api_id'):
+            defaults['admin_graphql_api_id'] = getattr(shopify_resource, 'admin_graphql_api_id', '')
+
         # Set simple attributes that we simply need to copy across.
         for field in cls.get_default_fields():
             if hasattr(shopify_resource, field):
@@ -488,7 +496,7 @@ class ShopifyResourceModelBase(ChangedFields, models.Model):
         return (
             cls.get_related_field_names()
             + list(cls.get_child_fields().keys())  # python 3
-            + ["session", "model"]
+            + ["session", "model", "id", "shopify_id", "admin_graphql_api_id"]
         )
 
     @classmethod
@@ -621,6 +629,10 @@ class ShopifyResourceModelBase(ChangedFields, models.Model):
         instance.__dict__["session"] = self.session
         instance.__dict__["model"] = self
 
+        # Set the Shopify id from our shopify_id field
+        if hasattr(self, 'shopify_id') and self.shopify_id is not None:
+            instance.id = self.shopify_id
+
         # Copy across attributes.
         for default_field in self.get_default_fields():
             if hasattr(self, default_field):
@@ -682,11 +694,11 @@ class ShopifyResourceModelBase(ChangedFields, models.Model):
 
 
 class ShopifyResourceModel(ShopifyResourceModelBase):
-    id = models.BigIntegerField(
-        primary_key=True
-    )  # The numbers that shopify uses are too large
+    # Use Django's auto-incrementing id as primary key
+    # shopify_id stores the Shopify API ID (can be null for local-only records)
+    shopify_id = models.BigIntegerField(null=True, blank=True, db_index=True, unique=True)
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
-    admin_graphql_api_id = models.CharField(max_length=80)
+    admin_graphql_api_id = models.CharField(max_length=80, blank=True, default="")
 
     class Meta:
         abstract = True

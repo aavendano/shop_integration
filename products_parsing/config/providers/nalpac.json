@@ -1,0 +1,204 @@
+{
+  "provider_id": "nalpac",
+  "error_policy": "continue",
+  "mappings": [
+    {
+      "source": "SKU",
+      "destination": "identifiers.sku",
+      "transforms": [
+        {
+          "name": "trim"
+        }
+      ]
+    },
+    {
+      "source": "SKU",
+      "destination": "variants.0.sku",
+      "transforms": [
+        {
+          "name": "trim"
+        }
+      ]
+    },
+    {
+      "source": "Barcode",
+      "destination": "identifiers.upc_ean",
+      "transforms": [
+        {
+          "name": "trim"
+        }
+      ]
+    },
+    {
+      "source": "Barcode",
+      "destination": "variants.0.barcode",
+      "transforms": [
+        {
+          "name": "trim"
+        }
+      ]
+    },
+    {
+      "source": "MPN",
+      "destination": "identifiers.mpn",
+      "transforms": [
+        {
+          "name": "trim"
+        }
+      ]
+    },
+    {
+      "source": "Product Title",
+      "destination": "basic_info.title",
+      "transforms": [
+        {
+          "name": "trim"
+        }
+      ]
+    },
+    {
+      "source": "Product Description",
+      "destination": "basic_info.description_html"
+    },
+    {
+      "source": "Vendor",
+      "destination": "basic_info.brand",
+      "transforms": [
+        {
+          "name": "trim"
+        }
+      ]
+    },
+    {
+      "source": "Cost per item",
+      "destination": "pricing.cost",
+      "transforms": [
+        {
+          "name": "parse_price"
+        }
+      ]
+    },
+    {
+      "source": "Compare At Price",
+      "destination": "variants.0.compare_at_price",
+      "transforms": [
+        {
+          "name": "parse_price"
+        }
+      ]
+    },
+    {
+      "source": "Price",
+      "destination": "variants.0.price",
+      "transforms": [
+        {
+          "name": "parse_price"
+        }
+      ]
+    },
+    {
+      "source": "Inventory Quantity",
+      "destination": "variants.0.inventory_quantity"
+    },
+    {
+      "source": "Inventory Quantity__2",
+      "destination": "attributes.inventory_quantity_secondary"
+    },
+    {
+      "source": "Entrenue qty available",
+      "destination": "attributes.entrenue_qty_available"
+    },
+    {
+      "source": "Fluid Oz",
+      "destination": "attributes.fluid_oz"
+    },
+    {
+      "source": "Material",
+      "destination": "attributes.material"
+    },
+    {
+      "source": "Color",
+      "destination": "variants.0.option_values.color"
+    },
+    {
+      "source": "Size",
+      "destination": "variants.0.option_values.size"
+    },
+    {
+      "source": "Main Category",
+      "destination": "classification.category"
+    },
+    {
+      "source": "Sub-Category",
+      "destination": "attributes.sub_category"
+    },
+    {
+      "source": "Variant Image",
+      "destination": "media.images.0.url"
+    },
+    {
+      "source": "Image 2",
+      "destination": "media.images.1.url"
+    },
+    {
+      "source": "Image 3",
+      "destination": "media.images.2.url"
+    },
+    {
+      "source": "Image 4",
+      "destination": "media.images.3.url"
+    },
+    {
+      "source": "Image 5",
+      "destination": "media.images.4.url"
+    },
+    {
+      "source": "Image 6",
+      "destination": "media.images.5.url"
+    },
+    {
+      "source": "Image 7",
+      "destination": "media.images.6.url"
+    },
+    {
+      "source": "Image 8",
+      "destination": "media.images.7.url"
+    },
+    {
+      "source": "Image 9",
+      "destination": "media.images.8.url"
+    },
+    {
+      "source": "Image 10",
+      "destination": "media.images.9.url"
+    },
+    {
+      "source": "Fulfillment Service",
+      "destination": "attributes.fulfillment_service"
+    },
+    {
+      "source": "Inventory tracked",
+      "destination": "shopify"
+    },
+    {
+      "source": "Image URL",
+      "destination": "attributes.image_url_raw"
+    },
+    {
+      "source": "Variant Inventory Policy",
+      "destination": "attributes.variant_inventory_policy"
+    },
+    {
+      "source": "Variant Fulfillment Service",
+      "destination": "attributes.variant_fulfillment_service"
+    },
+    {
+      "source": "Requires Shipping",
+      "destination": "attributes.requires_shipping"
+    },
+    {
+      "source": "Variant Requires Shipping",
+      "destination": "attributes.variant_requires_shipping"
+    }
+  ]
+}

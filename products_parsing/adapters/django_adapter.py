@@ -4,10 +4,9 @@ import json
 from typing import Dict, Iterable, Optional
 
 from django.db import transaction
-from django.db.models import Min
 from django.utils.text import slugify
 
-from product_parsing.canonical.schema import (
+from products_parsing.canonical.schema import (
     CanonicalAttributes,
     CanonicalImage,
     CanonicalProduct,
@@ -76,16 +75,8 @@ def _upsert_product(record: CanonicalProduct, options: PersistOptions):
     defaults = _build_product_defaults(record)
 
     if product is None:
-        product_id = _next_local_id(Product)
-        defaults.update(
-            {
-                "id": product_id,
-                "session": options.session,
-                "admin_graphql_api_id": _build_admin_graphql_api_id(
-                    "Product", product_id
-                ),
-            }
-        )
+        # Let Django auto-generate the id
+        defaults.update({"session": options.session})
         product = Product.objects.create(**defaults)
         return product, True
 
@@ -174,13 +165,9 @@ def _sync_variants(
             ).first()
 
         if variant is None:
-            variant_id = _next_local_id(Variant)
+            # Let Django auto-generate the id
             variant = Variant(
-                id=variant_id,
                 session=options.session,
-                admin_graphql_api_id=_build_admin_graphql_api_id(
-                    "ProductVariant", variant_id
-                ),
                 product=product,
             )
             created += 1
@@ -221,11 +208,9 @@ def _sync_images(
             continue
         image = Image.objects.filter(product=product, src=image_record.url).first()
         if image is None:
-            image_id = _next_local_id(Image)
+            # Let Django auto-generate the id
             image = Image(
-                id=image_id,
                 session=product.session,
-                admin_graphql_api_id=_build_admin_graphql_api_id("Image", image_id),
                 product=product,
             )
             created += 1
@@ -259,13 +244,9 @@ def _sync_metafields(
         ).first()
 
         if metafield is None:
-            metafield_id = _next_local_id(Metafield)
+            # Let Django auto-generate the id
             metafield = Metafield(
-                id=metafield_id,
                 session=product.session,
-                admin_graphql_api_id=_build_admin_graphql_api_id(
-                    "Metafield", metafield_id
-                ),
                 product=product,
                 owner_id=product.id,
                 owner_resource=Metafield.OWNER_RESOURCE_PRODUCT,
@@ -294,15 +275,6 @@ def _serialize_value(value: object) -> str:
         return str(value)
 
 
-def _next_local_id(model) -> int:
-    minimum = model.objects.aggregate(Min("id")).get("id__min")
-    if minimum is None or minimum >= 0:
-        return -1
-    return minimum - 1
-
-
-def _build_admin_graphql_api_id(resource: str, identifier: int) -> str:
-    return f"gid://shopify/{resource}/local-{abs(identifier)}"
 
 
 def _safe_decimal(value: Optional[Decimal]) -> Decimal:

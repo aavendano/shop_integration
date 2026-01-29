@@ -1,0 +1,143 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{% url 'shopify_sync:product_list' %}">Products</a></li>
+                <li><a href="{% url 'shopify_sync:product_detail' product.pk %}">{{ product.title|truncatechars:30
+                        }}</a></li>
+                <li class="is-active"><a href="#" aria-current="page">{{ action }} Variant</a></li>
+            </ul>
+        </nav>
+
+        <div class="box">
+            <h1 class="title">{{ action }} Variant</h1>
+            <h2 class="subtitle is-6 has-text-grey">{{ product.title }}</h2>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="columns">
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label">SKU</label>
+                            <div class="control">
+                                {{ form.sku }}
+                            </div>
+                            {% if form.sku.errors %}
+                            <p class="help is-danger">{{ form.sku.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Title</label>
+                            <div class="control">
+                                {{ form.title }}
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Price</label>
+                            <div class="control has-icons-left">
+                                {{ form.price }}
+                                <span class="icon is-left">
+                                    <i data-lucide="dollar-sign"></i>
+                                </span>
+                            </div>
+                            {% if form.price.errors %}
+                            <p class="help is-danger">{{ form.price.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Compare At Price</label>
+                            <div class="control has-icons-left">
+                                {{ form.compare_at_price }}
+                                <span class="icon is-left">
+                                    <i data-lucide="dollar-sign"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Inventory Quantity</label>
+                            <div class="control">
+                                {{ form.inventory_quantity }}
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Barcode</label>
+                            <div class="control">
+                                {{ form.barcode }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label">Weight (grams)</label>
+                            <div class="control">
+                                {{ form.grams }}
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Option 1</label>
+                            <div class="control">
+                                {{ form.option1 }}
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Option 2</label>
+                            <div class="control">
+                                {{ form.option2 }}
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Option 3</label>
+                            <div class="control">
+                                {{ form.option3 }}
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="checkbox">
+                                {{ form.requires_shipping }}
+                                Requires Shipping
+                            </label>
+                        </div>
+
+                        <div class="field">
+                            <label class="checkbox">
+                                {{ form.taxable }}
+                                Taxable
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button type="submit" class="button is-primary">
+                            <span class="icon">
+                                <i data-lucide="save"></i>
+                            </span>
+                            <span>Save Variant</span>
+                        </button>
+                    </div>
+                    <div class="control">
+                        <a href="{% url 'shopify_sync:product_detail' product.pk %}" class="button is-light">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

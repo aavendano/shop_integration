@@ -1,8 +1,8 @@
 from typing import Any, Dict, Iterable, Iterator, List, Optional
 
-from product_parsing.canonical.schema import CanonicalProduct
-from product_parsing.config.loader import ProviderConfig
-from product_parsing.transforms import apply_transform
+from products_parsing.canonical.schema import CanonicalProduct
+from products_parsing.config.loader import ProviderConfig
+from products_parsing.transforms import apply_transform
 
 from .errors import ParseError, ParseFailure, ParseReport
 
@@ -199,12 +199,12 @@ def _parse_index(raw: str):
 
 
 def _new_variant():
-    from product_parsing.canonical.schema import CanonicalVariant
+    from products_parsing.canonical.schema import CanonicalVariant
 
     return CanonicalVariant()
 
 
 def _new_image():
-    from product_parsing.canonical.schema import CanonicalImage
+    from products_parsing.canonical.schema import CanonicalImage
 
     return CanonicalImage()

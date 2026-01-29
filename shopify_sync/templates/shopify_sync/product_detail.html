@@ -1,0 +1,160 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{% url 'shopify_sync:product_list' %}">Products</a></li>
+                <li class="is-active"><a href="#" aria-current="page">{{ product.title }}</a></li>
+            </ul>
+        </nav>
+
+        <div class="box">
+            <h1 class="title">{{ product.title }}</h1>
+            <h2 class="subtitle is-6 has-text-grey">{{ product.vendor|default:"No vendor" }}</h2>
+
+            <div class="columns">
+                <div class="column is-6">
+                    <div class="field">
+                        <label class="label">Product Type</label>
+                        <div class="control">
+                            <p>{{ product.product_type|default:"—" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">Handle</label>
+                        <div class="control">
+                            <p>{{ product.handle }}</p>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">Tags</label>
+                        <div class="control">
+                            <p>{{ product.tags|default:"—" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="column is-6">
+                    <div class="field">
+                        <label class="label">Published At</label>
+                        <div class="control">
+                            <p>{{ product.published_at|date:"M d, Y H:i"|default:"Not published" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">Created At</label>
+                        <div class="control">
+                            <p>{{ product.created_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">Updated At</label>
+                        <div class="control">
+                            <p>{{ product.updated_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if product.body_html %}
+            <div class="field">
+                <label class="label">Description</label>
+                <div class="content">
+                    {{ product.body_html|safe }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Variants Section -->
+        <div class="box">
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h2 class="title is-4">Variants</h2>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <a href="{% url 'shopify_sync:variant_create' product.pk %}" class="button is-primary is-small">
+                            <span class="icon">
+                                <i data-lucide="plus"></i>
+                            </span>
+                            <span>Add Variant</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {% if product.variant_set.exists %}
+            <div class="table-container">
+                <table class="table is-fullwidth is-hoverable is-striped">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Title</th>
+                            <th>Price</th>
+                            <th>Compare At</th>
+                            <th>Inventory</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for variant in product.variant_set.all %}
+                        <tr>
+                            <td><code>{{ variant.sku|default:"—" }}</code></td>
+                            <td>{{ variant.title|default:"Default" }}</td>
+                            <td>${{ variant.price }}</td>
+                            <td>{% if variant.compare_at_price %}${{ variant.compare_at_price }}{% else %}—{% endif %}
+                            </td>
+                            <td>{{ variant.inventory_quantity|default:"—" }}</td>
+                            <td>
+                                <div class="buttons are-small">
+                                    <a href="{% url 'shopify_sync:variant_update' product.pk variant.pk %}"
+                                        class="button is-info is-outlined" title="Edit">
+                                        <span class="icon">
+                                            <i data-lucide="pencil"></i>
+                                        </span>
+                                    </a>
+                                    <a href="{% url 'shopify_sync:variant_delete' product.pk variant.pk %}"
+                                        class="button is-danger is-outlined" title="Delete">
+                                        <span class="icon">
+                                            <i data-lucide="trash-2"></i>
+                                        </span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="notification is-light">
+                <p class="has-text-grey">No variants found for this product.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="level">
+            <div class="level-left"></div>
+            <div class="level-right">
+                <div class="level-item">
+                    <a href="{% url 'shopify_sync:product_list' %}" class="button is-light">
+                        <span class="icon">
+                            <i data-lucide="arrow-left"></i>
+                        </span>
+                        <span>Back to List</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

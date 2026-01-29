@@ -4,10 +4,10 @@ import json
 from pathlib import Path
 from typing import Iterable, Tuple
 
-from product_parsing.adapters import PersistOptions, PersistSummary, persist_records
-from product_parsing.adapters.django_adapter import DEFAULT_NAMESPACE
-from product_parsing.config.loader import ProviderConfig, load_provider_config
-from product_parsing.parser import ParseReport, parse_records
+from products_parsing.adapters import PersistOptions, PersistSummary, persist_records
+from products_parsing.adapters.django_adapter import DEFAULT_NAMESPACE
+from products_parsing.config.loader import ProviderConfig, load_provider_config
+from products_parsing.parser import ParseReport, parse_records
 
 
 def run_pipeline(

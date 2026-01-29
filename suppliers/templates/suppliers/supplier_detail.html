@@ -1,0 +1,143 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{% url 'suppliers:supplier_list' %}">Suppliers</a></li>
+                <li class="is-active"><a href="#" aria-current="page">{{ supplier.name }}</a></li>
+            </ul>
+        </nav>
+
+        <div class="box">
+            <h1 class="title">{{ supplier.name }}</h1>
+            <h2 class="subtitle is-6 has-text-grey">{{ supplier.code }}</h2>
+
+
+            <div class="field">
+                <label class="label">Product Data Source</label>
+                <div class="control">
+                    {% if supplier.product_data_source and supplier.product_data_source != '' %}
+                    <a href="{{ supplier.product_data_source }}" target="_blank" class="button is-text is-small pl-0">
+                        {{ supplier.product_data_source }}
+                        <span class="icon is-small ml-1"><i data-lucide="external-link"></i></span>
+                    </a>
+                    {% else %}
+                    <p class="has-text-grey-light">N/A</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Inventory Data Source</label>
+                <div class="control">
+                    {% if supplier.inventory_data_source %}
+                    <a href="{{ supplier.inventory_data_source }}" target="_blank" class="button is-text is-small pl-0">
+                        {{ supplier.inventory_data_source }}
+                        <span class="icon is-small ml-1"><i data-lucide="external-link"></i></span>
+                    </a>
+                    {% else %}
+                    <p class="has-text-grey-light">N/A</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Product Import Form -->
+        <div class="box mt-5">
+            <h3 class="title is-5">Import Products</h3>
+            <p class="subtitle is-6 has-text-grey">Upload a CSV file to import products from this supplier</p>
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="notification {% if message.tags %}is-{{ message.tags }}{% endif %}">
+                <button class="delete"></button>
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="field">
+                    <label class="label">{{ import_form.product_data_file.label }}</label>
+                    <div class="file has-name is-fullwidth">
+                        <label class="file-label">
+                            <input class="file-input" type="file" name="product_data_file" accept=".csv"
+                                id="id_product_data_file">
+                            <span class="file-cta">
+                                <span class="file-icon">
+                                    <i data-lucide="upload"></i>
+                                </span>
+                                <span class="file-label">
+                                    Choose a file…
+                                </span>
+                            </span>
+                            <span class="file-name" id="file-name">
+                                No file selected
+                            </span>
+                        </label>
+                    </div>
+                    <p class="help">{{ import_form.product_data_file.help_text }}</p>
+                    {% if import_form.product_data_file.errors %}
+                    <p class="help is-danger">{{ import_form.product_data_file.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="field">
+                    <div class="control">
+                        <button type="submit" class="button is-primary">
+                            <span class="icon">
+                                <i data-lucide="file-input"></i>
+                            </span>
+                            <span>Import Products</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <hr>
+
+        <div class="level">
+            <div class="level-left">
+                <div class="level-item">
+                    <p class="is-size-7 has-text-grey">
+                        Created: {{ supplier.created_at|date:"M d, Y" }}
+                    </p>
+                </div>
+            </div>
+            <div class="level-right">
+                <div class="level-item">
+                    <a href="{% url 'suppliers:supplier_list' %}" class="button is-light">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    // Update file name display when file is selected
+    const fileInput = document.getElementById('id_product_data_file');
+    if (fileInput) {
+        fileInput.addEventListener('change', function (e) {
+            const fileName = e.target.files[0]?.name || 'No file selected';
+            document.getElementById('file-name').textContent = fileName;
+        });
+    }
+
+    // Auto-dismiss notifications
+    document.addEventListener('DOMContentLoaded', () => {
+        (document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
+            const $notification = $delete.parentNode;
+            $delete.addEventListener('click', () => {
+                $notification.parentNode.removeChild($notification);
+            });
+        });
+    });
+</script>
+{% endblock %}

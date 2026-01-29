@@ -1,0 +1,71 @@
+{% load static %}
+<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="{% url 'core:home' %}">
+            <strong>Shop Integration</strong>
+        </a>
+
+        <!-- Burger button for mobile -->
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="navbarMenu" class="navbar-menu">
+        <div class="navbar-start">
+
+        </div>
+        <div class="navbar-end"">
+            {% if user.is_authenticated %}
+            <span class=" navbar-item is-light is-static">{{ user.username | title }}</span>
+            {% endif %}
+            <div class="navbar-item has-dropdown" x-data="{ open: false }" :class="open ? ' is-active' : '' ">
+                <a class="navbar-link is-arrowless" @click="open = !open">
+                    <i data-lucide="settings" style="width: 18px; height: 18px; margin-right: 5px;"></i>
+                </a>
+
+                <div class="navbar-dropdown is-right">
+
+                    <a class="navbar-item" href="{% url 'core:session_list' %}">
+                        Sessions
+                    </a>
+                    <a class="navbar-item" href="{% url 'suppliers:supplier_list' %}">
+                        Suppliers
+                    </a>
+                    <hr class="navbar-divider">
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'core:logout' %}" class="button is-ghost">Logout</a>
+                            {% else %}
+                            <a href="{% url 'core:login' %}" class="button is-ghost">Login</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Get all "navbar-burger" elements
+        const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+        // Add a click event on each of them
+        $navbarBurgers.forEach(el => {
+            el.addEventListener('click', () => {
+                // Get the target from the "data-target" attribute
+                const target = el.dataset.target;
+                const $target = document.getElementById(target);
+
+                // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                el.classList.toggle('is-active');
+                $target.classList.toggle('is-active');
+            });
+        });
+    });
+</script>

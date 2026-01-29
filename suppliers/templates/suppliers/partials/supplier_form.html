@@ -1,0 +1,60 @@
+<h2 class="title is-4">{{ title }}</h2>
+
+<form method="post" hx-post="{{ request.path }}">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="notification is-danger">
+        {{ form.non_field_errors }}
+    </div>
+    {% endif %}
+
+    <div class="field">
+        <label class="label">Name</label>
+        <div class="control">
+            {{ form.name }}
+        </div>
+        {% if form.name.errors %}
+        <p class="help is-danger">{{ form.name.errors.0 }}</p>
+        {% endif %}
+    </div>
+
+    <div class="field">
+        <label class="label">Code</label>
+        <div class="control">
+            {{ form.code }}
+        </div>
+        {% if form.code.errors %}
+        <p class="help is-danger">{{ form.code.errors.0 }}</p>
+        {% endif %}
+    </div>
+
+    <div class="field">
+        <label class="label">Product Data Source</label>
+        <div class="control">
+            {{ form.product_data_source }}
+        </div>
+        {% if form.product_data_source.errors %}
+        <p class="help is-danger">{{ form.product_data_source.errors.0 }}</p>
+        {% endif %}
+    </div>
+
+    <div class="field">
+        <label class="label">Inventory Data Source</label>
+        <div class="control">
+            {{ form.inventory_data_source }}
+        </div>
+        {% if form.inventory_data_source.errors %}
+        <p class="help is-danger">{{ form.inventory_data_source.errors.0 }}</p>
+        {% endif %}
+    </div>
+
+    <div class="field is-grouped is-grouped-right mt-4">
+        <div class="control">
+            <button type="button" class="button" @click="modalOpen = false">Cancel</button>
+        </div>
+        <div class="control">
+            <button type="submit" class="button is-primary">Save</button>
+        </div>
+    </div>
+</form>

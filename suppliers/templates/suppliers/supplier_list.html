@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="section" x-data="{ modalOpen: false, modalContent: '' }">
+    <div class="container">
+        <div class="level">
+            <div class="level-left">
+                <div class="level-item">
+                    <h1 class="title">Suppliers</h1>
+                </div>
+            </div>
+            <div class="level-right">
+                <div class="level-item">
+                    <!-- HTMX button to fetch Create form and open modal -->
+                    <button class="button is-primary" @click="modalOpen = true"
+                        hx-get="{% url 'suppliers:supplier_create' %}" hx-target="#modal-content" hx-swap="innerHTML">
+                        Add Supplier
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="box">
+            <table class="table is-fullwidth is-striped is-hoverable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Data Source</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for supplier in suppliers %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">
+                                <strong>{{ supplier.name }}</strong>
+                            </a>
+                        </td>
+                        <td>{{ supplier.code }}</td>
+                        <td>
+                            {% if supplier.data_source %}
+                            <a href="{{ supplier.data_source }}" target="_blank">Link</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="buttons are-small">
+                                <!-- Edit Button -->
+                                <button class="button is-info is-light" @click="modalOpen = true"
+                                    hx-get="{% url 'suppliers:supplier_update' pk=supplier.pk %}"
+                                    hx-target="#modal-content" hx-swap="innerHTML">
+                                    Edit
+                                </button>
+                                <!-- Delete Button -->
+                                <button class="button is-danger is-light" @click="modalOpen = true"
+                                    hx-get="{% url 'suppliers:supplier_delete' pk=supplier.pk %}"
+                                    hx-target="#modal-content" hx-swap="innerHTML">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="has-text-centered text-muted">Thinking... No suppliers found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Template -->
+    <div class="modal" :class="{'is-active': modalOpen}">
+        <div class="modal-background" @click="modalOpen = false"></div>
+        <div class="modal-content">
+            <div class="box" id="modal-content">
+                <!-- Content loaded via HTMX -->
+                <p class="has-text-centered">Loading...</p>
+            </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close" @click="modalOpen = false"></button>
+    </div>
+</div>
+{% endblock %}
