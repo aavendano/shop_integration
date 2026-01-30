@@ -30,8 +30,8 @@ class ProductSyncView(View):
     def post(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         try:
-            # Trigger push to Shopify
-            product.save(push=True)
+            # Export product and its children to Shopify
+            product.export_to_shopify()
             messages.success(request, f'Product "{product.title}" synchronized successfully with Shopify.')
         except Exception as e:
             messages.error(request, f'Failed to synchronize product "{product.title}": {str(e)}')

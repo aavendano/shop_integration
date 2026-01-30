@@ -6,25 +6,27 @@ Este documento describe las capacidades, el onboarding y la configuración oblig
 
 - Python 3.x y Django 4.2+ (según el README del paquete).【F:README.md†L12-L12】
 - Acceso al panel de administración de Shopify y una app privada/pública con:
-  - `SHOPIFY_APP_API_KEY`
-  - `SHOPIFY_APP_API_SECRET`
-  - Alcances (`SHOPIFY_APP_API_SCOPE`)
-  - Versión de API (`SHOPIFY_APP_API_VERSION`)
+    - `SHOPIFY_APP_API_KEY`
+    - `SHOPIFY_APP_API_SECRET`
+    - Alcances (`SHOPIFY_APP_API_SCOPE`)
+    - Versión de API (`SHOPIFY_APP_API_VERSION`)
 
 ## Mapa rápido de capacidades
 
 ### `shopify_auth`
 
 **¿Qué hace?**
+
 - Implementa un flujo OAuth clásico con vistas de `login`, `authenticate` y `finalize` para autenticar tiendas Shopify y obtener tokens de acceso.【F:shopify_auth/urls.py†L1-L7】【F:shopify_auth/views.py†L19-L83】
-- Expone un *context processor* para inyectar `SHOPIFY_APP_NAME`, `SHOPIFY_APP_API_KEY` y `SHOPIFY_APP_DEV_MODE` en plantillas.【F:shopify_auth/context_processors.py†L1-L9】
+- Expone un _context processor_ para inyectar `SHOPIFY_APP_NAME`, `SHOPIFY_APP_API_KEY` y `SHOPIFY_APP_DEV_MODE` en plantillas.【F:shopify_auth/context_processors.py†L1-L9】
 - Incluye un backend de autenticación (`ShopUserBackend`) para persistir el token del usuario autenticado.【F:shopify_auth/backends.py†L1-L15】
 - Incluye `AbstractShopUser` para construir un usuario asociado a `myshopify_domain` y `token`, además de sesiones Shopify temporales.【F:shopify_auth/models.py†L30-L69】
-- Posee un *check* que valida `SHOPIFY_AUTH_BOUNCE_PAGE_URL` en settings.【F:shopify_auth/checks.py†L1-L24】
+- Posee un _check_ que valida `SHOPIFY_AUTH_BOUNCE_PAGE_URL` en settings.【F:shopify_auth/checks.py†L1-L24】
 
 ### `shopify_webhook`
 
 **¿Qué hace?**
+
 - Provee un `WebhookView` para recibir webhooks con verificación de HMAC, y dispara señales genéricas y específicas por tópico (`orders_create`, `products_update`, etc.).【F:shopify_webhook/views.py†L10-L39】【F:shopify_webhook/signals.py†L1-L45】
 - Ofrece decoradores para validar webhooks (`@webhook`), peticiones de Carrier Services (`@carrier_request`) y App Proxy (`@app_proxy`).【F:shopify_webhook/decorators.py†L14-L100】
 - Incluye utilidades para cálculo de HMAC y firma de App Proxy; permite desactivar validación de App Proxy con `SKIP_APP_PROXY_VALIDATION` (por defecto respeta `DEBUG`).【F:shopify_webhook/helpers.py†L13-L64】
@@ -32,6 +34,7 @@ Este documento describe las capacidades, el onboarding y la configuración oblig
 ### `shopify_sync`
 
 **¿Qué hace?**
+
 - Sincroniza recursos de Shopify con modelos locales mediante `ShopifyResourceManager` y métodos `sync_one`, `sync_many`, `sync_all` (entre otros).【F:shopify_sync/models/base.py†L54-L214】
 - Usa un modelo `Session` que contiene el token y el sitio Shopify, y lo convierte en sesiones del SDK de Shopify para activar peticiones autenticadas.【F:shopify_sync/models/session.py†L8-L65】
 - Escucha la señal genérica `webhook_received` de `shopify_webhook` y sincroniza automáticamente cuando llegan webhooks válidos.【F:shopify_sync/apps.py†L1-L24】【F:shopify_sync/handlers.py†L1-L63】
@@ -112,6 +115,7 @@ urlpatterns = [
 ```
 
 Las vistas disponibles son:
+
 - `/auth/` → login (renderiza template si falta `shop`).【F:shopify_auth/views.py†L19-L44】
 - `/auth/authenticate/` → redirige a Shopify para OAuth.【F:shopify_auth/views.py†L47-L71】
 - `/auth/finalize/` → intercambia `code` por token y autentica usuario.【F:shopify_auth/views.py†L74-L83】
@@ -170,6 +174,7 @@ También puedes modificar un recurso local y subirlo con `push=True` al guardar,
 ### `shopify_auth`
 
 **Obligatorias**
+
 - `SHOPIFY_APP_NAME` (nombre visible en UI de login).【F:shopify_auth/context_processors.py†L1-L9】
 - `SHOPIFY_APP_API_KEY` y `SHOPIFY_APP_API_SECRET` (OAuth y validación).【F:shop_manager/settings.py†L112-L118】
 - `SHOPIFY_APP_API_SCOPE` (permisos).【F:shop_manager/settings.py†L119-L119】
@@ -178,6 +183,7 @@ También puedes modificar un recurso local y subirlo con `push=True` al guardar,
 - `LOGIN_REDIRECT_URL` (destino tras login).【F:shop_manager/settings.py†L152-L154】
 
 **Opcionales**
+
 - `SHOPIFY_APP_DEV_MODE`: en `True`, `authenticate` omite OAuth y usa token fijo (`000...`). Ideal para desarrollo local.【F:shopify_auth/views.py†L47-L59】
 - `SECURE_PROXY_SSL_HEADER`: recomendado si usas proxy o túneles SSL.【F:shop_manager/settings.py†L155-L160】
 - `AUTHENTICATION_BACKENDS`: si usas `ShopUserBackend` para persistir token de Shopify.【F:shopify_auth/backends.py†L1-L15】
@@ -185,20 +191,24 @@ También puedes modificar un recurso local y subirlo con `push=True` al guardar,
 ### `shopify_webhook`
 
 **Obligatorias**
+
 - `SHOPIFY_APP_API_SECRET` (para validar HMAC de webhooks y firmas).【F:shopify_webhook/decorators.py†L33-L60】【F:shopify_webhook/helpers.py†L13-L31】
 
 **Opcionales**
+
 - `SKIP_APP_PROXY_VALIDATION`: si está activo, deshabilita validación de firma de App Proxy (default sigue `DEBUG`).【F:shopify_webhook/helpers.py†L43-L64】
 - `LIQUID_TEMPLATE_CONTENT_TYPE`: sobrescribe el content-type para `LiquidTemplateView` (default `application/liquid; charset=utf-8`).【F:shopify_webhook/views.py†L41-L55】
 
 ### `shopify_sync`
 
 **Obligatorias**
+
 - Al menos una entrada en `shopify_sync.Session` con `token` y `site`.【F:shopify_sync/models/session.py†L8-L25】
 - `SHOPIFY_APP_API_VERSION` para construir sesiones de Shopify (aplica también a `shopify_auth`).【F:shopify_sync/models/session.py†L6-L12】
 
 **Opcionales**
-- `SHOPIFY_API_PAGE_LIMIT` (default 250) puede ajustarse en `shopify_sync.__init__` si necesitas paginación distinta.【F:shopify_sync/__init__.py†L1-L3】
+
+- `SHOPIFY_API_PAGE_LIMIT` (default 250) puede ajustarse en `shopify_sync.__init__` si necesitas paginación distinta.【F:shopify_sync/**init**.py†L1-L3】
 
 ## Flujo recomendado de desarrollo
 

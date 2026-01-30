@@ -16,7 +16,9 @@
     <!-- Mobile menu -->
     <div id="navbarMenu" class="navbar-menu">
         <div class="navbar-start">
-
+            <a class="navbar-item" href="{% url 'shopify_sync:product_list' %}">
+                Products
+            </a>
         </div>
         <div class="navbar-end"">
             {% if user.is_authenticated %}

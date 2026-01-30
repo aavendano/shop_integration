@@ -11,7 +11,8 @@ from shopify_sync.models import Session
 
 class GraphQLClientThrottleTests(TestCase):
     def test_throttle_waits_for_capacity(self):
-        session = Session.objects.create(site="test.myshopify.com", token="TESTTOKEN")
+        session = Session.objects.create(
+            site="test.myshopify.com", token="TESTTOKEN")
         client = ShopifyGraphQLClient(session, min_available=50)
         extensions = {
             "cost": {
@@ -116,10 +117,12 @@ class InventoryServiceTests(TestCase):
         ):
             count = inventory_service.sync_location_inventory_levels(location)
         self.assertEqual(count, 1)
-        level = InventoryLevel.objects.get(location=location, inventory_item_id=77)
+        level = InventoryLevel.objects.get(
+            location=location, inventory_item_id=77)
         self.assertEqual(level.quantities["available"], 12)
         self.assertFalse(level.sync_pending)
-        self.assertEqual(level.source_updated_at.isoformat(), "2025-02-20T03:00:00+00:00")
+        self.assertEqual(level.source_updated_at.isoformat(),
+                         "2025-02-20T03:00:00+00:00")
         self.assertTrue(level.synced_at >= now)
         location.refresh_from_db()
         self.assertIsNotNone(location.last_inventory_sync_at)

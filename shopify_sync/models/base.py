@@ -107,10 +107,15 @@ class ShopifyResourceManager(models.Manager):
             # We need to take the session form the parent
             shopify_resource.session = caller.session
             msg += " - called by parent resource '%s'" % str(caller)
-        else:
+        elif not hasattr(shopify_resource, "session") or shopify_resource.session is None:
             shopify_resource.session = Session.objects.first()
 
         log.debug(msg + ", site '%s'" % shopify_resource.session.site)
+
+        if isinstance(shopify_resource.session, ShopifySession):
+            session_model = shopify_resource.session.model
+        else:
+            session_model = shopify_resource.session
 
         # Not sync the related fields if we are not doing the children
         if sync_children:
@@ -148,7 +153,9 @@ class ShopifyResourceManager(models.Manager):
         # Synchronise instance using shopify_id instead of id
         try:
             instance, created = self.update_or_create(
-                shopify_id=shopify_resource.id, defaults=defaults
+                shopify_id=shopify_resource.id,
+                session=session_model,
+                defaults=defaults,
             )
         except (utils.IntegrityError, Session.DoesNotExist):
             # This means that there needs to be the session in the defaults
@@ -158,6 +165,7 @@ class ShopifyResourceManager(models.Manager):
                 defaults.update({"session": shopify_resource.session})
             instance, created = self.update_or_create(
                 shopify_id=shopify_resource.id,
+                session=defaults["session"],
                 defaults=defaults,
             )
         except Exception as e:
@@ -334,6 +342,10 @@ class ShopifyResourceManager(models.Manager):
             raise AttributeError(
                 "Cannot have 'create' kwarg be True withouthaving 'force' also be True."
             )
+        if instance.shopify_id is None and not force:
+            # Ensure we don't take the "no changes" shortcut when the record has
+            # never been linked to a Shopify ID.
+            force = True
         session = instance.session
         # We don't need to push to shopify if there is nothing that has
         # changed. We still do a sync with shopify. If we do have a create flag
@@ -428,6 +440,42 @@ class ShopifyResourceModelBase(ChangedFields, models.Model):
     objects = ShopifyResourceManager()
 
     json_encoder = DjangoJSONEncoder()
+
+    def export_to_shopify(
+        self,
+        sync_children=False,
+        clean_parent_id=False,
+        *args,
+        **kwargs,
+    ):
+        """
+        Export this local instance to Shopify (create or update).
+        Returns the synced local instance.
+        """
+        session = self.session
+        shopify_resource = self.to_shopify_resource()
+
+        if clean_parent_id and self.parent_field:
+            shopify_resource.attributes.pop(self.parent_field, None)
+
+        if self.shopify_id is None:
+            shopify_resource = self.clean_for_post(shopify_resource)
+
+        with activate_session(shopify_resource, session=session) as shopify_resource:
+            successful = shopify_resource.save()
+
+        if not successful:
+            message = "[Shopify API Errors]: {}".format(
+                ",\n".join(shopify_resource.errors.full_messages())
+            )
+            log.error(message)
+            raise Exception(message)
+
+        with activate_session(shopify_resource, session=session) as shopify_resource:
+            shopify_resource.reload()
+            return self.manager.sync_one(
+                shopify_resource, sync_children=sync_children, *args, **kwargs
+            )
 
     @property
     def klass(self):

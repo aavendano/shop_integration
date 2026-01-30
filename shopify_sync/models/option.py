@@ -14,3 +14,9 @@ class Option(ShopifyResourceModel):
 
     class Meta:
         app_label = "shopify_sync"
+
+    @property
+    def _prefix_options(self):
+        if self.product and self.product.shopify_id:
+            return {"product_id": self.product.shopify_id}
+        return {}

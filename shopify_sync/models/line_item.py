@@ -38,16 +38,49 @@ class LineItem(ShopifyResourceModel):
 
     def fix_ids(self):
         from . import Product
+        from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+        import logging
+        
+        logger = logging.getLogger(__name__)
+        
+        # If product_id is already set, use it to get the product
+        if self.product_id:
+            try:
+                product = Product.objects.get(id=self.product_id)
+            except ObjectDoesNotExist:
+                logger.error(f"Product with id {self.product_id} not found for LineItem {self.id}")
+                return
+        else:
+            # Try to find product by title, but handle multiple matches
+            try:
+                product = Product.objects.get(title=self.title)
+                self.product_id = product.id
+            except MultipleObjectsReturned:
+                logger.error(
+                    f"Multiple products found with title '{self.title}'. "
+                    f"Cannot determine correct product for LineItem {self.id}. "
+                    f"Please set product_id manually."
+                )
+                return
+            except ObjectDoesNotExist:
+                logger.error(f"No product found with title '{self.title}' for LineItem {self.id}")
+                return
 
-        product = Product.objects.get(title=self.title)
-        self.product_id = product.id
-
+        # Fix variant_id
         if len(product.variants) == 1:
             self.variant_id = product.variants[0].id
         else:
             # there is more than one variant, so we look up the title
-            variant = product.variant_set.get(title=self.variant_title)
-            self.variant_id = variant.id
+            try:
+                variant = product.variant_set.get(title=self.variant_title)
+                self.variant_id = variant.id
+            except (MultipleObjectsReturned, ObjectDoesNotExist) as e:
+                logger.error(
+                    f"Could not find unique variant with title '{self.variant_title}' "
+                    f"for product '{product.title}': {str(e)}"
+                )
+                return
+        
         self.save()
 
     def __str__(self):

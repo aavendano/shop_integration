@@ -65,7 +65,8 @@ def _persist_one(
         summary.images_created += created
         summary.images_updated += updated
         if options.sync_metafields:
-            created_count, updated_count = _sync_metafields(product, record, options)
+            created_count, updated_count = _sync_metafields(
+                product, record, options)
             summary.metafields_created += created_count
             summary.metafields_updated += updated_count
 
@@ -94,7 +95,8 @@ def _build_product_defaults(record: CanonicalProduct) -> Dict[str, object]:
         or record.classification.category
         or DEFAULT_PRODUCT_TYPE
     )
-    tags = ", ".join(record.classification.tags) if record.classification.tags else ""
+    tags = ", ".join(
+        record.classification.tags) if record.classification.tags else ""
 
     return {
         "title": title,
@@ -189,7 +191,8 @@ def _update_variant_fields(variant: Variant, record: CanonicalVariant) -> None:
     variant.inventory_quantity = record.inventory_quantity
     variant.grams = 0
 
-    options = list(record.option_values.values()) if record.option_values else []
+    options = list(record.option_values.values()
+                   ) if record.option_values else []
     variant.option1 = options[0] if len(options) > 0 else None
     variant.option2 = options[1] if len(options) > 1 else None
     variant.option3 = options[2] if len(options) > 2 else None
@@ -206,7 +209,8 @@ def _sync_images(
     for image_record in record.media.images:
         if not image_record.url:
             continue
-        image = Image.objects.filter(product=product, src=image_record.url).first()
+        image = Image.objects.filter(
+            product=product, src=image_record.url).first()
         if image is None:
             # Let Django auto-generate the id
             image = Image(
@@ -273,8 +277,6 @@ def _serialize_value(value: object) -> str:
         return json.dumps(value, ensure_ascii=True)
     except TypeError:
         return str(value)
-
-
 
 
 def _safe_decimal(value: Optional[Decimal]) -> Decimal:

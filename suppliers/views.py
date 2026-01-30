@@ -8,10 +8,12 @@ import tempfile
 from .models import Supplier
 from .forms import SupplierForm, ProductImportForm
 
+
 class SupplierListView(ListView):
     model = Supplier
     template_name = 'suppliers/supplier_list.html'
     context_object_name = 'suppliers'
+
 
 class SupplierDetailView(DetailView):
     model = Supplier
@@ -26,67 +28,74 @@ class SupplierDetailView(DetailView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = ProductImportForm(request.POST, request.FILES)
-        
+
         if form.is_valid():
             uploaded_file = request.FILES['product_data_file']
-            
+
             # Save file temporarily
             with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmp_file:
                 for chunk in uploaded_file.chunks():
                     tmp_file.write(chunk)
                 tmp_path = tmp_file.name
-            
+
             try:
                 # Import the parsing functions
                 from products_parsing.pipeline import load_records_from_json, run_pipeline
-                
+
                 # Load records from the CSV file
                 records = load_records_from_json(tmp_path)
-                
+
                 # Determine config path based on supplier code
-                config_path = Path(__file__).parent.parent / 'products_parsing' / 'config' / 'providers' / f'{self.object.code}.json'
-                
+                config_path = Path(__file__).parent.parent / 'products_parsing' / \
+                    'config' / 'providers' / f'{self.object.code}.json'
+
                 if not config_path.exists():
-                    messages.error(request, f'Configuration file not found for supplier: {self.object.code}')
+                    messages.error(
+                        request, f'Configuration file not found for supplier: {self.object.code}')
                     return self.render_to_response(self.get_context_data(import_form=form))
-                
+
                 # Get Shopify session (you'll need to implement this based on your auth setup)
                 # For now, we'll assume there's a way to get the session
                 from shopify_sync.models import Session as ShopifySession
                 session = ShopifySession.objects.first()
-                
+
                 if not session:
-                    messages.error(request, 'No Shopify session found. Please connect to Shopify first.')
+                    messages.error(
+                        request, 'No Shopify session found. Please connect to Shopify first.')
                     return self.render_to_response(self.get_context_data(import_form=form))
-                
+
                 # Run the parsing pipeline
                 summary, report = run_pipeline(
                     records=records,
                     config_path=str(config_path),
                     session=session
                 )
-                
-                # Display success message with summary
+
                 messages.success(
-                    request, 
-                    f'Successfully imported products. Created: {summary.created}, Updated: {summary.updated}, Errors: {len(report.errors)}'
+                    request,
+                    f'Successfully imported products. '
+                    f'Products - Created: {summary.products_created}, Updated: {summary.products_updated} | '
+                    f'Variants - Created: {summary.variants_created}, Updated: {summary.variants_updated} | '
+                    f'Errors: {len(report.errors)}'
                 )
-                
+
             except Exception as e:
                 messages.error(request, f'Error importing products: {str(e)}')
             finally:
                 # Clean up temporary file
                 Path(tmp_path).unlink(missing_ok=True)
-        
+
         else:
             messages.error(request, 'Invalid form submission')
-        
+
         return redirect('suppliers:supplier_detail', pk=self.object.pk)
+
 
 class SupplierCreateView(View):
     def get(self, request):
         form = SupplierForm()
-        html = render_to_string('suppliers/partials/supplier_form.html', {'form': form, 'title': 'Create Supplier'}, request=request)
+        html = render_to_string('suppliers/partials/supplier_form.html',
+                                {'form': form, 'title': 'Create Supplier'}, request=request)
         return HttpResponse(html)
 
     def post(self, request):
@@ -100,16 +109,19 @@ class SupplierCreateView(View):
             response = HttpResponse("")
             response['HX-Refresh'] = "true"
             return response
-        
+
         # If invalid, re-render the form with errors
-        html = render_to_string('suppliers/partials/supplier_form.html', {'form': form, 'title': 'Create Supplier'}, request=request)
+        html = render_to_string('suppliers/partials/supplier_form.html',
+                                {'form': form, 'title': 'Create Supplier'}, request=request)
         return HttpResponse(html)
+
 
 class SupplierUpdateView(View):
     def get(self, request, pk):
         supplier = get_object_or_404(Supplier, pk=pk)
         form = SupplierForm(instance=supplier)
-        html = render_to_string('suppliers/partials/supplier_form.html', {'form': form, 'title': 'Edit Supplier', 'supplier': supplier}, request=request)
+        html = render_to_string('suppliers/partials/supplier_form.html', {
+                                'form': form, 'title': 'Edit Supplier', 'supplier': supplier}, request=request)
         return HttpResponse(html)
 
     def post(self, request, pk):
@@ -120,14 +132,17 @@ class SupplierUpdateView(View):
             response = HttpResponse("")
             response['HX-Refresh'] = "true"
             return response
-        
-        html = render_to_string('suppliers/partials/supplier_form.html', {'form': form, 'title': 'Edit Supplier', 'supplier': supplier}, request=request)
+
+        html = render_to_string('suppliers/partials/supplier_form.html', {
+                                'form': form, 'title': 'Edit Supplier', 'supplier': supplier}, request=request)
         return HttpResponse(html)
+
 
 class SupplierDeleteView(View):
     def get(self, request, pk):
         supplier = get_object_or_404(Supplier, pk=pk)
-        html = render_to_string('suppliers/partials/supplier_confirm_delete.html', {'supplier': supplier}, request=request)
+        html = render_to_string(
+            'suppliers/partials/supplier_confirm_delete.html', {'supplier': supplier}, request=request)
         return HttpResponse(html)
 
     def post(self, request, pk):

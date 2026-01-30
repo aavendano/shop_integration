@@ -1,7 +1,4 @@
-
-
 ## Installation
-
 
 2. Add `'shopify_sync',` to `INSTALLED_APPS`
 3. Create a new `shopify_sync.Session` in Django admin or shell, enter your Shopify admin API token and site name.
@@ -46,30 +43,31 @@ The `changed_product` will get a local copy of the shopify_resource and then
 do a `.reload()` on it so that we make a request to shopify. Then we sync
 that back with our database.
 
-
 ## Product Parsing - How to use
 
 The `product_parsing` module allows you to import products from external sources (CSV or JSON) and sync them to Shopify using a configuration file to map fields.
 
 ### 1. The Configuration File
+
 You need a JSON configuration file to tell the parser how to read your data. This file defines `mappings` between your source data columns and our internal schema.
 
 Example `config.json`:
+
 ```json
 {
-  "provider_id": "my_vendor",
-  "mappings": [
-    {
-      "source": "Vendor SKU", 
-      "destination": "identifiers.sku",
-      "transforms": [{"name": "trim"}]
-    },
-    {
-      "source": "Item Cost", 
-      "destination": "pricing.cost",
-      "transforms": [{"name": "parse_price"}]
-    }
-  ]
+    "provider_id": "my_vendor",
+    "mappings": [
+        {
+            "source": "Vendor SKU",
+            "destination": "identifiers.sku",
+            "transforms": [{ "name": "trim" }]
+        },
+        {
+            "source": "Item Cost",
+            "destination": "pricing.cost",
+            "transforms": [{ "name": "parse_price" }]
+        }
+    ]
 }
 ```
 
