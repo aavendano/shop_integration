@@ -12,7 +12,7 @@ from products_parsing.canonical.schema import (
     CanonicalProduct,
     CanonicalVariant,
 )
-from shopify_sync.models import Image, Metafield, Product, Variant
+from shopify_models.models import Image, Metafield, Product, Variant
 
 
 DEFAULT_NAMESPACE = "canonical"

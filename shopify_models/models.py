@@ -78,7 +78,7 @@ class Location(ShopifyDataModel):
     last_inventory_sync_at = models.DateTimeField(null=True)
 
     class Meta:
-        app_label = "shopify_sync"
+        app_label = "shopify_models"
 
     def trigger_inventory_sync(
         self,

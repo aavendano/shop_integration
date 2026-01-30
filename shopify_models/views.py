@@ -11,7 +11,7 @@ from .forms import VariantForm
 
 class ProductListView(FilterView):
     model = Product
-    template_name = 'shopify_sync/product_list.html'
+    template_name = 'shopify_models/product_list.html'
     context_object_name = 'products'
     filterset_class = ProductFilter
     paginate_by = 50
@@ -22,7 +22,7 @@ class ProductListView(FilterView):
 
 class ProductDetailView(DetailView):
     model = Product
-    template_name = 'shopify_sync/product_detail.html'
+    template_name = 'shopify_models/product_detail.html'
     context_object_name = 'product'
 
 
@@ -38,13 +38,13 @@ class ProductSyncView(View):
             messages.error(
                 request, f'Failed to synchronize product "{product.title}": {str(e)}')
 
-        return redirect('shopify_sync:product_detail', pk=pk)
+        return redirect('shopify_models:product_detail', pk=pk)
 
 
 class VariantCreateView(CreateView):
     model = Variant
     form_class = VariantForm
-    template_name = 'shopify_sync/variant_form.html'
+    template_name = 'shopify_models/variant_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -60,13 +60,13 @@ class VariantCreateView(CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('shopify_sync:product_detail', kwargs={'pk': self.kwargs['product_pk']})
+        return reverse_lazy('shopify_models:product_detail', kwargs={'pk': self.kwargs['product_pk']})
 
 
 class VariantUpdateView(UpdateView):
     model = Variant
     form_class = VariantForm
-    template_name = 'shopify_sync/variant_form.html'
+    template_name = 'shopify_models/variant_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -76,12 +76,12 @@ class VariantUpdateView(UpdateView):
         return context
 
     def get_success_url(self):
-        return reverse_lazy('shopify_sync:product_detail', kwargs={'pk': self.kwargs['product_pk']})
+        return reverse_lazy('shopify_models:product_detail', kwargs={'pk': self.kwargs['product_pk']})
 
 
 class VariantDeleteView(DeleteView):
     model = Variant
-    template_name = 'shopify_sync/variant_confirm_delete.html'
+    template_name = 'shopify_models/variant_confirm_delete.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -90,4 +90,4 @@ class VariantDeleteView(DeleteView):
         return context
 
     def get_success_url(self):
-        return reverse_lazy('shopify_sync:product_detail', kwargs={'pk': self.kwargs['product_pk']})
+        return reverse_lazy('shopify_models:product_detail', kwargs={'pk': self.kwargs['product_pk']})

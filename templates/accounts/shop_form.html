@@ -1,0 +1,55 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{% url 'accounts:shop_list' %}">Shops</a></li>
+                <li class="is-active"><a href="#" aria-current="page">{% if object %}Edit{% else %}Add{% endif %}
+                        Shop</a></li>
+            </ul>
+        </nav>
+
+        <div class="columns is-centered">
+            <div class="column is-half">
+                <div class="card">
+                    <header class="card-header">
+                        <p class="card-header-title">
+                            {% if object %}Edit Shop: {{ object.name }}{% else %}Add New Shop{% endif %}
+                        </p>
+                    </header>
+                    <div class="card-content">
+                        <form method="post">
+                            {% csrf_token %}
+                            {% for field in form %}
+                            <div class="field">
+                                <label class="label">{{ field.label }}</label>
+                                <div class="control">
+                                    {{ field }}
+                                </div>
+                                {% if field.help_text %}
+                                <p class="help">{{ field.help_text }}</p>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
+
+                            <div class="field is-grouped mt-5">
+                                <div class="control">
+                                    <button type="submit" class="button is-primary">Save Shop</button>
+                                </div>
+                                <div class="control">
+                                    <a href="{% url 'accounts:shop_list' %}" class="button is-light">Cancel</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

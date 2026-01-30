@@ -1,6 +1,6 @@
-# Manual de usuario: apps Django `shopify_sync`, `shopify_auth` y `shopify_webhook`
+# Manual de usuario: apps Django `shopify_models`, `shopify_auth` y `shopify_webhook`
 
-Este documento describe las capacidades, el onboarding y la configuración obligatoria/opcional para integrar las apps Django del proyecto: `shopify_sync`, `shopify_auth` y `shopify_webhook`. Está pensado para que puedas configurar el proyecto desde cero y empezar el desarrollo sin depender de otras fuentes.
+Este documento describe las capacidades, el onboarding y la configuración obligatoria/opcional para integrar las apps Django del proyecto: `shopify_models`, `shopify_auth` y `shopify_webhook`. Está pensado para que puedas configurar el proyecto desde cero y empezar el desarrollo sin depender de otras fuentes.
 
 ## Requisitos previos
 
@@ -31,13 +31,13 @@ Este documento describe las capacidades, el onboarding y la configuración oblig
 - Ofrece decoradores para validar webhooks (`@webhook`), peticiones de Carrier Services (`@carrier_request`) y App Proxy (`@app_proxy`).【F:shopify_webhook/decorators.py†L14-L100】
 - Incluye utilidades para cálculo de HMAC y firma de App Proxy; permite desactivar validación de App Proxy con `SKIP_APP_PROXY_VALIDATION` (por defecto respeta `DEBUG`).【F:shopify_webhook/helpers.py†L13-L64】
 
-### `shopify_sync`
+### `shopify_models`
 
 **¿Qué hace?**
 
-- Sincroniza recursos de Shopify con modelos locales mediante `ShopifyResourceManager` y métodos `sync_one`, `sync_many`, `sync_all` (entre otros).【F:shopify_sync/models/base.py†L54-L214】
-- Usa un modelo `Session` que contiene el token y el sitio Shopify, y lo convierte en sesiones del SDK de Shopify para activar peticiones autenticadas.【F:shopify_sync/models/session.py†L8-L65】
-- Escucha la señal genérica `webhook_received` de `shopify_webhook` y sincroniza automáticamente cuando llegan webhooks válidos.【F:shopify_sync/apps.py†L1-L24】【F:shopify_sync/handlers.py†L1-L63】
+- Sincroniza recursos de Shopify con modelos locales mediante `ShopifyResourceManager` y métodos `sync_one`, `sync_many`, `sync_all` (entre otros).【F:shopify_models/models/base.py†L54-L214】
+- Usa un modelo `Session` que contiene el token y el sitio Shopify, y lo convierte en sesiones del SDK de Shopify para activar peticiones autenticadas.【F:shopify_models/models/session.py†L8-L65】
+- Escucha la señal genérica `webhook_received` de `shopify_webhook` y sincroniza automáticamente cuando llegan webhooks válidos.【F:shopify_models/apps.py†L1-L24】【F:shopify_models/handlers.py†L1-L63】
 
 ## Onboarding paso a paso
 
@@ -48,7 +48,7 @@ Agrega las apps a `INSTALLED_APPS` en tu proyecto. En este repositorio ya están
 ```python
 INSTALLED_APPS = [
     ...
-    'shopify_sync',
+    'shopify_models',
     'shopify_auth',
     'shopify_webhook',
 ]
@@ -142,14 +142,14 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 6) Crear la sesión Shopify para `shopify_sync`
+### 6) Crear la sesión Shopify para `shopify_models`
 
-`shopify_sync` utiliza un modelo `Session` con `token` y `site`. Este `site` debe ser el dominio tipo `mi-tienda.myshopify.com`, y el `token` corresponde al **Admin API access token** que Shopify entrega en el flujo OAuth (o en desarrollo local).【F:shopify_sync/models/session.py†L8-L25】
+`shopify_models` utiliza un modelo `Session` con `token` y `site`. Este `site` debe ser el dominio tipo `mi-tienda.myshopify.com`, y el `token` corresponde al **Admin API access token** que Shopify entrega en el flujo OAuth (o en desarrollo local).【F:shopify_models/models/session.py†L8-L25】
 
 Crea la sesión desde el admin de Django o vía shell:
 
 ```python
-from shopify_sync.models import Session
+from shopify_models.models import Session
 
 Session.objects.create(
     token='shpat_...',
@@ -162,7 +162,7 @@ Session.objects.create(
 Con una `Session` creada, puedes sincronizar recursos:
 
 ```python
-from shopify_sync.models import Product, Session
+from shopify_models.models import Product, Session
 session = Session.objects.first()
 products = Product.objects.sync_all(session, query='bar')
 ```
@@ -199,24 +199,24 @@ También puedes modificar un recurso local y subirlo con `push=True` al guardar,
 - `SKIP_APP_PROXY_VALIDATION`: si está activo, deshabilita validación de firma de App Proxy (default sigue `DEBUG`).【F:shopify_webhook/helpers.py†L43-L64】
 - `LIQUID_TEMPLATE_CONTENT_TYPE`: sobrescribe el content-type para `LiquidTemplateView` (default `application/liquid; charset=utf-8`).【F:shopify_webhook/views.py†L41-L55】
 
-### `shopify_sync`
+### `shopify_models`
 
 **Obligatorias**
 
-- Al menos una entrada en `shopify_sync.Session` con `token` y `site`.【F:shopify_sync/models/session.py†L8-L25】
-- `SHOPIFY_APP_API_VERSION` para construir sesiones de Shopify (aplica también a `shopify_auth`).【F:shopify_sync/models/session.py†L6-L12】
+- Al menos una entrada en `shopify_models.Session` con `token` y `site`.【F:shopify_models/models/session.py†L8-L25】
+- `SHOPIFY_APP_API_VERSION` para construir sesiones de Shopify (aplica también a `shopify_auth`).【F:shopify_models/models/session.py†L6-L12】
 
 **Opcionales**
 
-- `SHOPIFY_API_PAGE_LIMIT` (default 250) puede ajustarse en `shopify_sync.__init__` si necesitas paginación distinta.【F:shopify_sync/**init**.py†L1-L3】
+- `SHOPIFY_API_PAGE_LIMIT` (default 250) puede ajustarse en `shopify_models.__init__` si necesitas paginación distinta.【F:shopify_models/**init**.py†L1-L3】
 
 ## Flujo recomendado de desarrollo
 
 1. Configura settings y variables de entorno (clave/secret, scopes, API version, etc.).【F:shop_manager/settings.py†L112-L140】
 2. Ejecuta migraciones.
-3. Crea una `Session` en `shopify_sync`.
+3. Crea una `Session` en `shopify_models`.
 4. Accede a `/auth/` con `shop=tu-tienda.myshopify.com` para iniciar OAuth y guardar el token del usuario Shopify.【F:shopify_auth/views.py†L19-L83】
-5. Configura webhooks en Shopify para apuntar a tu endpoint `/webhooks/`. `shopify_webhook` validará HMAC y disparará señales; `shopify_sync` escuchará `webhook_received` para sincronizar modelos automáticamente.【F:shopify_webhook/views.py†L10-L39】【F:shopify_sync/apps.py†L1-L24】【F:shopify_sync/handlers.py†L1-L63】
+5. Configura webhooks en Shopify para apuntar a tu endpoint `/webhooks/`. `shopify_webhook` validará HMAC y disparará señales; `shopify_models` escuchará `webhook_received` para sincronizar modelos automáticamente.【F:shopify_webhook/views.py†L10-L39】【F:shopify_models/apps.py†L1-L24】【F:shopify_models/handlers.py†L1-L63】
 6. Usa `sync_all` y `save(push=True)` para sincronizaciones manuales cuando lo necesites.【F:README.md†L21-L47】
 
 ## Notas útiles

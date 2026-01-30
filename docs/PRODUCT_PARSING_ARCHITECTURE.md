@@ -35,7 +35,7 @@ El sistema está diseñado para ejecutarse de manera autónoma, sin dependencias
 ### Capa 3: Load (Persistencia)
 **Responsabilidad**: Guardar la información en la base de datos.
 - **Entrada**: Datos canónicos.
-- **Salida**: Registros actualizados o creados en `shopify_sync`.
+- **Salida**: Registros actualizados o creados en `shopify_models`.
 - **Acción**: Mapeo final de campos canónicos a campos del modelo Django, gestión de relaciones (Foreign Keys) y control de transacciones.
 
 ## 4. Esquema Canónico Interno
@@ -88,7 +88,7 @@ El motor maneja errores de parsing (e.g., tipos de datos incorrectos) registrán
 
 ## 7. Persistencia (Adaptador Django)
 
-Esta es la única capa que interactúa con `shopify_sync`. Actúa como un puente.
+Esta es la única capa que interactúa con `shopify_models`. Actúa como un puente.
 
 **Funciones:**
 -   **Resolución de Instancias**: Busca si el producto ya existe (por SKU o identificador único) para decidir si crear o actualizar.

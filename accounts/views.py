@@ -1,51 +1,68 @@
-import json
 import requests
 from django.core.cache import cache
 from django.http import HttpResponseBadRequest, HttpResponse
 import hashlib
 import hmac
-from django.shortcuts import render
-
-# Create your views here.
-# apps/shopify_auth/views.py
 import secrets
 import urllib.parse
-
 from django.conf import settings
 from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import redirect
-from django.urls import reverse
-from django.core.cache import cache  # o tu propio storage para 'state'
+
+from django.views.generic import RedirectView, ListView, DetailView, CreateView, UpdateView, DeleteView
+
+from django.urls import reverse_lazy
+from .models import Shop
+from .forms import ShopForm
 
 
-def shopify_install(request):
-    """
-    Inicia el flujo OAuth.
-    Espera un parámetro GET ?shop=mi-tienda.myshopify.com
-    """
+class ShopAuthView(RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+        shop = Shop.objects.get(pk=kwargs['pk'])
+        if not shop or not shop.myshopify_domain.endswith(".myshopify.com"):
+            return HttpResponseBadRequest("Missing or invalid 'shop' parameter")
+
+        # Generar un state aleatorio y guardarlo en la sesión
+        state = secrets.token_urlsafe(16)
+        request.session["shopify_oauth_state"] = state
+
+        params = {
+        "client_id": shop.client_id,
+        "scope": "read_products,write_products",
+        "redirect_uri": "http://localhost:8000/shopify_app_callback",
+        "state": state,
+        }
+        query_string = urllib.parse.urlencode(params)
+
+        install_url = f"https://{shop.myshopify_domain}/admin/oauth/authorize?{query_string}"
+
+        return install_url
+
+    
+
+def shopify_app_install(request):
     shop = request.GET.get("shop")
-    if not shop:
-        return HttpResponseBadRequest("Falta parámetro 'shop'")
 
-    # Validas que sea tu tienda concreta si quieres:
-    # if shop != "mi-tienda.myshopify.com": ...
+    # Validación básica del parámetro shop
+    if not shop or not shop.endswith(".myshopify.com"):
+        return HttpResponseBadRequest("Missing or invalid 'shop' parameter")
 
-    # Generar 'state' aleatorio para prevenir CSRF
+    # Generar un state aleatorio y guardarlo en la sesión
     state = secrets.token_urlsafe(16)
-    # Guardar 'state' temporalmente (cache, session, DB)
-    cache.set(f"shopify_oauth_state_{shop}", state, timeout=600)
+    request.session["shopify_oauth_state"] = state
 
+    # Construir la URL de autorización de Shopify
     params = {
-        "client_id": settings.SHOPIFY_CLIENT_ID,
-        "scope": settings.SHOPIFY_APP_SCOPES,
-        "redirect_uri": settings.SHOPIFY_REDIRECT_URI,
+        "client_id": shop.client_id,
+        "scope": "read_products,write_products",
+        "redirect_uri": "http://localhost:8000/shopify_app_callback",
         "state": state,
     }
-    query = urllib.parse.urlencode(params)
-    # URL a Shopify para pedir permisos
-    redirect_url = f"https://{shop}/admin/oauth/authorize?{query}"
+    query_string = urllib.parse.urlencode(params)
+    install_url = f"https://{shop}/admin/oauth/authorize?{query_string}"
 
-    return redirect(redirect_url)
+    return redirect(install_url)
 
 
 # apps/shopify_auth/views.py
@@ -95,7 +112,7 @@ def exchange_code_for_access_token(shop: str, code: str) -> str:
     return data["access_token"]
 
 
-def shopify_callback(request):
+def shopify_app_callback(request):
     """
     Callback de OAuth.
     Shopify redirige aquí con ?code=...&shop=...&state=...&hmac=...
@@ -130,3 +147,35 @@ def shopify_callback(request):
     )
 
     return HttpResponse("Instalación completada. Token guardado.")
+
+
+class ShopListView(ListView):
+    model = Shop
+    template_name = 'accounts/shop_list.html'
+    context_object_name = 'shops'
+
+
+class ShopDetailView(DetailView):
+    model = Shop
+    template_name = 'accounts/shop_detail.html'
+    context_object_name = 'shop'
+
+
+class ShopCreateView(CreateView):
+    model = Shop
+    form_class = ShopForm
+    template_name = 'accounts/shop_form.html'
+    success_url = reverse_lazy('accounts:shop_list')
+
+
+class ShopUpdateView(UpdateView):
+    model = Shop
+    form_class = ShopForm
+    template_name = 'accounts/shop_form.html'
+    success_url = reverse_lazy('accounts:shop_list')
+
+
+class ShopDeleteView(DeleteView):
+    model = Shop
+    template_name = 'accounts/shop_confirm_delete.html'
+    success_url = reverse_lazy('accounts:shop_list')

@@ -26,6 +26,17 @@
 <body>
   {% include 'core/navbar.html' %}
 
+  <div class="container mt-4">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="notification {% if message.tags %}is-{{ message.tags }}{% endif %} is-light">
+      <button class="delete" onclick="this.parentElement.remove()"></button>
+      {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+
   {% block content %}
   {% endblock %}
   <script src="https://unpkg.com/lucide@latest"></script>

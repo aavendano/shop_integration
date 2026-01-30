@@ -1,0 +1,134 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{% url 'shopify_models:product_list' %}">Products</a></li>
+                <li class="is-active"><a href="#" aria-current="page">{{ product.title }}</a></li>
+            </ul>
+        </nav>
+
+        <div class="columns">
+            <div class="column is-one-third">
+                <div class="card">
+                    <div class="card-image">
+                        {% if product.images.first %}
+                        <figure class="image is-4by3">
+                            <img src="{{ product.images.first.src }}" alt="{{ product.title }}">
+                        </figure>
+                        {% else %}
+                        <div class="has-text-centered py-6 has-background-light">
+                            <span class="icon is-large has-text-grey-light"><i class="lucide-image"></i></span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-content">
+                        <div class="media">
+                            <div class="media-content">
+                                <p class="title is-4">{{ product.title }}</p>
+                                <p class="subtitle is-6">{{ product.vendor }} | {{ product.product_type }}</p>
+                            </div>
+                        </div>
+
+                        <div class="content">
+                            <div class="tags">
+                                {% for tag in product.tag_list %}
+                                <span class="tag is-info is-light">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                            <p><strong>Shopify ID:</strong> {{ product.shopify_id|default:"Not synced" }}</p>
+                            <p><strong>Handle:</strong> {{ product.handle }}</p>
+                            <p><strong>Published:</strong> {{ product.published_at|date:"Y-m-d H:i"|default:"Draft" }}
+                            </p>
+                        </div>
+
+                        <footer class="card-footer">
+                            <form action="{% url 'shopify_models:product_sync' product.id %}" method="post"
+                                class="card-footer-item p-0">
+                                {% csrf_token %}
+                                <button type="submit" class="button is-primary is-fullwidth is-radiusless">
+                                    <span class="icon"><i class="lucide-refresh-cw"></i></span>
+                                    <span>Sync to Shopify</span>
+                                </button>
+                            </form>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="level">
+                    <div class="level-left">
+                        <h2 class="title is-4">Variants</h2>
+                    </div>
+                    <div class="level-right">
+                        <a href="{% url 'shopify_models:variant_create' product.id %}" class="button is-primary">
+                            <span class="icon"><i class="lucide-plus"></i></span>
+                            <span>Add Variant</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-content p-0">
+                        <table class="table is-fullwidth is-striped is-hoverable mb-0">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Title</th>
+                                    <th>Price</th>
+                                    <th>Inventory</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for variant in product.variants %}
+                                <tr>
+                                    <td>{{ variant.sku|default:"-" }}</td>
+                                    <td>{{ variant.title|default:"Default" }}</td>
+                                    <td>${{ variant.price }}</td>
+                                    <td>{{ variant.inventory_quantity|default:0 }}</td>
+                                    <td>
+                                        <div class="buttons are-small">
+                                            <a href="{% url 'shopify_models:variant_update' product.id variant.id %}"
+                                                class="button is-info">
+                                                <span class="icon is-small"><i class="lucide-edit"></i></span>
+                                            </a>
+                                            <a href="{% url 'shopify_models:variant_delete' product.id variant.id %}"
+                                                class="button is-danger">
+                                                <span class="icon is-small"><i class="lucide-trash"></i></span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="has-text-centered py-4">No variants found for this product.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {% if product.body_html %}
+                <div class="card mt-5">
+                    <header class="card-header">
+                        <p class="card-header-title">Description (HTML)</p>
+                    </header>
+                    <div class="card-content">
+                        <div class="content">
+                            {{ product.body_html|safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

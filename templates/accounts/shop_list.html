@@ -1,0 +1,62 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="level">
+            <div class="level-left">
+                <h1 class="title">Shops</h1>
+            </div>
+            <div class="level-right">
+                <a href="{% url 'accounts:shop_add' %}" class="button is-primary">
+                    <span class="icon"><i class="lucide-plus"></i></span>
+                    <span>Add Shop</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-content">
+                <table class="table is-fullwidth is-striped is-hoverable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Domain</th>
+                            <th>MyShopify Domain</th>
+                            <th>Currency</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for shop in shops %}
+                        <tr>
+                            <td><strong>{{ shop.name|default:"-" }}</strong></td>
+                            <td>{{ shop.domain }}</td>
+                            <td>{{ shop.myshopify_domain }}</td>
+                            <td>{{ shop.currency|default:"-" }}</td>
+                            <td>
+                                <div class="buttons are-small">
+                                    <a href="{% url 'accounts:shop_detail' shop.id %}" class="button is-info">
+                                        <span class="icon is-small"><i class="lucide-eye"></i></span>
+                                    </a>
+                                    <a href="{% url 'accounts:shop_update' shop.id %}" class="button is-light">
+                                        <span class="icon is-small"><i class="lucide-edit"></i></span>
+                                    </a>
+                                    <a href="{% url 'accounts:shop_delete' shop.id %}" class="button is-danger">
+                                        <span class="icon is-small"><i class="lucide-trash"></i></span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="has-text-centered py-4">No shops found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

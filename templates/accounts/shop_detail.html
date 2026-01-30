@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{% url 'accounts:shop_list' %}">Shops</a></li>
+                <li class="is-active"><a href="#" aria-current="page">{{ shop.name|default:shop.myshopify_domain }}</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="columns is-centered">
+            <div class="column is-two-thirds">
+                <div class="card">
+                    <header class="card-header">
+                        <p class="card-header-title">
+                            Shop Details: {{ shop.name|default:shop.myshopify_domain }}
+                        </p>
+                    </header>
+                    <div class="card-content">
+                        <div class="content">
+                            <div class="columns">
+                                <div class="column">
+                                    <p><strong>Name:</strong> {{ shop.name|default:"-" }}</p>
+                                    <p><strong>Domain:</strong> {{ shop.domain }}</p>
+                                    <p><strong>MyShopify Domain:</strong> {{ shop.myshopify_domain }}</p>
+                                </div>
+                                <div class="column">
+                                    <p><strong>Currency:</strong> {{ shop.currency|default:"-" }}</p>
+                                    <p><strong>Client ID:</strong> {{ shop.client_id }}</p>
+                                    <p><strong>Client Secret:</strong> <span class="has-text-grey">********</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="card-footer">
+                        <a href="{% url 'accounts:shop_update' shop.id %}" class="card-footer-item">Edit</a>
+                        <a href="{% url 'accounts:shop_delete' shop.id %}"
+                            class="card-footer-item has-text-danger">Delete</a>
+                        <a href="{% url 'accounts:shop_list' %}" class="card-footer-item">Back to List</a>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
