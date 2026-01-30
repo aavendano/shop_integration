@@ -4,7 +4,7 @@ from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth import logout
-from shopify_sync.models import Session
+from accounts.models import Session
 
 # Authentication Views
 

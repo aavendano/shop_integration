@@ -16,13 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from accounts.views import shopify_install, shopify_callback
 
 
 urlpatterns = [
-    path('suppliers/', include('suppliers.urls')),
-    path('shopify/', include('shopify_sync.urls')),
     path('', include('core.urls')),
+    path('suppliers/', include('suppliers.urls')),
+    path("shopify/oauth/install/", shopify_install, name="shopify_install"),
+    path("shopify/oauth/callback/", shopify_callback, name="shopify_callback"),
     path('admin/', admin.site.urls),
-    #path('accounts/', include('accounts.urls')),
+    path('shopify_models/', include('shopify_models.urls')),
 
 ]
+# path('accounts/', include('accounts.urls')),

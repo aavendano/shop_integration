@@ -1,5 +1,5 @@
 from django.db import models
-from shopify_sync.models import Variant
+from shopify_models.models import Variant
 
 
 class Supplier(models.Model):
