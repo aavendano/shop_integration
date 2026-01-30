@@ -36,6 +36,8 @@
                         </div>
                     </div>
                     <footer class="card-footer">
+                        <a href="{% url 'accounts:shop_registration' shop.id %}"
+                            class="card-footer-item has-text-primary">Shop Registration</a>
                         <a href="{% url 'accounts:shop_update' shop.id %}" class="card-footer-item">Edit</a>
                         <a href="{% url 'accounts:shop_delete' shop.id %}"
                             class="card-footer-item has-text-danger">Delete</a>

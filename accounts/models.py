@@ -12,6 +12,7 @@ class Shop(models.Model):
     currency = models.CharField(max_length=4, null=True)
     client_id = models.CharField(max_length=255)
     client_secret = models.CharField(max_length=255)
+    is_authentified = models.BooleanField(default=False)
 
 class Session(models.Model):
     shop = models.OneToOneField(Shop, on_delete=models.CASCADE, related_name='session')

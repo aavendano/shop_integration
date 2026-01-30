@@ -23,15 +23,15 @@ class ShopAuthView(RedirectView):
         if not shop or not shop.myshopify_domain.endswith(".myshopify.com"):
             return HttpResponseBadRequest("Missing or invalid 'shop' parameter")
 
-        # Generar un state aleatorio y guardarlo en la sesión
+        # Generar un state aleatorio y guardarlo en el cache
         state = secrets.token_urlsafe(16)
-        request.session["shopify_oauth_state"] = state
+        cache.set(f"shopify_oauth_state_{shop.myshopify_domain}", state, timeout=600)
 
         params = {
-        "client_id": shop.client_id,
-        "scope": "read_products,write_products",
-        "redirect_uri": "http://localhost:8000/shopify_app_callback",
-        "state": state,
+            "client_id": shop.client_id,
+            "scope": "read_products,write_products",
+            "redirect_uri": "https://" + self.request.get_host() + reverse_lazy('accounts:shop_callback'),
+            "state": state,
         }
         query_string = urllib.parse.urlencode(params)
 
@@ -39,28 +39,31 @@ class ShopAuthView(RedirectView):
 
         return install_url
 
-    
-
 def shopify_app_install(request):
-    shop = request.GET.get("shop")
+    shop_domain = request.GET.get("shop")
 
     # Validación básica del parámetro shop
-    if not shop or not shop.endswith(".myshopify.com"):
+    if not shop_domain or not shop_domain.endswith(".myshopify.com"):
         return HttpResponseBadRequest("Missing or invalid 'shop' parameter")
 
-    # Generar un state aleatorio y guardarlo en la sesión
-    state = secrets.token_urlsafe(16)
-    request.session["shopify_oauth_state"] = state
+    try:
+        shop = Shop.objects.get(myshopify_domain=shop_domain)
+    except Shop.DoesNotExist:
+        return HttpResponseBadRequest(f"Shop {shop_domain} not registered in the system.")
 
+    # Generar un state aleatorio y guardarlo en el cache
+    state = secrets.token_urlsafe(16)
+    cache.set(f"shopify_oauth_state_{shop_domain}", state, timeout=600)
+    
     # Construir la URL de autorización de Shopify
     params = {
         "client_id": shop.client_id,
         "scope": "read_products,write_products",
-        "redirect_uri": "http://localhost:8000/shopify_app_callback",
+        "redirect_uri": "https://" + request.get_host() + reverse_lazy('accounts:shop_callback'),
         "state": state,
     }
     query_string = urllib.parse.urlencode(params)
-    install_url = f"https://{shop}/admin/oauth/authorize?{query_string}"
+    install_url = f"https://{shop_domain}/admin/oauth/authorize?{query_string}"
 
     return redirect(install_url)
 
@@ -68,7 +71,7 @@ def shopify_app_install(request):
 # apps/shopify_auth/views.py
 
 
-def verify_hmac(params: dict) -> bool:
+def verify_hmac(params: dict, client_secret: str) -> bool:
     """
     Verifica el HMAC de la query de Shopify.
     params: request.GET dict-like (QueryDict → conviene convertir a dict simple)
@@ -89,7 +92,7 @@ def verify_hmac(params: dict) -> bool:
 
     # Calcular HMAC con client_secret
     digest = hmac.new(
-        settings.SHOPIFY_CLIENT_SECRET.encode("utf-8"),
+        client_secret.encode("utf-8"),
         message.encode("utf-8"),
         hashlib.sha256
     ).hexdigest()
@@ -98,11 +101,11 @@ def verify_hmac(params: dict) -> bool:
     return hmac.compare_digest(digest, hmac_from_shopify)
 
 
-def exchange_code_for_access_token(shop: str, code: str) -> str:
+def exchange_code_for_access_token(shop: str, code: str, client_id: str, client_secret: str) -> str:
     url = f"https://{shop}/admin/oauth/access_token"
     payload = {
-        "client_id": settings.SHOPIFY_CLIENT_ID,
-        "client_secret": settings.SHOPIFY_CLIENT_SECRET,
+        "client_id": client_id,
+        "client_secret": client_secret,
         "code": code,
     }
     resp = requests.post(url, json=payload, timeout=30)
@@ -112,6 +115,8 @@ def exchange_code_for_access_token(shop: str, code: str) -> str:
     return data["access_token"]
 
 
+from django.contrib import messages
+
 def shopify_app_callback(request):
     """
     Callback de OAuth.
@@ -119,34 +124,53 @@ def shopify_app_callback(request):
     """
     params = request.GET.copy()  # QueryDict
 
-    shop = params.get("shop")
+    shop_domain = params.get("shop")
     code = params.get("code")
     state = params.get("state")
 
-    if not shop or not code or not state:
+    if not shop_domain or not code or not state:
         return HttpResponseBadRequest("Faltan parámetros requeridos")
 
-    # Verificar 'state'
-    expected_state = cache.get(f"shopify_oauth_state_{shop}")
+    try:
+        shop_obj = Shop.objects.get(myshopify_domain=shop_domain)
+    except Shop.DoesNotExist:
+        return HttpResponseBadRequest("Tienda no encontrada")
+
+    # Verificar 'state' usando cache
+    expected_state = cache.get(f"shopify_oauth_state_{shop_domain}")
     if not expected_state or expected_state != state:
         return HttpResponseBadRequest("State inválido")
+    
+    # Eliminar el state una vez usado
+    cache.delete(f"shopify_oauth_state_{shop_domain}")
 
-    # (Opcional pero muy recomendable) Verificar HMAC
-    if not verify_hmac(params):
+    # Verificar HMAC con el client_secret de la tienda
+    if not verify_hmac(params, shop_obj.client_secret):
         return HttpResponseBadRequest("Firma HMAC inválida")
 
-    # Intercambiar 'code' por access_token
-    access_token = exchange_code_for_access_token(shop, code)
+    # Intercambiar 'code' por access_token usando los credenciales de la tienda
+    try:
+        access_token = exchange_code_for_access_token(
+            shop_domain, code, shop_obj.client_id, shop_obj.client_secret
+        )
+    except Exception as e:
+        return HttpResponse(f"Error al obtener token: {str(e)}", status=500)
 
-    # Guardar 'access_token' en DB/config; como es una sola tienda,
-    # puedes guardarlo en un modelo SiteConfig o similar
-    from .models import Session  # ejemplo
+    # Guardar/Actualizar la sesión vinculada a la tienda
+    from .models import Session
     Session.objects.update_or_create(
-        site=shop,
-        token=access_token,
+        shop=shop_obj,
+        defaults={
+            'site': shop_domain,
+            'token': access_token,
+        }
     )
 
-    return HttpResponse("Instalación completada. Token guardado.")
+    shop_obj.is_authentified = True
+    shop_obj.save()
+
+    messages.success(request, f'Instalación completada exitosamente para {shop_domain}.')
+    return redirect('core:home')
 
 
 class ShopListView(ListView):
