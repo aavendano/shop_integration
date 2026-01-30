@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Iterable, Tuple
 
 from products_parsing.adapters import PersistOptions, PersistSummary, persist_records
-from products_parsing.adapters.django_adapter import DEFAULT_NAMESPACE
 from products_parsing.config.loader import ProviderConfig, load_provider_config
 from products_parsing.parser import ParseReport, parse_records
 
@@ -16,8 +15,6 @@ def run_pipeline(
     session,
     unique_identifier: str = "identifiers.sku",
     report: ParseReport | None = None,
-    metafield_namespace: str | None = None,
-    sync_metafields: bool = True,
 ) -> Tuple[PersistSummary, ParseReport]:
     config = load_provider_config(config_path)
     active_report = report or ParseReport()
@@ -25,8 +22,6 @@ def run_pipeline(
     options = PersistOptions(
         session=session,
         unique_identifier=unique_identifier,
-        metafield_namespace=metafield_namespace or DEFAULT_NAMESPACE,
-        sync_metafields=sync_metafields,
     )
 
     canonical_records = parse_records(records, config, report=active_report)

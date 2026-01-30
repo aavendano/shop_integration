@@ -4,15 +4,7 @@ log = logging.getLogger(__name__)
 
 
 def get_topic_model(topic, data):
-    from .models import (
-        CustomCollection,
-        Customer,
-        Metafield,
-        Order,
-        Product,
-        Shop,
-        SmartCollection,
-    )
+    from .models import Product
 
     """
     Return the model related to the given topic, if it's a valid topic
@@ -21,12 +13,7 @@ def get_topic_model(topic, data):
     """
     topic = topic.split("/")[0]
     mapping = {
-        "collections": SmartCollection if "rules" in data else CustomCollection,
         "products": Product,
-        "customers": Customer,
-        "orders": Order,
-        "metafields": Metafield,
-        "shop": Shop,
     }
     return mapping.get(topic, None)
 

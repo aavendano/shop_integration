@@ -56,7 +56,7 @@ class SupplierDetailView(DetailView):
 
                 # Get Shopify session (you'll need to implement this based on your auth setup)
                 # For now, we'll assume there's a way to get the session
-                from shopify_models.models import Session as ShopifySession
+                from accounts.models import Session as ShopifySession
                 session = ShopifySession.objects.first()
 
                 if not session:

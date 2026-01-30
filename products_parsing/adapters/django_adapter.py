@@ -12,7 +12,8 @@ from products_parsing.canonical.schema import (
     CanonicalProduct,
     CanonicalVariant,
 )
-from shopify_models.models import Image, Metafield, Product, Variant
+from shopify_models.models import Image, Product, Variant
+
 
 
 DEFAULT_NAMESPACE = "canonical"
@@ -23,8 +24,6 @@ DEFAULT_PRODUCT_TYPE = "Uncategorized"
 class PersistOptions:
     session: object
     unique_identifier: str = "identifiers.sku"
-    metafield_namespace: str = DEFAULT_NAMESPACE
-    sync_metafields: bool = True
 
 
 @dataclass
@@ -35,8 +34,6 @@ class PersistSummary:
     variants_updated: int = 0
     images_created: int = 0
     images_updated: int = 0
-    metafields_created: int = 0
-    metafields_updated: int = 0
 
 
 def persist_records(
@@ -64,11 +61,6 @@ def _persist_one(
         created, updated = _sync_images(product, record)
         summary.images_created += created
         summary.images_updated += updated
-        if options.sync_metafields:
-            created_count, updated_count = _sync_metafields(
-                product, record, options)
-            summary.metafields_created += created_count
-            summary.metafields_updated += updated_count
 
 
 def _upsert_product(record: CanonicalProduct, options: PersistOptions):
@@ -77,7 +69,6 @@ def _upsert_product(record: CanonicalProduct, options: PersistOptions):
 
     if product is None:
         # Let Django auto-generate the id
-        defaults.update({"session": options.session})
         product = Product.objects.create(**defaults)
         return product, True
 
@@ -116,7 +107,7 @@ def _resolve_product(record: CanonicalProduct, options: PersistOptions) -> Optio
     if options.unique_identifier in {"sku", "identifiers.sku"}:
         variant = (
             Variant.objects.select_related("product")
-            .filter(session=options.session, sku=identifier)
+            .filter(sku=identifier)
             .first()
         )
         return variant.product if variant else None
@@ -124,7 +115,7 @@ def _resolve_product(record: CanonicalProduct, options: PersistOptions) -> Optio
     field = _PRODUCT_LOOKUP_FIELDS.get(options.unique_identifier)
     if not field:
         raise ValueError("Unsupported unique identifier")
-    return Product.objects.filter(session=options.session, **{field: identifier}).first()
+    return Product.objects.filter(**{field: identifier}).first()
 
 
 def _get_identifier_value(record: CanonicalProduct, identifier: str) -> Optional[str]:
@@ -163,13 +154,12 @@ def _sync_variants(
         variant = None
         if variant_record.sku:
             variant = Variant.objects.filter(
-                product=product, session=options.session, sku=variant_record.sku
+                product=product, sku=variant_record.sku
             ).first()
 
         if variant is None:
             # Let Django auto-generate the id
             variant = Variant(
-                session=options.session,
                 product=product,
             )
             created += 1
@@ -214,7 +204,6 @@ def _sync_images(
         if image is None:
             # Let Django auto-generate the id
             image = Image(
-                session=product.session,
                 product=product,
             )
             created += 1
@@ -226,57 +215,6 @@ def _sync_images(
         image.save()
 
     return created, updated
-
-
-def _sync_metafields(
-    product: Product, record: CanonicalProduct, options: PersistOptions
-) -> tuple[int, int]:
-    created = 0
-    updated = 0
-
-    attributes = record.attributes
-    if not isinstance(attributes, CanonicalAttributes):
-        return created, updated
-
-    for key, value in attributes.values.items():
-        if key is None:
-            continue
-        key_str = str(key)[:30]
-        namespace = options.metafield_namespace[:20]
-        metafield = Metafield.objects.filter(
-            product=product, namespace=namespace, key=key_str
-        ).first()
-
-        if metafield is None:
-            # Let Django auto-generate the id
-            metafield = Metafield(
-                session=product.session,
-                product=product,
-                owner_id=product.id,
-                owner_resource=Metafield.OWNER_RESOURCE_PRODUCT,
-            )
-            created += 1
-        else:
-            updated += 1
-
-        metafield.namespace = namespace
-        metafield.key = key_str
-        metafield.value_type = Metafield.VALUE_TYPE_STRING
-        metafield.value = _serialize_value(value)
-        metafield.save()
-
-    return created, updated
-
-
-def _serialize_value(value: object) -> str:
-    if value is None:
-        return ""
-    if isinstance(value, str):
-        return value
-    try:
-        return json.dumps(value, ensure_ascii=True)
-    except TypeError:
-        return str(value)
 
 
 def _safe_decimal(value: Optional[Decimal]) -> Decimal:
