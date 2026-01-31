@@ -11,5 +11,4 @@ pandas
 djangorestframework
 markdown
 django-filter
-shopify_webhooks
-
+# shopify_webhooks

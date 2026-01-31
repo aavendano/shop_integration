@@ -111,7 +111,23 @@ Para integrar un nuevo proveedor, el flujo de trabajo es:
 
 **No se requiere programación de nuevas clases ni modificación del motor.**
 
-## 9. Estrategia de Testing
+## 9. Interfaz de Usuario: App `suppliers`
+
+La aplicación `suppliers` actúa como la interfaz de usuario para interactuar con el sistema de parsing.
+
+**Funcionalidades:**
+-   **Registro de Proveedores**: Permite crear y editar la información de los proveedores, incluyendo su código único (que debe coincidir con el nombre del archivo JSON de configuración).
+-   **Importación de Productos**: Provee un formulario en la vista de detalle del proveedor para subir archivos (CSV/JSON).
+-   **Ejecución del Pipeline**: Al subir un archivo, la vista `SupplierDetailView` detecta automáticamente la configuración basada en el código del proveedor y ejecuta el pipeline de parsing (`run_pipeline`).
+-   **Feedback**: Muestra al usuario un resumen de la operación (productos creados/actualizados) o errores encontrados durante el parsing.
+
+El flujo de uso es:
+1.  Crear un Proveedor en el admin o en la vista de lista de proveedores. Asegurarse de que el campo `code` coincida con el nombre del JSON (ej. `nalpac`).
+2.  Ir al detalle del proveedor.
+3.  Usar el formulario de importación para subir el archivo de productos.
+4.  El sistema procesa el archivo y actualiza la base de datos `shopify_models`.
+
+## 10. Estrategia de Testing
 
 El diseño desacoplado facilita pruebas unitarias robustas:
 
@@ -120,7 +136,7 @@ El diseño desacoplado facilita pruebas unitarias robustas:
 -   **Test de Configuración**: Validar que los archivos JSON de los proveedores cumplan con el esquema esperado (linting de JSON).
 -   **Test de Adaptador**: Probar que, dado un diccionario canónico válido, el adaptador crea correctamente los registros en la base de datos de prueba de Django.
 
-## 10. Beneficios y Riesgos
+## 11. Beneficios y Riesgos
 
 **Beneficios:**
 -   **Mantenibilidad**: El código del núcleo cambia poco; la complejidad se mueve a la configuración.
@@ -132,7 +148,7 @@ El diseño desacoplado facilita pruebas unitarias robustas:
 -   **Complejidad de Configuración**: Los JSONs pueden volverse complejos si las transformaciones requeridas son muy lógicas o condicionales.
 -   **Rendimiento**: La capa extra de abstracción y transformación en memoria puede añadir latencia comparado con una ingestión directa "hardcoded", aunque es despreciable frente a los beneficios.
 
-## 11. Supuestos y Límites
+## 12. Supuestos y Límites
 
 -   Se asume que los datos de entrada pueden ser estructurados como diccionarios (JSON/Dict).
 -   Transformaciones extremadamente complejas que requieran lógica de negocio dinámica (e.g., "si el precio es X y el día es martes...") podrían requerir extensiones personalizadas en las transformaciones disponibles.
