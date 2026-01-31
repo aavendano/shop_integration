@@ -1,6 +1,6 @@
 import logging
-from django.db import models
 from decimal import Decimal
+from django.db import models
 from .encoders import ShopifyDjangoJSONEncoder
 
 
@@ -10,10 +10,7 @@ class ShopifyDataModel(models.Model):
     created_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(null=True, blank=True)
 
-    objects = models.Manager()
-
     class Meta:
-        app_label = "shopify_models"
         abstract = True
 
 
@@ -76,9 +73,6 @@ class Location(ShopifyDataModel):
         null=True,
     )
     last_inventory_sync_at = models.DateTimeField(null=True)
-
-    class Meta:
-        app_label = "shopify_models"
 
     def trigger_inventory_sync(
         self,

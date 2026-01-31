@@ -160,7 +160,7 @@ SHOPIFY_CLIENT_SECRET = os.environ.get("SHOPIFY_CLIENT_SECRET")
 SHOPIFY_APP_SCOPES = os.environ.get("SHOPIFY_APP_SCOPES", "")
 SHOPIFY_REDIRECT_URI = os.environ.get("SHOPIFY_REDIRECT_URI")
 SHOPIFY_APP_NAME = 'shop_manager_app'
-SHOP_NAME = os.environ.get('SHOP_NAME')
+SHOP_ADMIN_URL = os.environ.get('SHOP_ADMIN_URL')
 API_VERSION = os.environ.get("API_VERSION", "2025-10")
 
 

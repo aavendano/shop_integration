@@ -1,17 +1,13 @@
-import requests
-from django.core.cache import cache
-from django.http import HttpResponseBadRequest, HttpResponse
 import hashlib
 import hmac
+import requests
 import secrets
 import urllib.parse
-from django.conf import settings
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.core.cache import cache
+from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect
-
-from django.views.generic import RedirectView, ListView, DetailView, CreateView, UpdateView, DeleteView
-
 from django.urls import reverse_lazy
+from django.views.generic import RedirectView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Shop
 from .forms import ShopForm
 
@@ -38,37 +34,6 @@ class ShopAuthView(RedirectView):
         install_url = f"https://{shop.myshopify_domain}/admin/oauth/authorize?{query_string}"
 
         return install_url
-
-def shopify_app_install(request):
-    shop_domain = request.GET.get("shop")
-
-    # Validación básica del parámetro shop
-    if not shop_domain or not shop_domain.endswith(".myshopify.com"):
-        return HttpResponseBadRequest("Missing or invalid 'shop' parameter")
-
-    try:
-        shop = Shop.objects.get(myshopify_domain=shop_domain)
-    except Shop.DoesNotExist:
-        return HttpResponseBadRequest(f"Shop {shop_domain} not registered in the system.")
-
-    # Generar un state aleatorio y guardarlo en el cache
-    state = secrets.token_urlsafe(16)
-    cache.set(f"shopify_oauth_state_{shop_domain}", state, timeout=600)
-    
-    # Construir la URL de autorización de Shopify
-    params = {
-        "client_id": shop.client_id,
-        "scope": "read_products,write_products",
-        "redirect_uri": "https://" + request.get_host() + reverse_lazy('accounts:shop_callback'),
-        "state": state,
-    }
-    query_string = urllib.parse.urlencode(params)
-    install_url = f"https://{shop_domain}/admin/oauth/authorize?{query_string}"
-
-    return redirect(install_url)
-
-
-# apps/shopify_auth/views.py
 
 
 def verify_hmac(params: dict, client_secret: str) -> bool:
@@ -171,6 +136,9 @@ def shopify_app_callback(request):
 
     messages.success(request, f'Instalación completada exitosamente para {shop_domain}.')
     return redirect('core:home')
+
+
+
 
 
 class ShopListView(ListView):

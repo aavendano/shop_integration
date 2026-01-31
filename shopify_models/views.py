@@ -1,3 +1,4 @@
+import logging
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy, reverse
@@ -7,6 +8,8 @@ from django_filters.views import FilterView
 from .models import Product, Variant
 from .filters import ProductFilter
 from .forms import VariantForm
+
+logger = logging.getLogger(__name__)
 
 
 class ProductListView(FilterView):
@@ -30,13 +33,37 @@ class ProductSyncView(View):
     def post(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         try:
+            # Check if the export method exists
+            if not hasattr(product, 'export_to_shopify'):
+                raise AttributeError(
+                    f"Product model does not have 'export_to_shopify' method. "
+                    f"Available methods: {[m for m in dir(product) if not m.startswith('_')]}"
+                )
+            
             # Export product and its children to Shopify
             product.export_to_shopify()
             messages.success(
                 request, f'Product "{product.title}" synchronized successfully with Shopify.')
-        except Exception as e:
+        except AttributeError as e:
+            # Log the full traceback for AttributeError (missing methods/attributes)
+            logger.exception(
+                f"AttributeError while synchronizing product {pk} ('{product.title}'): {str(e)}"
+            )
             messages.error(
-                request, f'Failed to synchronize product "{product.title}": {str(e)}')
+                request, 
+                f'Failed to synchronize product "{product.title}": Method not implemented. '
+                f'Check server logs for details.'
+            )
+        except Exception as e:
+            # Log the full traceback for any other exception
+            logger.exception(
+                f"Unexpected error while synchronizing product {pk} ('{product.title}'): {str(e)}"
+            )
+            messages.error(
+                request, 
+                f'Failed to synchronize product "{product.title}": {str(e)}. '
+                f'Check server logs for full traceback.'
+            )
 
         return redirect('shopify_models:product_detail', pk=pk)
 

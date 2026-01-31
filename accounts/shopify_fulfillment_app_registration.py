@@ -1,10 +1,11 @@
 import os
 import requests
 import json
+from django.conf import settings
 
-SHOP_URL = os.getenv('SHOPIFY_SHOP_URL', 'tu-tienda.myshopify.com')
-ACCESS_TOKEN = os.getenv('SHOPIFY_ACCESS_TOKEN')
-WEBHOOK_URL = os.getenv('WEBHOOK_URL', 'https://n8n.tudominio.com/')
+SHOP_URL = settings.SHOP_ADMIN_URL
+ACCESS_TOKEN = settings.SHOPIFY_ACCESS_TOKEN
+WEBHOOK_URL = settings.WEBHOOK_URL
 
 def register_fulfillment_service():
     # The callbackUrl should be the base URL. Shopify appends /fulfillment_order_notification, etc.
