@@ -28,6 +28,40 @@ class ProductDetailView(DetailView):
     template_name = 'shopify_models/product_detail.html'
     context_object_name = 'product'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.object
+        
+        # Get all images ordered by position
+        context['images'] = product.images.all().order_by('position')
+        
+        # Get variants with their related inventory data
+        from .models import Location, InventoryItem
+        
+        variants_data = []
+        for variant in product.variants.all().order_by('position'):
+            variant_info = {
+                'variant': variant,
+                'inventory_item': None,
+                'inventory_levels': []
+            }
+            
+            # Get inventory item if it exists
+            if hasattr(variant, 'inventory_item') and variant.inventory_item:
+                variant_info['inventory_item'] = variant.inventory_item
+                # Get inventory levels for this item
+                variant_info['inventory_levels'] = variant.inventory_item.inventory_levels.select_related('inventory_item').all()
+            
+            variants_data.append(variant_info)
+        
+        context['variants_data'] = variants_data
+        
+        # Get all available locations
+        context['locations'] = Location.objects.all().order_by('name')
+        
+        return context
+
+
 
 class ProductSyncView(View):
     def post(self, request, pk):
