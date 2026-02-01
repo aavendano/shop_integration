@@ -8,6 +8,17 @@
             <div class="level-left">
                 <h1 class="title">Products</h1>
             </div>
+            <div class="level-right">
+                <div class="level-item">
+                    <button type="submit" form="bulk-sync-form" class="button is-success" id="bulk-sync-btn" disabled>
+                        <span class="icon"><i class="lucide-dollar-sign"></i></span>
+                        <span>Sync Selected Prices</span>
+                    </button>
+                </div>
+                <div class="level-item">
+                    <span id="selected-count" class="tag is-info">0 selected</span>
+                </div>
+            </div>
         </div>
 
         <div class="card mb-5">
@@ -45,9 +56,14 @@
 
         <div class="card">
             <div class="card-content">
+                <form id="bulk-sync-form" action="{% url 'prices:bulk_sync' %}" method="post">
+                    {% csrf_token %}
                 <table class="table is-fullwidth is-striped is-hoverable">
                     <thead>
                         <tr>
+                            <th style="width: 40px;">
+                                <input type="checkbox" id="select-all" title="Select all">
+                            </th>
                             <th>Image</th>
                             <th>Title</th>
                             <th>Vendor</th>
@@ -59,6 +75,9 @@
                     <tbody>
                         {% for product in products %}
                         <tr>
+                            <td>
+                                <input type="checkbox" name="product_ids" value="{{ product.id }}" class="product-checkbox">
+                            </td>
                             <td>
                                 {% if product.images.first %}
                                 <figure class="image is-48x48">
@@ -87,11 +106,12 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="has-text-centered">No products found.</td>
+                            <td colspan="7" class="has-text-centered">No products found.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+                </form>
 
                 {% if is_paginated %}
                 <nav class="pagination is-centered" role="navigation" aria-label="pagination">
@@ -116,4 +136,50 @@
         </div>
     </div>
 </section>
+
+<script>
+// Checkbox selection logic
+const selectAllCheckbox = document.getElementById('select-all');
+const productCheckboxes = document.querySelectorAll('.product-checkbox');
+const bulkSyncBtn = document.getElementById('bulk-sync-btn');
+const selectedCount = document.getElementById('selected-count');
+
+// Update button state and count
+function updateBulkSyncButton() {
+    const checkedCount = document.querySelectorAll('.product-checkbox:checked').length;
+    bulkSyncBtn.disabled = checkedCount === 0;
+    selectedCount.textContent = `${checkedCount} selected`;
+}
+
+// Select all checkbox
+selectAllCheckbox.addEventListener('change', function() {
+    productCheckboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+    updateBulkSyncButton();
+});
+
+// Individual checkboxes
+productCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        // Update select all checkbox state
+        const allChecked = Array.from(productCheckboxes).every(cb => cb.checked);
+        const someChecked = Array.from(productCheckboxes).some(cb => cb.checked);
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = someChecked && !allChecked;
+        
+        updateBulkSyncButton();
+    });
+});
+
+// Confirm before bulk sync
+document.getElementById('bulk-sync-form').addEventListener('submit', function(e) {
+    const checkedCount = document.querySelectorAll('.product-checkbox:checked').length;
+    if (checkedCount > 0) {
+        if (!confirm(`Sync prices for ${checkedCount} product(s)?`)) {
+            e.preventDefault();
+        }
+    }
+});
+</script>
 {% endblock %}

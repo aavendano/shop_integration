@@ -91,7 +91,7 @@ def _build_product_defaults(record: CanonicalProduct) -> Dict[str, object]:
 
     return {
         "title": title,
-        "body_html": record.basic_info.description_html or "",
+        "description": record.basic_info.description_html or "",
         "vendor": record.basic_info.brand,
         "product_type": product_type,
         "tags": tags,
@@ -107,7 +107,7 @@ def _resolve_product(record: CanonicalProduct, options: PersistOptions) -> Optio
     if options.unique_identifier in {"sku", "identifiers.sku"}:
         variant = (
             Variant.objects.select_related("product")
-            .filter(sku=identifier)
+            .filter(supplier_sku=identifier)
             .first()
         )
         return variant.product if variant else None
@@ -154,7 +154,7 @@ def _sync_variants(
         variant = None
         if variant_record.sku:
             variant = Variant.objects.filter(
-                product=product, sku=variant_record.sku
+                product=product, supplier_sku=variant_record.sku
             ).first()
 
         if variant is None:
@@ -173,12 +173,12 @@ def _sync_variants(
 
 
 def _update_variant_fields(variant: Variant, record: CanonicalVariant) -> None:
-    variant.sku = record.sku
+    variant.supplier_sku = record.sku
     variant.title = record.title
     variant.price = _safe_decimal(record.price)
     variant.compare_at_price = _safe_decimal(record.compare_at_price)
     variant.barcode = record.barcode
-    variant.inventory_quantity = record.inventory_quantity
+    #variant.inventory_quantity = record.inventory_quantity
     variant.grams = 0
 
     options = list(record.option_values.values()

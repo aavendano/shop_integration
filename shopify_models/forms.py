@@ -6,17 +6,18 @@ class VariantForm(forms.ModelForm):
     class Meta:
         model = Variant
         fields = [
-            'sku', 'title', 'price', 'compare_at_price',
-            'inventory_quantity', 'barcode', 'grams',
+            'supplier_sku', 'title', 'price', 'compare_at_price',
+            # 'inventory_quantity', 
+            'barcode', 'grams',
             'option1', 'option2', 'option3',
             'requires_shipping', 'taxable'
         ]
         widgets = {
-            'sku': forms.TextInput(attrs={'class': 'input', 'placeholder': 'SKU'}),
+            'supplier_sku': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Supplier SKU'}),
             'title': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Variant Title'}),
             'price': forms.NumberInput(attrs={'class': 'input', 'placeholder': '0.00', 'step': '0.01'}),
             'compare_at_price': forms.NumberInput(attrs={'class': 'input', 'placeholder': '0.00', 'step': '0.01'}),
-            'inventory_quantity': forms.NumberInput(attrs={'class': 'input', 'placeholder': '0'}),
+            # 'inventory_quantity': forms.NumberInput(attrs={'class': 'input', 'placeholder': '0'}),
             'barcode': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Barcode'}),
             'grams': forms.NumberInput(attrs={'class': 'input', 'placeholder': '0'}),
             'option1': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Option 1'}),

@@ -24,88 +24,17 @@ class Image(ShopifyDataModel):
         return self.src
 
 
-class InventoryItem(ShopifyDataModel):
-    sku = models.CharField(max_length=255, null=True)
-    tracked = models.BooleanField(default=True)
-    requires_shipping = models.BooleanField(default=False)
 
-    unit_cost_amount = models.DecimalField(
-        max_digits=12, decimal_places=2, null=True
-    )
-    unit_cost_currency = models.CharField(max_length=3, null=True)
-    locations_count = models.IntegerField(null=True)
-    variant = models.OneToOneField(
-        "shopify_models.Variant",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="inventory_item",
-    )
-
-    @classmethod
-    def normalize_unit_cost(cls, unit_cost):
-        if not unit_cost:
-            return None, None
-        amount = unit_cost.get("amount")
-        currency = unit_cost.get("currencyCode")
-        if amount is None:
-            return None, currency
-        return Decimal(str(amount)), currency
-
-
-class Location(ShopifyDataModel):
-
-    name = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=False)
-    activatable = models.BooleanField(default=False)
-    deactivatable = models.BooleanField(default=False)
-    deletable = models.BooleanField(default=False)
-    fulfills_online_orders = models.BooleanField(default=False)
-    has_active_inventory = models.BooleanField(default=False)
-    has_unfulfilled_orders = models.BooleanField(default=False)
-    ships_inventory = models.BooleanField(default=False)
-    address = models.JSONField(
-        encoder=ShopifyDjangoJSONEncoder,
-        null=True,
-    )
-    local_pickup_settings = models.JSONField(
-        encoder=ShopifyDjangoJSONEncoder,
-        null=True,
-    )
-    last_inventory_sync_at = models.DateTimeField(null=True)
-
-    def trigger_inventory_sync(
-        self,
-        *,
-        updated_at_query=None,
-        page_size=50,
-        max_pages=None,
-        throttle=True,
-        quantity_names=None,
-    ):
-        from .services.inventory import sync_location_inventory_levels
-
-        return sync_location_inventory_levels(
-            self,
-            updated_at_query=updated_at_query,
-            page_size=page_size,
-            max_pages=max_pages,
-            throttle=throttle,
-            quantity_names=quantity_names,
-        )
 
 
 log = logging.getLogger(__name__)
 
 
 class Product(ShopifyDataModel):
-    body_html = models.TextField(default="", null=True)
+    description = models.TextField(default="", null=True)
     handle = models.CharField(max_length=255, db_index=True)
     product_type = models.CharField(max_length=255, db_index=True)
-    published_at = models.DateTimeField(null=True)
-    published_scope = models.CharField(max_length=64, default="global")
     tags = models.CharField(max_length=255, blank=True)
-    template_suffix = models.CharField(max_length=255, null=True)
     title = models.CharField(max_length=255, db_index=True)
     vendor = models.CharField(max_length=255, db_index=True, null=True)
 
@@ -158,47 +87,88 @@ class Product(ShopifyDataModel):
         return self.title
 
 
+
+class InventoryItem(ShopifyDataModel):
+    shopify_sku = models.CharField(max_length=255, null=True)
+    tracked = models.BooleanField(default=True)
+    requires_shipping = models.BooleanField(default=False)
+    unit_cost_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True
+    )
+    unit_cost_currency = models.CharField(max_length=3, null=True)
+    #locations_count = models.IntegerField(null=True)
+    variant = models.OneToOneField(
+        "shopify_models.Variant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="inventory_item",
+    )
+
+    @classmethod
+    def normalize_unit_cost(cls, unit_cost):
+        if not unit_cost:
+            return None, None
+        amount = unit_cost.get("amount")
+        currency = unit_cost.get("currencyCode")
+        if amount is None:
+            return None, currency
+        return Decimal(str(amount)), currency
+
 class InventoryLevel(ShopifyDataModel):
 
     inventory_item = models.ForeignKey(
         InventoryItem, on_delete=models.CASCADE, related_name="inventory_levels")
 
+    # Location GID (e.g., "gid://shopify/Location/89689161972")
+    location_gid = models.CharField(max_length=255, null=True, blank=True)
+
     quantities = models.JSONField(
         encoder=ShopifyDjangoJSONEncoder,
         null=True,
     )
-    can_deactivate = models.BooleanField(default=False)
-    deactivation_alert = models.TextField(null=True)
-    scheduled_changes = models.JSONField(
-        encoder=ShopifyDjangoJSONEncoder,
-        null=True,
-    )
+    #can_deactivate = models.BooleanField(default=False)
+    #deactivation_alert = models.TextField(null=True)
+    # scheduled_changes = models.JSONField(
+    #     encoder=ShopifyDjangoJSONEncoder,
+    #     null=True,
+    # )
     sync_pending = models.BooleanField(default=False)
     source_updated_at = models.DateTimeField(null=True)
     synced_at = models.DateTimeField(null=True)
 
 
 class Variant(ShopifyDataModel):
+    INVENTORY_POLICY_CHOICES = [
+        ("deny", "Deny"),
+        ("continue", "Continue"),
+    ]
     barcode = models.CharField(max_length=255, null=True)
     compare_at_price = models.DecimalField(
         max_digits=10, decimal_places=2, null=True)
-    fulfillment_service = models.CharField(max_length=32, default="manual")
+    inventory_policy = models.CharField(
+        max_length=32, null=True, choices=INVENTORY_POLICY_CHOICES, default="deny")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    taxable = models.BooleanField(default=True)
+    title = models.CharField(max_length=255, blank=True, null=True)
+    supplier_sku = models.CharField(max_length=255, null=True)
+    
+    # NOTE: fulfillment_service field removed - use settings.SHOPIFY_FULFILLMENT_SERVICE when needed
     grams = models.IntegerField()
     inventory_management = models.CharField(
         max_length=32, null=True, default="blank")
-    inventory_policy = models.CharField(
-        max_length=32, null=True, default="deny")
-    inventory_quantity = models.IntegerField(null=True)
     option1 = models.CharField(max_length=255, null=True)
     option2 = models.CharField(max_length=255, null=True)
     option3 = models.CharField(max_length=255, null=True)
     position = models.IntegerField(null=True, default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     requires_shipping = models.BooleanField(default=True)
-    sku = models.CharField(max_length=255, null=True)
-    taxable = models.BooleanField(default=True)
-    title = models.CharField(max_length=255, blank=True, null=True)
+
+
+
+    #inventory_quantity = models.IntegerField(null=True)
+
+
 
     def __str__(self):
         return f"{self.product} - {self.title}"

@@ -1,0 +1,133 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Pricing Setup{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">
+            <span class="icon-text">
+                <span class="icon"><i class="lucide-dollar-sign"></i></span>
+                <span>Contextual Pricing Setup</span>
+            </span>
+        </h1>
+        <p class="subtitle">Configure Shopify Catalog and Price List for country and provider-specific pricing</p>
+
+        <!-- Configuration Display -->
+        <div class="box">
+            <h2 class="title is-4">Current Configuration</h2>
+            <div class="content">
+                <table class="table is-fullwidth">
+                    <tbody>
+                        <tr>
+                            <th>Country</th>
+                            <td><span class="tag is-info">{{ country }}</span></td>
+                        </tr>
+                        <tr>
+                            <th>Provider Code</th>
+                            <td><span class="tag is-info">{{ provider_code }}</span></td>
+                        </tr>
+                        <tr>
+                            <th>Catalog Name</th>
+                            <td><strong>{{ catalog_name }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Currency</th>
+                            <td><span class="tag is-success">{{ currency }}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Status Display -->
+        <div class="box">
+            <h2 class="title is-4">Setup Status</h2>
+            
+            {% if not has_session %}
+                <article class="message is-danger">
+                    <div class="message-body">
+                        <strong>No active Shopify session found.</strong> Please authenticate with Shopify first.
+                    </div>
+                </article>
+            {% elif is_configured %}
+                <article class="message is-success">
+                    <div class="message-body">
+                        <p><strong>✓ Catalog and Price List are configured!</strong></p>
+                        <div class="content mt-3">
+                            <p><strong>Catalog ID:</strong></p>
+                            <pre><code>{{ catalog_id }}</code></pre>
+                            <p><strong>Price List ID:</strong></p>
+                            <pre><code>{{ price_list_id }}</code></pre>
+                        </div>
+                    </div>
+                </article>
+            {% else %}
+                <article class="message is-warning">
+                    <div class="message-body">
+                        <strong>Not configured yet.</strong> Click the button below to create your Catalog and Price List.
+                    </div>
+                </article>
+            {% endif %}
+        </div>
+
+        <!-- Actions -->
+        <div class="box">
+            <h2 class="title is-4">Actions</h2>
+            
+            {% if has_session %}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="field">
+                        <div class="control">
+                            {% if is_configured %}
+                                <button type="submit" class="button is-warning is-medium">
+                                    <span class="icon"><i class="lucide-refresh-cw"></i></span>
+                                    <span>Recreate Catalog & Price List</span>
+                                </button>
+                                <p class="help">This will create new resources. Update your .env file with the new IDs.</p>
+                            {% else %}
+                                <button type="submit" class="button is-primary is-medium">
+                                    <span class="icon"><i class="lucide-plus-circle"></i></span>
+                                    <span>Create Catalog & Price List</span>
+                                </button>
+                                <p class="help">This will create a new Catalog and Price List in Shopify.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            {% else %}
+                <button class="button is-medium" disabled>
+                    <span class="icon"><i class="lucide-alert-circle"></i></span>
+                    <span>Authenticate with Shopify First</span>
+                </button>
+            {% endif %}
+        </div>
+
+        <!-- Help Section -->
+        <div class="box">
+            <h2 class="title is-4">How It Works</h2>
+            <div class="content">
+                <ol>
+                    <li><strong>Create Catalog & Price List:</strong> Click the button above to create resources in Shopify</li>
+                    <li><strong>Update .env:</strong> Copy the IDs displayed and add them to your <code>.env</code> file</li>
+                    <li><strong>Restart Server:</strong> Restart Django to load the new configuration</li>
+                    <li><strong>Sync Prices:</strong> Go to product pages and use "Sync Prices" to set contextual pricing</li>
+                </ol>
+                
+                <article class="message is-info">
+                    <div class="message-body">
+                        <strong>Note:</strong> After creating the Catalog and Price List, you'll need to manually add the IDs to your <code>.env</code> file and restart the server for the configuration to take effect.
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

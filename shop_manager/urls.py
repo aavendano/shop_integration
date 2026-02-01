@@ -8,6 +8,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('admin/', admin.site.urls),
     path('shopify_models/', include('shopify_models.urls')),
+    path('prices/', include('prices.urls')),
 
 ]
 

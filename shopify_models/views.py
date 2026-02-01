@@ -36,7 +36,7 @@ class ProductDetailView(DetailView):
         context['images'] = product.images.all().order_by('position')
         
         # Get variants with their related inventory data
-        from .models import Location, InventoryItem
+        from .models import InventoryItem
         
         variants_data = []
         for variant in product.variants.all().order_by('position'):
@@ -50,14 +50,17 @@ class ProductDetailView(DetailView):
             if hasattr(variant, 'inventory_item') and variant.inventory_item:
                 variant_info['inventory_item'] = variant.inventory_item
                 # Get inventory levels for this item
-                variant_info['inventory_levels'] = variant.inventory_item.inventory_levels.select_related('inventory_item').all()
+                variant_info['inventory_levels'] = variant.inventory_item.inventory_levels.all()
             
             variants_data.append(variant_info)
         
         context['variants_data'] = variants_data
         
-        # Get all available locations
-        context['locations'] = Location.objects.all().order_by('name')
+        # Add pricing configuration
+        from django.conf import settings
+        context['price_list_configured'] = bool(settings.SHOPIFY_PRICE_LIST_ID)
+        context['catalog_name'] = settings.SHOPIFY_CATALOG_NAME
+        context['currency'] = settings.SHOPIFY_CURRENCY
         
         return context
 

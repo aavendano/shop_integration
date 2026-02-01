@@ -32,6 +32,23 @@
                         </button>
                     </form>
                 </div>
+                
+                <div class="level-item">
+                    {% if price_list_configured %}
+                    <form action="{% url 'prices:sync_product' product.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="button is-success">
+                            <span class="icon"><i class="lucide-dollar-sign"></i></span>
+                            <span>Sync Prices</span>
+                        </button>
+                    </form>
+                    {% else %}
+                    <a href="{% url 'prices:setup' %}" class="button is-warning">
+                        <span class="icon"><i class="lucide-alert-circle"></i></span>
+                        <span>Setup Pricing</span>
+                    </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -62,12 +79,12 @@
                         <span>Inventory</span>
                     </a>
                 </li>
-                <li data-tab="locations">
+                <!-- <li data-tab="locations">
                     <a>
                         <span class="icon is-small"><i class="lucide-map-pin"></i></span>
                         <span>Locations ({{ locations.count }})</span>
                     </a>
-                </li>
+                </li> -->
             </ul>
         </div>
 
@@ -124,18 +141,8 @@
                                         <p class="heading">Vendor</p>
                                         <p>{{ product.vendor|placeholder }}</p>
                                     </div>
-                                    <div class="column is-half">
-                                        <p class="heading">Published Scope</p>
-                                        <p>{{ product.published_scope|placeholder }}</p>
-                                    </div>
-                                    <div class="column is-half">
-                                        <p class="heading">Published At</p>
-                                        <p>{{ product.published_at|date:"Y-m-d H:i"|placeholder:"Draft" }}</p>
-                                    </div>
-                                    <div class="column is-half">
-                                        <p class="heading">Template Suffix</p>
-                                        <p>{{ product.template_suffix|placeholder }}</p>
-                                    </div>
+                   
+                                    
                                     <div class="column is-half">
                                         <p class="heading">Created At</p>
                                         <p>{{ product.created_at|date:"Y-m-d H:i"|placeholder }}</p>
@@ -148,14 +155,14 @@
                             </div>
                         </div>
 
-                        {% if product.body_html %}
+                        {% if product.description %}
                         <div class="card mt-4">
                             <header class="card-header">
                                 <p class="card-header-title">Description (HTML)</p>
                             </header>
                             <div class="card-content">
                                 <div class="content">
-                                    {{ product.body_html|safe }}
+                                    {{ product.description|safe }}
                                 </div>
                             </div>
                         </div>
@@ -224,7 +231,7 @@
                     <header class="card-header">
                         <p class="card-header-title">
                             <span class="icon"><i class="lucide-package"></i></span>
-                            <span>{{ variant.title|placeholder:"Default" }} - {{ variant.sku|placeholder:"No SKU" }}</span>
+                            <span>{{ variant.title|placeholder:"Default" }} - {{ variant.supplier_sku|placeholder:"No SKU" }}</span>
                         </p>
                         <div class="card-header-icon">
                             <div class="buttons are-small">
@@ -244,8 +251,8 @@
                                 <p>{{ variant.shopify_id|shopify_id_badge }}</p>
                             </div>
                             <div class="column is-one-quarter">
-                                <p class="heading">SKU</p>
-                                <p>{{ variant.sku|placeholder }}</p>
+                                <p class="heading">Supplier SKU</p>
+                                <p>{{ variant.supplier_sku|placeholder }}</p>
                             </div>
                             <div class="column is-one-quarter">
                                 <p class="heading">Barcode</p>
@@ -267,10 +274,10 @@
                                 <p class="heading">Weight</p>
                                 <p>{{ variant.grams|format_weight }}</p>
                             </div>
-                            <div class="column is-one-quarter">
+                            <!-- <div class="column is-one-quarter">
                                 <p class="heading">Inventory Quantity</p>
                                 <p>{{ variant.inventory_quantity|placeholder:"0" }}</p>
-                            </div>
+                            </div> -->
                             <div class="column is-one-quarter">
                                 <p class="heading">Option 1</p>
                                 <p>{{ variant.option1|placeholder }}</p>
@@ -283,10 +290,10 @@
                                 <p class="heading">Option 3</p>
                                 <p>{{ variant.option3|placeholder }}</p>
                             </div>
-                            <div class="column is-one-quarter">
+                            <!-- <div class="column is-one-quarter">
                                 <p class="heading">Fulfillment Service</p>
                                 <p>{{ variant.fulfillment_service|placeholder }}</p>
-                            </div>
+                            </div> -->
                             <div class="column is-one-quarter">
                                 <p class="heading">Inventory Management</p>
                                 <p>{{ variant.inventory_management|placeholder }}</p>
@@ -331,7 +338,7 @@
                     <header class="card-header has-background-light">
                         <p class="card-header-title">
                             <span class="icon"><i class="lucide-package"></i></span>
-                            <span>{{ variant_info.variant.title|placeholder:"Default" }} ({{ variant_info.variant.sku|placeholder:"No SKU" }})</span>
+                            <span>{{ variant_info.variant.title|placeholder:"Default" }} ({{ variant_info.variant.supplier_sku|placeholder:"No SKU" }})</span>
                         </p>
                     </header>
                     <div class="card-content">
@@ -348,8 +355,8 @@
                                     <p>{{ variant_info.inventory_item.shopify_id|shopify_id_badge }}</p>
                                 </div>
                                 <div class="column is-one-quarter">
-                                    <p class="heading">SKU</p>
-                                    <p>{{ variant_info.inventory_item.sku|placeholder }}</p>
+                                    <p class="heading">Shopify SKU</p>
+                                    <p>{{ variant_info.inventory_item.shopify_sku|placeholder }}</p>
                                 </div>
                                 <div class="column is-one-quarter">
                                     <p class="heading">Tracked</p>
@@ -363,10 +370,10 @@
                                     <p class="heading">Unit Cost</p>
                                     <p>{{ variant_info.inventory_item.unit_cost_amount|currency:variant_info.inventory_item.unit_cost_currency|placeholder }}</p>
                                 </div>
-                                <div class="column is-one-quarter">
+                                <!-- <div class="column is-one-quarter">
                                     <p class="heading">Locations Count</p>
                                     <p>{{ variant_info.inventory_item.locations_count|placeholder }}</p>
-                                </div>
+                                </div> -->
                                 <div class="column is-one-quarter">
                                     <p class="heading">Created At</p>
                                     <p>{{ variant_info.inventory_item.created_at|date:"Y-m-d H:i"|placeholder }}</p>
@@ -408,12 +415,12 @@
                                                 —
                                                 {% endif %}
                                             </td>
-                                            <td>{{ level.can_deactivate|boolean_badge }}</td>
+                                            <!-- <td>{{ level.can_deactivate|boolean_badge }}</td> -->
                                             <td>{{ level.sync_pending|sync_status_badge }}</td>
                                             <td>{{ level.source_updated_at|date:"Y-m-d H:i"|placeholder }}</td>
                                             <td>{{ level.synced_at|date:"Y-m-d H:i"|placeholder }}</td>
                                         </tr>
-                                        {% if level.deactivation_alert %}
+                                        <!-- {% if level.deactivation_alert %}
                                         <tr>
                                             <td colspan="6">
                                                 <div class="notification is-warning is-light">
@@ -421,8 +428,8 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                        {% endif %}
-                                        {% if level.scheduled_changes %}
+                                        {% endif %} -->
+                                        <!-- {% if level.scheduled_changes %}
                                         <tr>
                                             <td colspan="6">
                                                 <details>
@@ -431,7 +438,7 @@
                                                 </details>
                                             </td>
                                         </tr>
-                                        {% endif %}
+                                        {% endif %} -->
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -460,8 +467,8 @@
                 {% endif %}
             </div>
 
-            {# LOCATIONS TAB #}
-            <div class="tab-pane" id="locations">
+            {# LOCATIONS TAB - REMOVED: Location model has been removed, location is now managed via .env #}
+            <!-- <div class="tab-pane" id="locations">
                 {% if locations %}
                 <div class="columns is-multiline">
                     {% for location in locations %}
@@ -546,7 +553,7 @@
                     <span>No locations found.</span>
                 </div>
                 {% endif %}
-            </div>
+            </div> -->
         </div>
     </div>
 </section>

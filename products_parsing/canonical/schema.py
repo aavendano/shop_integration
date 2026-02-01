@@ -66,7 +66,7 @@ class CanonicalVariant:
     price: Optional[Decimal] = None
     compare_at_price: Optional[Decimal] = None
     barcode: Optional[str] = None
-    inventory_quantity: Optional[int] = None
+    #inventory_quantity: Optional[int] = None
 
 
 @dataclass
@@ -301,15 +301,15 @@ def _validate_variants(variants: Any, issues: List[ValidationIssue]) -> None:
                     message="Expected string",
                 )
             )
-        if variant.inventory_quantity is not None and not isinstance(
-            variant.inventory_quantity, int
-        ):
-            issues.append(
-                ValidationIssue(
-                    path=f"variants[{idx}].inventory_quantity",
-                    message="Expected integer",
-                )
-            )
+        # if variant.inventory_quantity is not None and not isinstance(
+        #     variant.inventory_quantity, int
+        # ):
+        #     issues.append(
+        #         ValidationIssue(
+        #             path=f"variants[{idx}].inventory_quantity",
+        #             message="Expected integer",
+        #         )
+        #     )
 
 
 def _validate_attributes(attributes: Any, issues: List[ValidationIssue]) -> None:

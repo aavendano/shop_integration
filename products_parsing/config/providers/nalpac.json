@@ -96,14 +96,7 @@
         }
       ]
     },
-    {
-      "source": "Inventory Quantity",
-      "destination": "variants.0.inventory_quantity"
-    },
-    {
-      "source": "Inventory Quantity__2",
-      "destination": "attributes.inventory_quantity_secondary"
-    },
+
     {
       "source": "Entrenue qty available",
       "destination": "attributes.entrenue_qty_available"

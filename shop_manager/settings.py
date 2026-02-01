@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'shopify_models.apps.ShopifyModelsConfig',
     'suppliers.apps.SuppliersConfig',
+    'prices.apps.PricesConfig',  # Contextual pricing management
     # 'shopify_webhook.apps.ShopifyWebhookConfig',
 
 ]
@@ -162,6 +163,28 @@ SHOPIFY_REDIRECT_URI = os.environ.get("SHOPIFY_REDIRECT_URI")
 SHOPIFY_APP_NAME = 'shop_manager_app'
 SHOP_ADMIN_URL = os.environ.get('SHOP_ADMIN_URL')
 API_VERSION = os.environ.get("API_VERSION", "2025-10")
+SHOPIFY_DEFAULT_LOCATION = os.environ.get("LOCATION", "gid://shopify/Location/89689161972")
+SHOPIFY_FULFILLMENT_SERVICE = os.environ.get("FULFILLMENT_SERVICE", "manual")
+
+# Contextual Pricing Configuration
+SHOPIFY_COUNTRY = os.environ.get("COUNTRY", "US")
+SHOPIFY_PROVIDER_CODE = os.environ.get("PROVIDER_CODE", "NALPAC")
+SHOPIFY_CATALOG_ID = os.environ.get("CATALOG_ID", None) or None
+SHOPIFY_PRICE_LIST_ID = os.environ.get("PRICE_LIST_ID", None) or None
+
+# Catalog name format: <COUNTRY>-<PROVIDER_CODE>
+SHOPIFY_CATALOG_NAME = f"{SHOPIFY_COUNTRY}-{SHOPIFY_PROVIDER_CODE}"
+
+# Currency mapping
+CURRENCY_MAP = {
+    'US': 'USD',
+    'CA': 'CAD',
+    'GB': 'GBP',
+    'AU': 'AUD',
+    'MX': 'MXN',
+    'EU': 'EUR',
+}
+SHOPIFY_CURRENCY = CURRENCY_MAP.get(SHOPIFY_COUNTRY, 'USD')
 
 
 # AUTHENTICATION_BACKENDS = ('shopify_auth.backends.ShopUserBackend',)

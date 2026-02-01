@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from ..graphql import ShopifyGraphQLClient
-from ..models import InventoryItem, InventoryLevel, Location
+from ..models import InventoryItem, InventoryLevel
 
 
 LOCATIONS_PAGE_QUERY = """
@@ -133,25 +133,26 @@ query LocationInventoryLevelsSince(
 """
 
 
-def sync_locations(session, *, query=None, page_size=50, max_pages=None, throttle=True):
-    client = ShopifyGraphQLClient(session, throttle=throttle)
-    variables = {"first": page_size, "after": None, "query": query}
-    page = 0
-    synced = 0
-    while True:
-        data, _extensions = client.execute(LOCATIONS_PAGE_QUERY, variables=variables)
-        connection = data["locations"]
-        for edge in connection["edges"]:
-            synced += 1
-            _upsert_location(session, edge["node"])
-        page_info = connection["pageInfo"]
-        if not page_info["hasNextPage"]:
-            break
-        page += 1
-        if max_pages is not None and page >= max_pages:
-            break
-        variables["after"] = page_info["endCursor"]
-    return synced
+# NOTE: Location model has been removed. Location data is now managed via .env
+# def sync_locations(session, *, query=None, page_size=50, max_pages=None, throttle=True):
+#     client = ShopifyGraphQLClient(session, throttle=throttle)
+#     variables = {"first": page_size, "after": None, "query": query}
+#     page = 0
+#     synced = 0
+#     while True:
+#         data, _extensions = client.execute(LOCATIONS_PAGE_QUERY, variables=variables)
+#         connection = data["locations"]
+#         for edge in connection["edges"]:
+#             synced += 1
+#             _upsert_location(session, edge["node"])
+#         page_info = connection["pageInfo"]
+#         if not page_info["hasNextPage"]:
+#             break
+#         page += 1
+#         if max_pages is not None and page >= max_pages:
+#             break
+#         variables["after"] = page_info["endCursor"]
+#     return synced
 
 
 def sync_inventory_items(
@@ -180,7 +181,8 @@ def sync_inventory_items(
 
 
 def sync_location_inventory_levels(
-    location,
+    location_gid,
+    session,
     *,
     updated_at_query=None,
     page_size=50,
@@ -188,14 +190,25 @@ def sync_location_inventory_levels(
     throttle=True,
     quantity_names=None,
 ):
+    """
+    Sync inventory levels for a specific location.
+    
+    Args:
+        location_gid: The Shopify location GID (e.g., "gid://shopify/Location/89689161972")
+        session: The session object
+        updated_at_query: Optional query filter for updated_at
+        page_size: Number of items per page
+        max_pages: Maximum number of pages to fetch
+        throttle: Whether to throttle API requests
+        quantity_names: List of quantity names to fetch
+    
+    Returns:
+        Number of inventory levels synced
+    """
     quantity_names = quantity_names or ["available", "incoming", "on_hand"]
-    if updated_at_query is None and location.last_inventory_sync_at:
-        updated_at_query = (
-            f"updated_at:>='{location.last_inventory_sync_at.isoformat()}'"
-        )
-    client = ShopifyGraphQLClient(location.session, throttle=throttle)
+    client = ShopifyGraphQLClient(session, throttle=throttle)
     variables = {
-        "locationId": location.admin_graphql_api_id,
+        "locationId": location_gid,
         "first": page_size,
         "after": None,
         "updatedAtQuery": updated_at_query,
@@ -211,7 +224,7 @@ def sync_location_inventory_levels(
         connection = data["location"]["inventoryLevels"]
         for edge in connection["edges"]:
             synced += 1
-            _upsert_inventory_level(location, edge["node"], synced_at=now)
+            _upsert_inventory_level(location_gid, session, edge["node"], synced_at=now)
         page_info = connection["pageInfo"]
         if not page_info["hasNextPage"]:
             break
@@ -219,33 +232,32 @@ def sync_location_inventory_levels(
         if max_pages is not None and page >= max_pages:
             break
         variables["after"] = page_info["endCursor"]
-    location.last_inventory_sync_at = now
-    location.save(update_fields=["last_inventory_sync_at"])
     return synced
 
 
-def _upsert_location(session, node):
-    legacy_id = node.get("legacyResourceId")
-    if legacy_id is None:
-        legacy_id = _parse_legacy_id(node.get("id"))
-    defaults = {
-        "session": session,
-        "admin_graphql_api_id": node.get("id"),
-        "name": node.get("name"),
-        "is_active": node.get("isActive") or False,
-        "activatable": node.get("activatable") or False,
-        "deactivatable": node.get("deactivatable") or False,
-        "deletable": node.get("deletable") or False,
-        "fulfills_online_orders": node.get("fulfillsOnlineOrders") or False,
-        "has_active_inventory": node.get("hasActiveInventory") or False,
-        "has_unfulfilled_orders": node.get("hasUnfulfilledOrders") or False,
-        "ships_inventory": node.get("shipsInventory") or False,
-        "address": node.get("address"),
-        "local_pickup_settings": node.get("localPickupSettingsV2"),
-        "created_at": _parse_datetime(node.get("createdAt")),
-        "updated_at": _parse_datetime(node.get("updatedAt")),
-    }
-    Location.objects.update_or_create(id=legacy_id, defaults=defaults)
+# NOTE: Location model has been removed. Location data is now managed via .env
+# def _upsert_location(session, node):
+#     legacy_id = node.get("legacyResourceId")
+#     if legacy_id is None:
+#         legacy_id = _parse_legacy_id(node.get("id"))
+#     defaults = {
+#         "session": session,
+#         "admin_graphql_api_id": node.get("id"),
+#         "name": node.get("name"),
+#         "is_active": node.get("isActive") or False,
+#         "activatable": node.get("activatable") or False,
+#         "deactivatable": node.get("deactivatable") or False,
+#         "deletable": node.get("deletable") or False,
+#         "fulfills_online_orders": node.get("fulfillsOnlineOrders") or False,
+#         "has_active_inventory": node.get("hasActiveInventory") or False,
+#         "has_unfulfilled_orders": node.get("hasUnfulfilledOrders") or False,
+#         "ships_inventory": node.get("shipsInventory") or False,
+#         "address": node.get("address"),
+#         "local_pickup_settings": node.get("localPickupSettingsV2"),
+#         "created_at": _parse_datetime(node.get("createdAt")),
+#         "updated_at": _parse_datetime(node.get("updatedAt")),
+#     }
+#     Location.objects.update_or_create(id=legacy_id, defaults=defaults)
 
 
 def _upsert_inventory_item(session, node):
@@ -256,33 +268,34 @@ def _upsert_inventory_item(session, node):
     defaults = {
         "session": session,
         "admin_graphql_api_id": node.get("id"),
-        "sku": node.get("sku"),
+        "shopify_sku": node.get("sku"),
         "tracked": node.get("tracked") or False,
         "requires_shipping": node.get("requiresShipping") or False,
-        "country_code_of_origin": node.get("countryCodeOfOrigin"),
-        "province_code_of_origin": node.get("provinceCodeOfOrigin"),
-        "harmonized_system_code": node.get("harmonizedSystemCode"),
-        "country_harmonized_system_codes": _flatten_country_codes(
-            node.get("countryHarmonizedSystemCodes")
-        ),
         "unit_cost_amount": amount,
         "unit_cost_currency": currency,
-        "locations_count": _extract_count(node.get("locationsCount")),
-        "created_at": _parse_datetime(node.get("createdAt")),
-        "updated_at": _parse_datetime(node.get("updatedAt")),
-    }
+        #"locations_count": _extract_count(node.get("locationsCount")),
+}
     InventoryItem.objects.update_or_create(id=legacy_id, defaults=defaults)
 
 
-def _upsert_inventory_level(location, node, *, synced_at):
+def _upsert_inventory_level(location_gid, session, node, *, synced_at):
+    """
+    Update or create an inventory level.
+    
+    Args:
+        location_gid: The Shopify location GID (e.g., "gid://shopify/Location/89689161972")
+        session: The session object
+        node: The inventory level data from GraphQL
+        synced_at: Timestamp of when this sync occurred
+    """
     inventory_item_gid = node["item"]["id"]
     inventory_item_id = _parse_legacy_id(inventory_item_gid)
     inventory_item, _created = InventoryItem.objects.get_or_create(
         id=inventory_item_id,
         defaults={
-            "session": location.session,
+            "session": session,
             "admin_graphql_api_id": inventory_item_gid,
-            "sku": node["item"].get("sku"),
+            "shopify_sku": node["item"].get("sku"),
         },
     )
     level_id = _parse_legacy_id(node["id"])
@@ -291,10 +304,10 @@ def _upsert_inventory_level(location, node, *, synced_at):
         for quantity in node.get("quantities", [])
     }
     defaults = {
-        "session": location.session,
+        "session": session,
         "admin_graphql_api_id": node["id"],
         "inventory_item": inventory_item,
-        "location": location,
+        "location_gid": location_gid,
         "quantities": quantities,
         "source_updated_at": _parse_datetime(node.get("updatedAt")),
         "synced_at": synced_at,
