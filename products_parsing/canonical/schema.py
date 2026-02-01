@@ -60,13 +60,25 @@ class CanonicalMedia:
 
 @dataclass
 class CanonicalVariant:
-    sku: Optional[str] = None
+    barcode: Optional[str] = None
+    compare_at_price: Optional[Decimal] = None
+    supplier_sku: Optional[str] = None
     title: Optional[str] = None
     option_values: Dict[str, str] = field(default_factory=dict)
     price: Optional[Decimal] = None
-    compare_at_price: Optional[Decimal] = None
-    barcode: Optional[str] = None
     #inventory_quantity: Optional[int] = None
+
+@dataclass
+class CanonicalInventoryLevel:
+    barcode: Optional[str] = None
+    compare_at_price: Optional[Decimal] = None
+    supplier_sku: Optional[str] = None
+    title: Optional[str] = None
+    option_values: Dict[str, str] = field(default_factory=dict)
+    price: Optional[Decimal] = None
+    #inventory_quantity: Optional[int] = None
+
+
 
 
 @dataclass

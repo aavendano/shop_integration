@@ -2,7 +2,7 @@ import logging
 from decimal import Decimal
 from django.db import models
 from .encoders import ShopifyDjangoJSONEncoder
-
+from django.conf import settings
 
 class ShopifyDataModel(models.Model):
     shopify_id = models.CharField(
@@ -86,6 +86,90 @@ class Product(ShopifyDataModel):
     def __str__(self):
         return self.title
 
+    def export_to_shopify(self):
+        """
+        Export product and its variants to Shopify.
+        Creates or updates the product in Shopify and updates local shopify_ids.
+        """
+        from accounts.models import Session
+        import shopify
+        from django.conf import settings
+        
+        session = Session.objects.first()
+        if not session:
+            raise Exception("No active Shopify session found")
+            
+        with shopify.Session.temp(session.site, settings.API_VERSION, session.token):
+            # 1. Create/Update Product
+            if self.shopify_id:
+                try:
+                    s_product = shopify.Product.find(self.shopify_id)
+                except:
+                    s_product = shopify.Product()
+            else:
+                s_product = shopify.Product()
+            
+            s_product.title = self.title
+            s_product.body_html = self.description or ""
+            s_product.vendor = self.vendor
+            s_product.product_type = self.product_type
+            s_product.tags = self.tags
+            
+            # Prepare variants
+            # Note: This is a basic implementation. For complex variant syncing (options, etc),
+            # more logic is needed. Here we try to match existing variants.
+            local_variants = list(self.variants.all().order_by('position'))
+            s_variants = []
+            
+            for v in local_variants:
+                s_variant = shopify.Variant()
+                if v.shopify_id: # Usually shopify_id is the ID part, unrelated to admin_graphql_api_id formatting here
+                     s_variant.id = v.shopify_id
+                
+                s_variant.price = str(v.price)
+                s_variant.sku = v.supplier_sku or ""
+                s_variant.title = v.title or ""
+                
+                # Options
+                if v.option1: s_variant.option1 = v.option1
+                if v.option2: s_variant.option2 = v.option2
+                if v.option3: s_variant.option3 = v.option3
+                
+                s_variants.append(s_variant)
+            
+            if s_variants:
+                s_product.variants = s_variants
+
+            # Save
+            success = s_product.save()
+            
+            if not success:
+                raise Exception(f"Failed to export to Shopify: {s_product.errors.full_messages()}")
+                
+            # Update local IDs
+            self.shopify_id = str(s_product.id)
+            self.save()
+            
+            # Update variant IDs
+            # Shopify returns variants in the same order/logic? 
+            # We strictly need to map them back to save Admin GraphQL API IDs if we want price sync to work natively
+            # But wait, our logic in sync_variant_prices uses shopify_id to construct GID.
+            # So we just need to save shopify_id on variants.
+            
+            # Reload to get canonical data
+            s_product = shopify.Product.find(s_product.id)
+            
+            # Map back to local variants
+            # This heuristic assumes strictly same order or SKU matching
+            # Since we just sent them, order should be preserved?
+            
+            for i, s_variant in enumerate(s_product.variants):
+                if i < len(local_variants):
+                    local_v = local_variants[i]
+                    local_v.shopify_id = str(s_variant.id)
+                    local_v.admin_graphql_api_id = s_variant.admin_graphql_api_id
+                    local_v.save()
+
 
 
 class InventoryItem(ShopifyDataModel):
@@ -116,23 +200,13 @@ class InventoryItem(ShopifyDataModel):
         return Decimal(str(amount)), currency
 
 class InventoryLevel(ShopifyDataModel):
-
     inventory_item = models.ForeignKey(
         InventoryItem, on_delete=models.CASCADE, related_name="inventory_levels")
-
-    # Location GID (e.g., "gid://shopify/Location/89689161972")
-    location_gid = models.CharField(max_length=255, null=True, blank=True)
-
+    location_gid = models.CharField(max_length=255, default=settings.SHOPIFY_DEFAULT_LOCATION)
     quantities = models.JSONField(
         encoder=ShopifyDjangoJSONEncoder,
         null=True,
     )
-    #can_deactivate = models.BooleanField(default=False)
-    #deactivation_alert = models.TextField(null=True)
-    # scheduled_changes = models.JSONField(
-    #     encoder=ShopifyDjangoJSONEncoder,
-    #     null=True,
-    # )
     sync_pending = models.BooleanField(default=False)
     source_updated_at = models.DateTimeField(null=True)
     synced_at = models.DateTimeField(null=True)

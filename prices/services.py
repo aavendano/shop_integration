@@ -44,6 +44,9 @@ def execute_graphql(session: Session, query: str, variables: dict = None) -> dic
         response.raise_for_status()
         data = response.json()
         
+        # Log full response for debugging
+        logger.info(f"GraphQL Response: {data}")
+        
         # Check for GraphQL errors
         if "errors" in data:
             for error in data["errors"]:
@@ -58,6 +61,63 @@ def execute_graphql(session: Session, query: str, variables: dict = None) -> dic
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         return {"errors": [{"message": str(e)}]}
+
+
+def get_catalog_id_by_title(session: Session, title: str) -> Optional[str]:
+    """Retrieve catalog ID by title using GraphQL."""
+    query = """
+    query GetCatalog($query: String!) {
+      catalogs(first: 10, query: $query) {
+        edges {
+          node {
+            id
+            title
+          }
+        }
+      }
+    }
+    """
+    
+    variables = {
+        "query": f"title:{title}"
+    }
+    
+    response = execute_graphql(session, query, variables)
+    
+    edges = response.get("catalogs", {}).get("edges", [])
+    for edge in edges:
+        node = edge.get("node", {})
+        if node.get("title") == title:
+            return node.get("id")
+            
+    return None
+
+
+def get_price_list_id_by_name(session: Session, name: str) -> Optional[str]:
+    """Retrieve price list ID by name using GraphQL (filtering in code)."""
+    # priceLists query doesn't support 'query' filter, so we fetch and filter manually
+    query = """
+    query GetPriceLists {
+      priceLists(first: 50) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+    }
+    """
+    
+    response = execute_graphql(session, query)
+    
+    edges = response.get("priceLists", {}).get("edges", [])
+    for edge in edges:
+        node = edge.get("node", {})
+        if node.get("name") == name:
+            return node.get("id")
+            
+    return None
 
 
 def create_catalog(session: Session, title: str, country_code: str) -> Optional[str]:
@@ -102,6 +162,9 @@ def create_catalog(session: Session, title: str, country_code: str) -> Optional[
     
     try:
         response = execute_graphql(session, mutation, variables)
+        
+        if response.get("errors"):
+            return None
         
         if response.get("userErrors"):
             for error in response["userErrors"]:
@@ -204,35 +267,67 @@ def get_or_create_catalog_and_price_list(session: Session) -> Tuple[Optional[str
         - price_list_id: Price List GID
         - created: True if newly created, False if existing
     """
-    # Check if already configured
+    # Check if already configured in settings
     if settings.SHOPIFY_CATALOG_ID and settings.SHOPIFY_PRICE_LIST_ID:
         logger.info("Using existing catalog and price list from settings")
         return settings.SHOPIFY_CATALOG_ID, settings.SHOPIFY_PRICE_LIST_ID, False
     
-    # Create new catalog
-    catalog_id = create_catalog(
-        session=session,
-        title=settings.SHOPIFY_CATALOG_NAME,
-        country_code=settings.SHOPIFY_COUNTRY
-    )
+    catalog_id = settings.SHOPIFY_CATALOG_ID
+    price_list_id = settings.SHOPIFY_PRICE_LIST_ID
+    newly_created = False
+    
+    # 1. Get or Create Catalog
+    if not catalog_id:
+        title = settings.SHOPIFY_CATALOG_NAME
+        
+        # Check if exists
+        logger.info(f"Checking for existing catalog: {title}")
+        catalog_id = get_catalog_id_by_title(session, title)
+        
+        if catalog_id:
+            logger.info(f"Found existing catalog: {catalog_id}")
+        else:
+            # Create new
+            logger.info(f"Creating new catalog: {title}")
+            catalog_id = create_catalog(
+                session=session,
+                title=title,
+                country_code=settings.SHOPIFY_COUNTRY
+            )
+            if catalog_id:
+                newly_created = True
     
     if not catalog_id:
-        logger.error("Failed to create catalog")
+        logger.error("Failed to get or create catalog")
         return None, None, False
     
-    # Create new price list
-    price_list_id = create_price_list(
-        session=session,
-        name=f"{settings.SHOPIFY_CATALOG_NAME} Pricing",
-        currency=settings.SHOPIFY_CURRENCY,
-        catalog_id=catalog_id
-    )
+    # 2. Get or Create Price List
+    if not price_list_id:
+        name = f"{settings.SHOPIFY_CATALOG_NAME} Pricing"
+        
+        # Check if exists
+        logger.info(f"Checking for existing price list: {name}")
+        price_list_id = get_price_list_id_by_name(session, name)
+        
+        if price_list_id:
+            logger.info(f"Found existing price list: {price_list_id}")
+        else:
+            # Create new
+            logger.info(f"Creating new price list: {name}")
+            price_list_id = create_price_list(
+                session=session,
+                name=name,
+                currency=settings.SHOPIFY_CURRENCY,
+                catalog_id=catalog_id
+            )
+            if price_list_id:
+                newly_created = True
     
     if not price_list_id:
-        logger.error("Failed to create price list")
+        logger.error("Failed to get or create price list")
         return catalog_id, None, False
     
-    return catalog_id, price_list_id, True
+    return catalog_id, price_list_id, newly_created
 
 
 def sync_variant_prices(
@@ -274,12 +369,18 @@ def sync_variant_prices(
     # Prepare price inputs
     price_inputs = []
     for variant in variants:
-        if not variant.admin_graphql_api_id:
-            logger.warning(f"Variant {variant.id} has no Shopify GID, skipping")
+        variant_id = getattr(variant, 'admin_graphql_api_id', None)
+        
+        # If no admin_graphql_api_id, try to construct from shopify_id
+        if not variant_id and hasattr(variant, 'shopify_id') and variant.shopify_id:
+            variant_id = f"gid://shopify/ProductVariant/{variant.shopify_id}"
+            
+        if not variant_id:
+            logger.warning(f"Variant {variant.id} has no Shopify ID, skipping")
             continue
         
         price_input = {
-            "variantId": variant.admin_graphql_api_id,
+            "variantId": variant_id,
             "price": {
                 "amount": str(variant.price),
                 "currencyCode": settings.SHOPIFY_CURRENCY
@@ -299,7 +400,7 @@ def sync_variant_prices(
         return {
             "success_count": 0,
             "error_count": 0,
-            "errors": ["No valid variants to sync"]
+            "errors": ["No valid variants to sync. Ensure product is synced to Shopify first."]
         }
     
     # Process in batches of 100 (Shopify limit)
