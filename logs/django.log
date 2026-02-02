@@ -41,3 +41,310 @@ INFO 2026-02-02 06:35:23,086 shopify_models.models models 63928 126912748406464 
 INFO 2026-02-02 06:35:23,086 shopify_models.models models 63928 126912748406464 Inventory sync quantity for variant 7: None
 INFO 2026-02-02 06:35:23,088 django.server log 63928 126912748406464 "POST /shopify_models/products/7/sync/ HTTP/1.1" 302 0
 INFO 2026-02-02 06:35:23,107 django.server log 63928 126912748406464 "GET /shopify_models/products/7/ HTTP/1.1" 200 24355
+INFO 2026-02-02 14:28:51,446 django.utils.autoreload autoreload 12966 123752286109824 Watching for file changes with StatReloader
+INFO 2026-02-02 14:28:55,049 django.server log 12966 123752118130368 "GET / HTTP/1.1" 200 4301
+INFO 2026-02-02 14:28:55,141 django.server log 12966 123752118130368 "GET /static/style/css/main.min.css HTTP/1.1" 304 0
+WARNING 2026-02-02 14:28:55,464 django.server log 12966 123752118130368 "GET /favicon.ico HTTP/1.1" 404 3581
+ERROR 2026-02-02 14:28:57,868 django.request log 12966 123752118130368 Internal Server Error: /shopify_models/products/
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 359, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: shopify_models_product.description
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 221, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 174, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 166, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 160, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 166, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 66, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 202, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 372, in __len__
+    self._fetch_all()
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 2000, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 95, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1624, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 359, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: shopify_models_product.description
+ERROR 2026-02-02 14:28:57,873 django.server log 12966 123752118130368 "GET /shopify_models/products/ HTTP/1.1" 500 215687
+INFO 2026-02-02 14:30:12,085 django.utils.autoreload autoreload 14003 140635261845632 Watching for file changes with StatReloader
+INFO 2026-02-02 14:30:15,607 django.server log 14003 140635093415616 "GET / HTTP/1.1" 200 4301
+INFO 2026-02-02 14:30:17,570 django.server log 14003 140635093415616 "GET /shopify_models/products/ HTTP/1.1" 200 53351
+INFO 2026-02-02 14:30:25,319 django.server log 14003 140635093415616 "GET /shopify_models/products/29/ HTTP/1.1" 200 22770
+INFO 2026-02-02 14:46:20,243 django.server log 14003 140635093415616 "GET /shopify_models/products/ HTTP/1.1" 200 53351
+INFO 2026-02-02 14:46:35,936 django.server log 14003 140635093415616 "GET /shopify_models/products/7/ HTTP/1.1" 200 21683
+ERROR 2026-02-02 14:46:54,517 shopify_models.views views 14003 140635093415616 Unexpected error while synchronizing product 7 ('Water Slide Lubricant 4oz.'): Response(code=401, body="b'{"errors":"[API] Invalid API key or access token (unrecognized login or wrong password)"}'", headers={'Date': 'Mon, 02 Feb 2026 14:46:54 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'close', 'x-sorting-hat-shopid': '79935570164', 'referrer-policy': 'origin-when-cross-origin', 'x-frame-options': 'DENY', 'x-shopid': '79935570164', 'www-authenticate': 'Basic Realm="Shopify API Authentication"', 'strict-transport-security': 'max-age=7889238', 'x-request-id': '33eed51a-6c04-4c13-9145-c9085d8e69d0-1770043614', 'server-timing': 'processing;dur=29, verdict_flag_enabled;desc="count=1";dur=0.073, _y;desc="03a876a9-ac1a-4962-8e68-56a58e7ae9e5", _s;desc="005e17c5-149a-4674-bc13-1df97dd2d234"', 'content-security-policy': "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' https://* shopify-pos://*; block-all-mixed-content; child-src 'self' https://* shopify-pos://*; connect-src 'self' wss://* https://*; frame-ancestors 'none'; img-src 'self' data: blob: https:; script-src https://cdn.shopify.com https://cdn.shopifycdn.net https://checkout.pci.shopifyinc.com https://checkout.pci.shopifyinc.com/build/04ed4e1/card_fields.js https://api.stripe.com https://mpsnare.iesnare.com https://appcenter.intuit.com https://www.paypal.com https://js.braintreegateway.com https://c.paypal.com https://maps.googleapis.com https://www.google-analytics.com https://v.shopify.com 'self' 'unsafe-inline' 'unsafe-eval'; upgrade-insecure-requests; report-uri /csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=33eed51a-6c04-4c13-9145-c9085d8e69d0-1770043614; report-to shopify-csp", 'x-content-type-options': 'nosniff', 'x-download-options': 'noopen', 'x-permitted-cross-domain-policies': 'none', 'x-xss-protection': '1; mode=block', 'reporting-endpoints': 'shopify-csp="/csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=33eed51a-6c04-4c13-9145-c9085d8e69d0-1770043614"', 'x-dc': 'gcp-us-central1,gcp-us-central1,gcp-us-central1', 'Alt-Svc': 'h3=":443"; ma=86400', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"endpoints":[{"url":"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=QV5d%2BVeadymb5xfgQJL39U5pkWGfpAzM6h17zOuJsGs4J1%2BLTfC2lOO9cUcDwyWUkM3kDBPY8sqaZcDdywGoynu3SB5QyOghYyRGd5WKbghCbUFp%2Be3G6rn33vYXDq1kV9XIKU%2BavEpBjNdYZEtL3CY%3D"}],"group":"cf-nel","max_age":604800}', 'NEL': '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}', 'Server-Timing': 'processing;dur=29, verdict_flag_enabled;desc="count=1";dur=0.073, _y;desc="03a876a9-ac1a-4962-8e68-56a58e7ae9e5", _s;desc="005e17c5-149a-4674-bc13-1df97dd2d234"', 'Server': 'cloudflare', 'CF-RAY': '9c7a7b0e2bef7119-YYZ'}, msg="Unauthorized")
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 286, in _open
+    http_response = self._handle_error(self._urlopen(request))
+                                       ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 316, in _urlopen
+    return urllib.request.urlopen(request, timeout=self.timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 521, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 630, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 559, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 639, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 164, in export_to_shopify
+    success = s_product.save()
+              ^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/shopify/resources/product.py", line 43, in save
+    return super(ShopifyResource, self).save()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/activeresource.py", line 836, in save
+    response = self.klass.connection.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 375, in post
+    return self._open('POST', path, headers=headers, data=data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/shopify/base.py", line 23, in _open
+    self.response = super(ShopifyConnection, self)._open(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 288, in _open
+    http_response = self._handle_error(err)
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 415, in _handle_error
+    raise UnauthorizedAccess(err)
+pyactiveresource.connection.UnauthorizedAccess: Response(code=401, body="b'{"errors":"[API] Invalid API key or access token (unrecognized login or wrong password)"}'", headers={'Date': 'Mon, 02 Feb 2026 14:46:54 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'close', 'x-sorting-hat-shopid': '79935570164', 'referrer-policy': 'origin-when-cross-origin', 'x-frame-options': 'DENY', 'x-shopid': '79935570164', 'www-authenticate': 'Basic Realm="Shopify API Authentication"', 'strict-transport-security': 'max-age=7889238', 'x-request-id': '33eed51a-6c04-4c13-9145-c9085d8e69d0-1770043614', 'server-timing': 'processing;dur=29, verdict_flag_enabled;desc="count=1";dur=0.073, _y;desc="03a876a9-ac1a-4962-8e68-56a58e7ae9e5", _s;desc="005e17c5-149a-4674-bc13-1df97dd2d234"', 'content-security-policy': "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' https://* shopify-pos://*; block-all-mixed-content; child-src 'self' https://* shopify-pos://*; connect-src 'self' wss://* https://*; frame-ancestors 'none'; img-src 'self' data: blob: https:; script-src https://cdn.shopify.com https://cdn.shopifycdn.net https://checkout.pci.shopifyinc.com https://checkout.pci.shopifyinc.com/build/04ed4e1/card_fields.js https://api.stripe.com https://mpsnare.iesnare.com https://appcenter.intuit.com https://www.paypal.com https://js.braintreegateway.com https://c.paypal.com https://maps.googleapis.com https://www.google-analytics.com https://v.shopify.com 'self' 'unsafe-inline' 'unsafe-eval'; upgrade-insecure-requests; report-uri /csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=33eed51a-6c04-4c13-9145-c9085d8e69d0-1770043614; report-to shopify-csp", 'x-content-type-options': 'nosniff', 'x-download-options': 'noopen', 'x-permitted-cross-domain-policies': 'none', 'x-xss-protection': '1; mode=block', 'reporting-endpoints': 'shopify-csp="/csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=33eed51a-6c04-4c13-9145-c9085d8e69d0-1770043614"', 'x-dc': 'gcp-us-central1,gcp-us-central1,gcp-us-central1', 'Alt-Svc': 'h3=":443"; ma=86400', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"endpoints":[{"url":"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=QV5d%2BVeadymb5xfgQJL39U5pkWGfpAzM6h17zOuJsGs4J1%2BLTfC2lOO9cUcDwyWUkM3kDBPY8sqaZcDdywGoynu3SB5QyOghYyRGd5WKbghCbUFp%2Be3G6rn33vYXDq1kV9XIKU%2BavEpBjNdYZEtL3CY%3D"}],"group":"cf-nel","max_age":604800}', 'NEL': '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}', 'Server-Timing': 'processing;dur=29, verdict_flag_enabled;desc="count=1";dur=0.073, _y;desc="03a876a9-ac1a-4962-8e68-56a58e7ae9e5", _s;desc="005e17c5-149a-4674-bc13-1df97dd2d234"', 'Server': 'cloudflare', 'CF-RAY': '9c7a7b0e2bef7119-YYZ'}, msg="Unauthorized")
+INFO 2026-02-02 14:46:54,529 django.server log 14003 140635093415616 "POST /shopify_models/products/7/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 14:46:54,557 django.server log 14003 140635093415616 "GET /shopify_models/products/7/ HTTP/1.1" 200 25733
+INFO 2026-02-02 14:47:19,336 django.server log 14003 140635093415616 "GET /accounts/shops/ HTTP/1.1" 200 6270
+INFO 2026-02-02 14:47:23,792 django.server log 14003 140635093415616 "GET /accounts/shops/1/ HTTP/1.1" 200 6258
+INFO 2026-02-02 14:47:25,940 django.server log 14003 140635093415616 "GET /accounts/shops/1/auth/ HTTP/1.1" 302 0
+INFO 2026-02-02 14:53:08,482 django.utils.autoreload autoreload 16535 125167483175040 Watching for file changes with StatReloader
+INFO 2026-02-02 14:53:11,288 django.server log 16535 125167315011264 "GET / HTTP/1.1" 200 4211
+INFO 2026-02-02 14:53:11,343 django.server log 16535 125167315011264 "GET /static/style/css/main.min.css HTTP/1.1" 200 275898
+WARNING 2026-02-02 14:53:11,598 django.server log 16535 125167315011264 "GET /favicon.ico HTTP/1.1" 404 3581
+INFO 2026-02-02 14:53:33,171 django.server log 16535 125166889727680 "GET / HTTP/1.1" 200 4301
+INFO 2026-02-02 14:53:33,250 django.server log 16535 125166889727680 "GET /static/style/css/main.min.css HTTP/1.1" 304 0
+WARNING 2026-02-02 14:53:33,468 django.server log 16535 125166889727680 "GET /favicon.ico HTTP/1.1" 404 3599
+INFO 2026-02-02 14:53:37,771 django.server log 16535 125166889727680 "GET /accounts/shops/ HTTP/1.1" 200 6270
+INFO 2026-02-02 14:53:40,842 django.server log 16535 125166889727680 "GET /accounts/shops/1/ HTTP/1.1" 200 6258
+INFO 2026-02-02 14:53:42,090 django.server log 16535 125166889727680 "GET /accounts/shops/1/auth/ HTTP/1.1" 302 0
+INFO 2026-02-02 14:54:47,587 django.server log 16535 125166889727680 "GET / HTTP/1.1" 200 4301
+INFO 2026-02-02 14:54:50,091 django.server log 16535 125166889727680 "GET /shopify_models/products/ HTTP/1.1" 200 53351
+INFO 2026-02-02 14:54:56,902 django.server log 16535 125166889727680 "GET /shopify_models/products/7/ HTTP/1.1" 200 21683
+ERROR 2026-02-02 14:54:58,511 shopify_models.views views 16535 125166889727680 Unexpected error while synchronizing product 7 ('Water Slide Lubricant 4oz.'): Response(code=401, body="b'{"errors":"[API] Invalid API key or access token (unrecognized login or wrong password)"}'", headers={'Date': 'Mon, 02 Feb 2026 14:54:58 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'close', 'x-sorting-hat-shopid': '79935570164', 'referrer-policy': 'origin-when-cross-origin', 'x-frame-options': 'DENY', 'x-shopid': '79935570164', 'www-authenticate': 'Basic Realm="Shopify API Authentication"', 'strict-transport-security': 'max-age=7889238', 'x-request-id': 'f3856856-25b9-42a6-9004-a2e8682eb050-1770044098', 'server-timing': 'processing;dur=17, verdict_flag_enabled;desc="count=1";dur=0.109, _y;desc="59fc3bca-4998-40f9-af4c-3c408e8bd2b7", _s;desc="3978a584-7271-4a5c-b9a3-f8ee1fd7abc1"', 'content-security-policy': "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' https://* shopify-pos://*; block-all-mixed-content; child-src 'self' https://* shopify-pos://*; connect-src 'self' wss://* https://*; frame-ancestors 'none'; img-src 'self' data: blob: https:; script-src https://cdn.shopify.com https://cdn.shopifycdn.net https://checkout.pci.shopifyinc.com https://checkout.pci.shopifyinc.com/build/04ed4e1/card_fields.js https://api.stripe.com https://mpsnare.iesnare.com https://appcenter.intuit.com https://www.paypal.com https://js.braintreegateway.com https://c.paypal.com https://maps.googleapis.com https://www.google-analytics.com https://v.shopify.com 'self' 'unsafe-inline' 'unsafe-eval'; upgrade-insecure-requests; report-uri /csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=f3856856-25b9-42a6-9004-a2e8682eb050-1770044098; report-to shopify-csp", 'x-content-type-options': 'nosniff', 'x-download-options': 'noopen', 'x-permitted-cross-domain-policies': 'none', 'x-xss-protection': '1; mode=block', 'reporting-endpoints': 'shopify-csp="/csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=f3856856-25b9-42a6-9004-a2e8682eb050-1770044098"', 'x-dc': 'gcp-us-central1,gcp-us-central1,gcp-us-central1', 'Alt-Svc': 'h3=":443"; ma=86400', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"endpoints":[{"url":"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=7qf6c4BMP6QE%2BL%2B2u4s%2BZxpxmrYEzt4TFCe%2F51S75%2BDKwA3I50x2xny%2BdytE8SUisu7MWGRa%2Bcide6ds0d5NXyMltE0fntbbzB9h%2FR8Q94lgf8tcHMPOGJtO7XR7QoPXS03u9ylc%2BqIJFgtPqGEsA3k%3D"}],"group":"cf-nel","max_age":604800}', 'NEL': '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}', 'Server-Timing': 'processing;dur=17, verdict_flag_enabled;desc="count=1";dur=0.109, _y;desc="59fc3bca-4998-40f9-af4c-3c408e8bd2b7", _s;desc="3978a584-7271-4a5c-b9a3-f8ee1fd7abc1"', 'Server': 'cloudflare', 'CF-RAY': '9c7a86df49ddac66-YYZ'}, msg="Unauthorized")
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 286, in _open
+    http_response = self._handle_error(self._urlopen(request))
+                                       ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 316, in _urlopen
+    return urllib.request.urlopen(request, timeout=self.timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 521, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 630, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 559, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 639, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 164, in export_to_shopify
+    success = s_product.save()
+              ^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/shopify/resources/product.py", line 43, in save
+    return super(ShopifyResource, self).save()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/activeresource.py", line 836, in save
+    response = self.klass.connection.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 375, in post
+    return self._open('POST', path, headers=headers, data=data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/shopify/base.py", line 23, in _open
+    self.response = super(ShopifyConnection, self)._open(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 288, in _open
+    http_response = self._handle_error(err)
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 415, in _handle_error
+    raise UnauthorizedAccess(err)
+pyactiveresource.connection.UnauthorizedAccess: Response(code=401, body="b'{"errors":"[API] Invalid API key or access token (unrecognized login or wrong password)"}'", headers={'Date': 'Mon, 02 Feb 2026 14:54:58 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'close', 'x-sorting-hat-shopid': '79935570164', 'referrer-policy': 'origin-when-cross-origin', 'x-frame-options': 'DENY', 'x-shopid': '79935570164', 'www-authenticate': 'Basic Realm="Shopify API Authentication"', 'strict-transport-security': 'max-age=7889238', 'x-request-id': 'f3856856-25b9-42a6-9004-a2e8682eb050-1770044098', 'server-timing': 'processing;dur=17, verdict_flag_enabled;desc="count=1";dur=0.109, _y;desc="59fc3bca-4998-40f9-af4c-3c408e8bd2b7", _s;desc="3978a584-7271-4a5c-b9a3-f8ee1fd7abc1"', 'content-security-policy': "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' https://* shopify-pos://*; block-all-mixed-content; child-src 'self' https://* shopify-pos://*; connect-src 'self' wss://* https://*; frame-ancestors 'none'; img-src 'self' data: blob: https:; script-src https://cdn.shopify.com https://cdn.shopifycdn.net https://checkout.pci.shopifyinc.com https://checkout.pci.shopifyinc.com/build/04ed4e1/card_fields.js https://api.stripe.com https://mpsnare.iesnare.com https://appcenter.intuit.com https://www.paypal.com https://js.braintreegateway.com https://c.paypal.com https://maps.googleapis.com https://www.google-analytics.com https://v.shopify.com 'self' 'unsafe-inline' 'unsafe-eval'; upgrade-insecure-requests; report-uri /csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=f3856856-25b9-42a6-9004-a2e8682eb050-1770044098; report-to shopify-csp", 'x-content-type-options': 'nosniff', 'x-download-options': 'noopen', 'x-permitted-cross-domain-policies': 'none', 'x-xss-protection': '1; mode=block', 'reporting-endpoints': 'shopify-csp="/csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=f3856856-25b9-42a6-9004-a2e8682eb050-1770044098"', 'x-dc': 'gcp-us-central1,gcp-us-central1,gcp-us-central1', 'Alt-Svc': 'h3=":443"; ma=86400', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"endpoints":[{"url":"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=7qf6c4BMP6QE%2BL%2B2u4s%2BZxpxmrYEzt4TFCe%2F51S75%2BDKwA3I50x2xny%2BdytE8SUisu7MWGRa%2Bcide6ds0d5NXyMltE0fntbbzB9h%2FR8Q94lgf8tcHMPOGJtO7XR7QoPXS03u9ylc%2BqIJFgtPqGEsA3k%3D"}],"group":"cf-nel","max_age":604800}', 'NEL': '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}', 'Server-Timing': 'processing;dur=17, verdict_flag_enabled;desc="count=1";dur=0.109, _y;desc="59fc3bca-4998-40f9-af4c-3c408e8bd2b7", _s;desc="3978a584-7271-4a5c-b9a3-f8ee1fd7abc1"', 'Server': 'cloudflare', 'CF-RAY': '9c7a86df49ddac66-YYZ'}, msg="Unauthorized")
+INFO 2026-02-02 14:54:58,523 django.server log 16535 125166889727680 "POST /shopify_models/products/7/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 14:54:58,614 django.server log 16535 125166889727680 "GET /shopify_models/products/7/ HTTP/1.1" 200 25743
+INFO 2026-02-02 15:28:14,085 django.utils.autoreload autoreload 18338 129217210531968 Watching for file changes with StatReloader
+INFO 2026-02-02 15:42:20,129 django.server log 18338 129216773355200 "GET /suppliers/ HTTP/1.1" 200 7006
+INFO 2026-02-02 15:42:22,506 django.server log 18338 129216773355200 "GET /suppliers/1/ HTTP/1.1" 200 8958
+INFO 2026-02-02 15:42:58,340 django.server log 18338 129216773355200 "GET /shopify_models/products/ HTTP/1.1" 200 53351
+INFO 2026-02-02 15:43:02,901 django.server log 18338 129216773355200 "GET /shopify_models/products/7/ HTTP/1.1" 200 21683
+ERROR 2026-02-02 15:43:04,605 shopify_models.views views 18338 129216773355200 Unexpected error while synchronizing product 7 ('Water Slide Lubricant 4oz.'): Response(code=401, body="b'{"errors":"[API] Invalid API key or access token (unrecognized login or wrong password)"}'", headers={'Date': 'Mon, 02 Feb 2026 15:43:04 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'close', 'x-sorting-hat-shopid': '79935570164', 'referrer-policy': 'origin-when-cross-origin', 'x-frame-options': 'DENY', 'x-shopid': '79935570164', 'www-authenticate': 'Basic Realm="Shopify API Authentication"', 'strict-transport-security': 'max-age=7889238', 'x-request-id': 'b981e98d-3181-419b-9052-f2b1c9b7795a-1770046984', 'server-timing': 'processing;dur=19, verdict_flag_enabled;desc="count=1";dur=0.051, _y;desc="911646c2-b8ec-4458-a4e1-c9fa2805d4f2", _s;desc="ac2edc6d-0346-40e2-bb7d-8db555722cc1"', 'content-security-policy': "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' https://* shopify-pos://*; block-all-mixed-content; child-src 'self' https://* shopify-pos://*; connect-src 'self' wss://* https://*; frame-ancestors 'none'; img-src 'self' data: blob: https:; script-src https://cdn.shopify.com https://cdn.shopifycdn.net https://checkout.pci.shopifyinc.com https://checkout.pci.shopifyinc.com/build/04ed4e1/card_fields.js https://api.stripe.com https://mpsnare.iesnare.com https://appcenter.intuit.com https://www.paypal.com https://js.braintreegateway.com https://c.paypal.com https://maps.googleapis.com https://www.google-analytics.com https://v.shopify.com 'self' 'unsafe-inline' 'unsafe-eval'; upgrade-insecure-requests; report-uri /csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=b981e98d-3181-419b-9052-f2b1c9b7795a-1770046984; report-to shopify-csp", 'x-content-type-options': 'nosniff', 'x-download-options': 'noopen', 'x-permitted-cross-domain-policies': 'none', 'x-xss-protection': '1; mode=block', 'reporting-endpoints': 'shopify-csp="/csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=b981e98d-3181-419b-9052-f2b1c9b7795a-1770046984"', 'x-dc': 'gcp-us-central1,gcp-us-central1,gcp-us-central1', 'Alt-Svc': 'h3=":443"; ma=86400', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"endpoints":[{"url":"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=j6Lei8Og7%2FZv11HVVCkIZkeBdVKKjDGf2rATo7v9WtIqCouwY39j3Cj5%2Fl60BJtsR5Gjt%2BBFGtv7D1DPA%2FkE7z2QJECYCNt1hmZZn99GhB7dQmH%2BI1bNghI3rVQDIxrqX6e0QxEWuAGwYqnP8BbFRDQ%3D"}],"group":"cf-nel","max_age":604800}', 'NEL': '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}', 'Server-Timing': 'processing;dur=19, verdict_flag_enabled;desc="count=1";dur=0.051, _y;desc="911646c2-b8ec-4458-a4e1-c9fa2805d4f2", _s;desc="ac2edc6d-0346-40e2-bb7d-8db555722cc1"', 'Server': 'cloudflare', 'CF-RAY': '9c7acd5548bbabb8-YYZ'}, msg="Unauthorized")
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 286, in _open
+    http_response = self._handle_error(self._urlopen(request))
+                                       ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 316, in _urlopen
+    return urllib.request.urlopen(request, timeout=self.timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 521, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 630, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 559, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 639, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 164, in export_to_shopify
+    success = s_product.save()
+              ^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/shopify/resources/product.py", line 43, in save
+    return super(ShopifyResource, self).save()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/activeresource.py", line 836, in save
+    response = self.klass.connection.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 375, in post
+    return self._open('POST', path, headers=headers, data=data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/shopify/base.py", line 23, in _open
+    self.response = super(ShopifyConnection, self)._open(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 288, in _open
+    http_response = self._handle_error(err)
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 415, in _handle_error
+    raise UnauthorizedAccess(err)
+pyactiveresource.connection.UnauthorizedAccess: Response(code=401, body="b'{"errors":"[API] Invalid API key or access token (unrecognized login or wrong password)"}'", headers={'Date': 'Mon, 02 Feb 2026 15:43:04 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'close', 'x-sorting-hat-shopid': '79935570164', 'referrer-policy': 'origin-when-cross-origin', 'x-frame-options': 'DENY', 'x-shopid': '79935570164', 'www-authenticate': 'Basic Realm="Shopify API Authentication"', 'strict-transport-security': 'max-age=7889238', 'x-request-id': 'b981e98d-3181-419b-9052-f2b1c9b7795a-1770046984', 'server-timing': 'processing;dur=19, verdict_flag_enabled;desc="count=1";dur=0.051, _y;desc="911646c2-b8ec-4458-a4e1-c9fa2805d4f2", _s;desc="ac2edc6d-0346-40e2-bb7d-8db555722cc1"', 'content-security-policy': "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' https://* shopify-pos://*; block-all-mixed-content; child-src 'self' https://* shopify-pos://*; connect-src 'self' wss://* https://*; frame-ancestors 'none'; img-src 'self' data: blob: https:; script-src https://cdn.shopify.com https://cdn.shopifycdn.net https://checkout.pci.shopifyinc.com https://checkout.pci.shopifyinc.com/build/04ed4e1/card_fields.js https://api.stripe.com https://mpsnare.iesnare.com https://appcenter.intuit.com https://www.paypal.com https://js.braintreegateway.com https://c.paypal.com https://maps.googleapis.com https://www.google-analytics.com https://v.shopify.com 'self' 'unsafe-inline' 'unsafe-eval'; upgrade-insecure-requests; report-uri /csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=b981e98d-3181-419b-9052-f2b1c9b7795a-1770046984; report-to shopify-csp", 'x-content-type-options': 'nosniff', 'x-download-options': 'noopen', 'x-permitted-cross-domain-policies': 'none', 'x-xss-protection': '1; mode=block', 'reporting-endpoints': 'shopify-csp="/csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=b981e98d-3181-419b-9052-f2b1c9b7795a-1770046984"', 'x-dc': 'gcp-us-central1,gcp-us-central1,gcp-us-central1', 'Alt-Svc': 'h3=":443"; ma=86400', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"endpoints":[{"url":"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=j6Lei8Og7%2FZv11HVVCkIZkeBdVKKjDGf2rATo7v9WtIqCouwY39j3Cj5%2Fl60BJtsR5Gjt%2BBFGtv7D1DPA%2FkE7z2QJECYCNt1hmZZn99GhB7dQmH%2BI1bNghI3rVQDIxrqX6e0QxEWuAGwYqnP8BbFRDQ%3D"}],"group":"cf-nel","max_age":604800}', 'NEL': '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}', 'Server-Timing': 'processing;dur=19, verdict_flag_enabled;desc="count=1";dur=0.051, _y;desc="911646c2-b8ec-4458-a4e1-c9fa2805d4f2", _s;desc="ac2edc6d-0346-40e2-bb7d-8db555722cc1"', 'Server': 'cloudflare', 'CF-RAY': '9c7acd5548bbabb8-YYZ'}, msg="Unauthorized")
+INFO 2026-02-02 15:43:04,610 django.server log 18338 129216773355200 "POST /shopify_models/products/7/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 15:43:04,680 django.server log 18338 129216773355200 "GET /shopify_models/products/7/ HTTP/1.1" 200 25735
+INFO 2026-02-02 15:43:25,712 django.server log 18338 129216773355200 "GET /accounts/shops/ HTTP/1.1" 200 6270
+INFO 2026-02-02 15:43:28,813 django.server log 18338 129216773355200 "GET /accounts/shops/1/ HTTP/1.1" 200 6258
+INFO 2026-02-02 15:43:30,280 django.server log 18338 129216773355200 "GET /accounts/shops/1/auth/ HTTP/1.1" 302 0
+INFO 2026-02-02 15:44:31,289 django.utils.autoreload autoreload 22172 138752116035712 Watching for file changes with StatReloader
+INFO 2026-02-02 15:44:45,779 django.server log 22172 138751948183232 "GET /?embedded=1&hmac=fe4e4084db4c746862ef3e351ddc53ce648c6a11eec5a3574d93e1d59687c390&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvZGF0YWludGVncmF0aW9uLTI&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvZGF0YWludGVncmF0aW9uLTIubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL2RhdGFpbnRlZ3JhdGlvbi0yLm15c2hvcGlmeS5jb20iLCJhdWQiOiI2NGJmMmU3YjQ3YmIwMTk2NzE2ZDVmZGNiNzcwODljOCIsInN1YiI6IjEwMjkyNjA1NzcxNiIsImV4cCI6MTc3MDA0NzE0NSwibmJmIjoxNzcwMDQ3MDg1LCJpYXQiOjE3NzAwNDcwODUsImp0aSI6ImI3YmE3M2U1LWI1ZjMtNDU4MS05YWE0LTkwZDRlMGQzMWJhYyIsInNpZCI6IjdjNGNjNGFiLWUyNzUtNDFkZS1hOGNkLWZlMzc3Yzk3OWFhNSIsInNpZyI6IjEyMTc3ZmMzMjllYmM3YjExMmE5MGVlNmIyYmQxYjMwZDEyOWViZGQ4M2MyNTY0ZTFhOTA3OWE2MDMxMDBhNWQifQ.AQ5WnhuR1-Hjjl0z6e6naRUax1q9db8P2XhO3vPLW6A&locale=en&session=56d4530f5140ed72941c6d5f97766676068a2ef99317180a4287d883df6a127d&shop=dataintegration-2.myshopify.com&timestamp=1770047085 HTTP/1.1" 200 4211
+INFO 2026-02-02 15:45:31,730 django.server log 22172 138751948183232 "GET /?embedded=1&hmac=12205eefc0c51b38cd3f95c99f3dcf6a2a6d1a6d99540ba01099d7d225473d2b&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvZGF0YWludGVncmF0aW9uLTI&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvZGF0YWludGVncmF0aW9uLTIubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL2RhdGFpbnRlZ3JhdGlvbi0yLm15c2hvcGlmeS5jb20iLCJhdWQiOiI2NGJmMmU3YjQ3YmIwMTk2NzE2ZDVmZGNiNzcwODljOCIsInN1YiI6IjEwMjkyNjA1NzcxNiIsImV4cCI6MTc3MDA0NzE5MSwibmJmIjoxNzcwMDQ3MTMxLCJpYXQiOjE3NzAwNDcxMzEsImp0aSI6IjEzYzZlOTY3LTY3OWItNDA1OS05MTVhLTY0MDViNmJmMDVhZiIsInNpZCI6IjdjNGNjNGFiLWUyNzUtNDFkZS1hOGNkLWZlMzc3Yzk3OWFhNSIsInNpZyI6ImMyYWU2MDE5YmI0NDVhMDc5MWVlMTU3MmU3NmY1NjM1ZjZjNjc3NDJkNjZjZTgwZDA0NzM2MTIzNTUxM2I2OTEifQ.d0V7oP8DNXCvw6E7Zwyv2pfVCTjgxTust38zRAv6G64&locale=en&session=56d4530f5140ed72941c6d5f97766676068a2ef99317180a4287d883df6a127d&shop=dataintegration-2.myshopify.com&timestamp=1770047131 HTTP/1.1" 200 4211
+INFO 2026-02-02 15:45:54,414 django.utils.autoreload autoreload 22493 135511883206784 Watching for file changes with StatReloader
+INFO 2026-02-02 15:45:58,242 django.server log 22493 135511446386368 "GET / HTTP/1.1" 200 4211
+INFO 2026-02-02 15:46:04,574 django.server log 22493 135511428552384 "GET / HTTP/1.1" 200 4301
+INFO 2026-02-02 15:46:15,794 django.server log 22493 135511420159680 "GET /?embedded=1&hmac=0c6852a1c787c25d826e018c36366b1700a143aabf9618a76cfc153b87612d36&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvZGF0YWludGVncmF0aW9uLTI&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvZGF0YWludGVncmF0aW9uLTIubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL2RhdGFpbnRlZ3JhdGlvbi0yLm15c2hvcGlmeS5jb20iLCJhdWQiOiI2NGJmMmU3YjQ3YmIwMTk2NzE2ZDVmZGNiNzcwODljOCIsInN1YiI6IjEwMjkyNjA1NzcxNiIsImV4cCI6MTc3MDA0NzIzNSwibmJmIjoxNzcwMDQ3MTc1LCJpYXQiOjE3NzAwNDcxNzUsImp0aSI6ImUxYmE1MjQzLWQyYjAtNGI4ZS04OTQzLWY4NjQ5MjlmYzQ3ZSIsInNpZCI6IjdjNGNjNGFiLWUyNzUtNDFkZS1hOGNkLWZlMzc3Yzk3OWFhNSIsInNpZyI6IjZkYzc3YWRlY2E5YWYzMzlkNjc0NmY0ZjhlZDIzNGQ2ZDE2YTBmMmZmM2Y2Y2RhM2VlZjhiOTc0NWNhMzFjMWYifQ.QwhG65tdAm4pqbIoqQg5Gbht8v9qAqnOQdCL0MULcZA&locale=en&session=56d4530f5140ed72941c6d5f97766676068a2ef99317180a4287d883df6a127d&shop=dataintegration-2.myshopify.com&timestamp=1770047175 HTTP/1.1" 200 4211
+INFO 2026-02-02 15:46:35,555 django.server log 22493 135511428552384 "GET /suppliers/ HTTP/1.1" 200 7006
+INFO 2026-02-02 15:46:37,859 django.server log 22493 135511428552384 "GET /suppliers/1/ HTTP/1.1" 200 8958
+INFO 2026-02-02 15:47:53,364 django.server log 22493 135511420159680 "GET /accounts/shops/1/auth/ HTTP/1.1" 302 0
+INFO 2026-02-02 15:50:41,245 django.server log 22493 135511428552384 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-02 15:50:41,328 django.server log 22493 135511428552384 "GET /suppliers/1/ HTTP/1.1" 200 9539
+INFO 2026-02-02 15:50:45,753 django.server log 22493 135511428552384 "GET /accounts/shops/1/auth/ HTTP/1.1" 302 0

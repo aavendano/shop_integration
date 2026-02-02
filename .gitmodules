@@ -1,0 +1,3 @@
+[submodule "shop-manager-app"]
+	path = shop-manager-app
+	url = https://github.com/aavendano/shop_integration.git
