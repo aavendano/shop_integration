@@ -348,3 +348,157 @@ INFO 2026-02-02 15:47:53,364 django.server log 22493 135511420159680 "GET /accou
 INFO 2026-02-02 15:50:41,245 django.server log 22493 135511428552384 "POST /suppliers/1/ HTTP/1.1" 302 0
 INFO 2026-02-02 15:50:41,328 django.server log 22493 135511428552384 "GET /suppliers/1/ HTTP/1.1" 200 9539
 INFO 2026-02-02 15:50:45,753 django.server log 22493 135511428552384 "GET /accounts/shops/1/auth/ HTTP/1.1" 302 0
+INFO 2026-02-02 17:12:24,560 django.server log 22493 135511428552384 "GET /?embedded=1&hmac=2ffbca32c054def3fb23cbf1f72d914fcabf7639e0b7bb78e23c387ddd6755fd&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvZGF0YWludGVncmF0aW9uLTI&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvZGF0YWludGVncmF0aW9uLTIubXlzaG9waWZ5LmNvbVwvYWRtaW4iLCJkZXN0IjoiaHR0cHM6XC9cL2RhdGFpbnRlZ3JhdGlvbi0yLm15c2hvcGlmeS5jb20iLCJhdWQiOiI2NGJmMmU3YjQ3YmIwMTk2NzE2ZDVmZGNiNzcwODljOCIsInN1YiI6IjEwMjkyNjA1NzcxNiIsImV4cCI6MTc3MDA1MjQwMywibmJmIjoxNzcwMDUyMzQzLCJpYXQiOjE3NzAwNTIzNDMsImp0aSI6ImQ5ZThhOWY0LTEzYzgtNDAxYy1iM2E2LTYyYTVlMzNjNGRlNyIsInNpZCI6IjdjNGNjNGFiLWUyNzUtNDFkZS1hOGNkLWZlMzc3Yzk3OWFhNSIsInNpZyI6ImFiNzE4ZjM4MmUyODIwMTJkNmVkMzI5OWZmZGU3ZjMxYWQ1M2FkZTRhYzQ4NDM4ZjljZDY2YTlmMzY5N2ZiMTMifQ.Prnnesn_WpUdCMMlmTE3sHoG9-u8DfV7_l1m9WuKZVk&locale=en&session=56d4530f5140ed72941c6d5f97766676068a2ef99317180a4287d883df6a127d&shop=dataintegration-2.myshopify.com&timestamp=1770052343 HTTP/1.1" 200 4211
+INFO 2026-02-02 17:25:57,936 django.server log 22493 135511428552384 "GET /suppliers/1/ HTTP/1.1" 200 8958
+INFO 2026-02-02 17:26:04,041 django.server log 22493 135511428552384 "GET /shopify_models/products/ HTTP/1.1" 200 95783
+INFO 2026-02-02 17:26:09,474 django.server log 22493 135511428552384 "GET /shopify_models/products/?page=3 HTTP/1.1" 200 92396
+INFO 2026-02-02 17:26:16,357 django.server log 22493 135511428552384 "GET /shopify_models/products/?page=5 HTTP/1.1" 200 96321
+INFO 2026-02-02 17:26:22,576 django.server log 22493 135511428552384 "GET /shopify_models/products/?page=7 HTTP/1.1" 200 96611
+INFO 2026-02-02 17:26:28,455 django.server log 22493 135511428552384 "GET /shopify_models/products/301/ HTTP/1.1" 200 25414
+INFO 2026-02-02 17:26:53,107 django.server log 22493 135511428552384 "GET /shopify_models/products/ HTTP/1.1" 200 95783
+INFO 2026-02-02 17:26:58,003 django.server log 22493 135511428552384 "GET /shopify_models/products/?page=2 HTTP/1.1" 200 95271
+INFO 2026-02-02 17:27:00,868 django.server log 22493 135511428552384 "GET /shopify_models/products/51/ HTTP/1.1" 200 20452
+ERROR 2026-02-02 17:27:07,804 shopify_models.views views 22493 135511428552384 Unexpected error while synchronizing product 51 ('Sliquid Organics Natural Lubricant 8.5oz'): Response(code=401, body="b'{"errors":"[API] Invalid API key or access token (unrecognized login or wrong password)"}'", headers={'Date': 'Mon, 02 Feb 2026 17:27:07 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'close', 'x-sorting-hat-shopid': '79935570164', 'referrer-policy': 'origin-when-cross-origin', 'x-frame-options': 'DENY', 'x-shopid': '79935570164', 'www-authenticate': 'Basic Realm="Shopify API Authentication"', 'strict-transport-security': 'max-age=7889238', 'x-request-id': 'ea7274d8-772f-44be-8ce0-dca9177f7017-1770053227', 'server-timing': 'processing;dur=65, verdict_flag_enabled;desc="count=1";dur=0.063, _y;desc="a3bd4560-77f4-4f71-997b-fde6e30e810a", _s;desc="f48a26b7-1e2b-4d5d-ba8b-272d80a215cf"', 'content-security-policy': "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' https://* shopify-pos://*; block-all-mixed-content; child-src 'self' https://* shopify-pos://*; connect-src 'self' wss://* https://*; frame-ancestors 'none'; img-src 'self' data: blob: https:; script-src https://cdn.shopify.com https://cdn.shopifycdn.net https://checkout.pci.shopifyinc.com https://checkout.pci.shopifyinc.com/build/04ed4e1/card_fields.js https://api.stripe.com https://mpsnare.iesnare.com https://appcenter.intuit.com https://www.paypal.com https://js.braintreegateway.com https://c.paypal.com https://maps.googleapis.com https://www.google-analytics.com https://v.shopify.com 'self' 'unsafe-inline' 'unsafe-eval'; upgrade-insecure-requests; report-uri /csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=ea7274d8-772f-44be-8ce0-dca9177f7017-1770053227; report-to shopify-csp", 'x-content-type-options': 'nosniff', 'x-download-options': 'noopen', 'x-permitted-cross-domain-policies': 'none', 'x-xss-protection': '1; mode=block', 'reporting-endpoints': 'shopify-csp="/csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=ea7274d8-772f-44be-8ce0-dca9177f7017-1770053227"', 'x-dc': 'gcp-us-central1,gcp-us-central1,gcp-us-central1', 'Alt-Svc': 'h3=":443"; ma=86400', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"endpoints":[{"url":"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=wBxE8to3Pw5j5Yrgt7wwZwTW7vd9RQvfconDUEaMi6V%2BneUmmtf4ZBQcqfkvoPZXeTbvYZnZfA9Zl4at3AKvp1rF%2FZbLQrrx7PTmAF97zwP8gy7EniCekPcC5t7dzQWTYvxm%2F2dS5oniAPcj4qPK5zI%3D"}],"group":"cf-nel","max_age":604800}', 'NEL': '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}', 'Server-Timing': 'processing;dur=65, verdict_flag_enabled;desc="count=1";dur=0.063, _y;desc="a3bd4560-77f4-4f71-997b-fde6e30e810a", _s;desc="f48a26b7-1e2b-4d5d-ba8b-272d80a215cf"', 'Server': 'cloudflare', 'CF-RAY': '9c7b65c10fbfc730-YYZ'}, msg="Unauthorized")
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 286, in _open
+    http_response = self._handle_error(self._urlopen(request))
+                                       ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 316, in _urlopen
+    return urllib.request.urlopen(request, timeout=self.timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 521, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 630, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 559, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 639, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 164, in export_to_shopify
+    success = s_product.save()
+              ^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/shopify/resources/product.py", line 43, in save
+    return super(ShopifyResource, self).save()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/activeresource.py", line 836, in save
+    response = self.klass.connection.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 375, in post
+    return self._open('POST', path, headers=headers, data=data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/shopify/base.py", line 23, in _open
+    self.response = super(ShopifyConnection, self)._open(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 288, in _open
+    http_response = self._handle_error(err)
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 415, in _handle_error
+    raise UnauthorizedAccess(err)
+pyactiveresource.connection.UnauthorizedAccess: Response(code=401, body="b'{"errors":"[API] Invalid API key or access token (unrecognized login or wrong password)"}'", headers={'Date': 'Mon, 02 Feb 2026 17:27:07 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'close', 'x-sorting-hat-shopid': '79935570164', 'referrer-policy': 'origin-when-cross-origin', 'x-frame-options': 'DENY', 'x-shopid': '79935570164', 'www-authenticate': 'Basic Realm="Shopify API Authentication"', 'strict-transport-security': 'max-age=7889238', 'x-request-id': 'ea7274d8-772f-44be-8ce0-dca9177f7017-1770053227', 'server-timing': 'processing;dur=65, verdict_flag_enabled;desc="count=1";dur=0.063, _y;desc="a3bd4560-77f4-4f71-997b-fde6e30e810a", _s;desc="f48a26b7-1e2b-4d5d-ba8b-272d80a215cf"', 'content-security-policy': "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' https://* shopify-pos://*; block-all-mixed-content; child-src 'self' https://* shopify-pos://*; connect-src 'self' wss://* https://*; frame-ancestors 'none'; img-src 'self' data: blob: https:; script-src https://cdn.shopify.com https://cdn.shopifycdn.net https://checkout.pci.shopifyinc.com https://checkout.pci.shopifyinc.com/build/04ed4e1/card_fields.js https://api.stripe.com https://mpsnare.iesnare.com https://appcenter.intuit.com https://www.paypal.com https://js.braintreegateway.com https://c.paypal.com https://maps.googleapis.com https://www.google-analytics.com https://v.shopify.com 'self' 'unsafe-inline' 'unsafe-eval'; upgrade-insecure-requests; report-uri /csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=ea7274d8-772f-44be-8ce0-dca9177f7017-1770053227; report-to shopify-csp", 'x-content-type-options': 'nosniff', 'x-download-options': 'noopen', 'x-permitted-cross-domain-policies': 'none', 'x-xss-protection': '1; mode=block', 'reporting-endpoints': 'shopify-csp="/csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=ea7274d8-772f-44be-8ce0-dca9177f7017-1770053227"', 'x-dc': 'gcp-us-central1,gcp-us-central1,gcp-us-central1', 'Alt-Svc': 'h3=":443"; ma=86400', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"endpoints":[{"url":"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=wBxE8to3Pw5j5Yrgt7wwZwTW7vd9RQvfconDUEaMi6V%2BneUmmtf4ZBQcqfkvoPZXeTbvYZnZfA9Zl4at3AKvp1rF%2FZbLQrrx7PTmAF97zwP8gy7EniCekPcC5t7dzQWTYvxm%2F2dS5oniAPcj4qPK5zI%3D"}],"group":"cf-nel","max_age":604800}', 'NEL': '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}', 'Server-Timing': 'processing;dur=65, verdict_flag_enabled;desc="count=1";dur=0.063, _y;desc="a3bd4560-77f4-4f71-997b-fde6e30e810a", _s;desc="f48a26b7-1e2b-4d5d-ba8b-272d80a215cf"', 'Server': 'cloudflare', 'CF-RAY': '9c7b65c10fbfc730-YYZ'}, msg="Unauthorized")
+INFO 2026-02-02 17:27:07,810 django.server log 22493 135511428552384 "POST /shopify_models/products/51/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 17:27:07,876 django.server log 22493 135511428552384 "GET /shopify_models/products/51/ HTTP/1.1" 200 24514
+INFO 2026-02-02 17:27:27,453 django.server log 22493 135511428552384 "GET /accounts/shops/ HTTP/1.1" 200 6270
+INFO 2026-02-02 17:27:29,498 django.server log 22493 135511428552384 "GET /accounts/shops/1/ HTTP/1.1" 200 6258
+INFO 2026-02-02 17:27:32,095 django.server log 22493 135511428552384 "GET /accounts/shops/1/auth/ HTTP/1.1" 302 0
+INFO 2026-02-02 17:29:22,925 django.server log 22493 135511428552384 "GET /accounts/shops/1/ HTTP/1.1" 200 6258
+INFO 2026-02-02 17:29:24,203 django.server log 22493 135511428552384 "GET /accounts/shops/1/auth/ HTTP/1.1" 302 0
+INFO 2026-02-02 17:29:25,172 django.server log 22493 135511428552384 "GET /accounts/shops/callback/?code=4f3ce2bc53163e0882bad6748acd5c25&hmac=df6acf1c2819b82e10d476c5466f035eb7b5af281111e1238e35779ffa9c0e2f&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvZGF0YWludGVncmF0aW9uLTI&shop=dataintegration-2.myshopify.com&state=ZRD7-fSJcb72U1SjQkoAmQ&timestamp=1770053364 HTTP/1.1" 302 0
+INFO 2026-02-02 17:29:25,243 django.server log 22493 135511428552384 "GET / HTTP/1.1" 200 4536
+INFO 2026-02-02 17:29:29,557 django.server log 22493 135511428552384 "GET /shopify_models/products/ HTTP/1.1" 200 95783
+INFO 2026-02-02 17:29:33,702 django.server log 22493 135511428552384 "GET /shopify_models/products/?page=2 HTTP/1.1" 200 95271
+INFO 2026-02-02 17:29:38,027 django.server log 22493 135511428552384 "GET /shopify_models/products/83/ HTTP/1.1" 200 24810
+ERROR 2026-02-02 17:29:39,899 shopify_models.views views 22493 135511428552384 Unexpected error while synchronizing product 83 ('JO H2O Tropical Passion Flavored Water-Based Lubricant 1 oz.'): Response(code=403, body="b'{"errors":"[API] This action requires merchant approval for write_products scope."}'", headers={'Date': 'Mon, 02 Feb 2026 17:29:39 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'close', 'x-sorting-hat-shopid': '79935570164', 'vary': 'Accept-Encoding', 'referrer-policy': 'origin-when-cross-origin', 'x-frame-options': 'DENY', 'x-shopid': '79935570164', 'x-stats-userid': '', 'x-stats-apiclientid': '317291986945', 'x-stats-apipermissionid': '655588557044', 'x-shopify-api-version': '2025-10', 'x-shopify-shop-api-call-limit': '1/40', 'strict-transport-security': 'max-age=7889238', 'x-request-id': '150dd0d0-ed66-4ab9-84f8-04b17f526bcf-1770053379', 'server-timing': 'processing;dur=38, verdict_flag_enabled;desc="count=3";dur=0.175, _y;desc="98b0a584-f864-4939-a161-938f5296c43a", _s;desc="70aaeca5-876c-4078-9cd2-5bf935ec12f8"', 'content-security-policy': "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' https://* shopify-pos://*; block-all-mixed-content; child-src 'self' https://* shopify-pos://*; connect-src 'self' wss://* https://*; frame-ancestors 'none'; img-src 'self' data: blob: https:; script-src https://cdn.shopify.com https://cdn.shopifycdn.net https://checkout.pci.shopifyinc.com https://checkout.pci.shopifyinc.com/build/04ed4e1/card_fields.js https://api.stripe.com https://mpsnare.iesnare.com https://appcenter.intuit.com https://www.paypal.com https://js.braintreegateway.com https://c.paypal.com https://maps.googleapis.com https://www.google-analytics.com https://v.shopify.com 'self' 'unsafe-inline' 'unsafe-eval'; upgrade-insecure-requests; report-uri /csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=150dd0d0-ed66-4ab9-84f8-04b17f526bcf-1770053379; report-to shopify-csp", 'x-content-type-options': 'nosniff', 'x-download-options': 'noopen', 'x-permitted-cross-domain-policies': 'none', 'x-xss-protection': '1; mode=block', 'reporting-endpoints': 'shopify-csp="/csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=150dd0d0-ed66-4ab9-84f8-04b17f526bcf-1770053379"', 'x-dc': 'gcp-us-central1,gcp-us-central1,gcp-us-central1', 'Alt-Svc': 'h3=":443"; ma=86400', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"endpoints":[{"url":"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=2MY8YLRE7w52VeVLaeTn73RampLOVw7%2BH66HxTxAYK3ufl4UI%2Bo9RkpYKlC9jKUL2Znu0nqBbZcRNZwmR9XmI6dTrSU2JUcxWx%2FREPy%2FRI0gR%2FJ38DOXEwTQM6Oc6EJo%2F6YUOnPO%2B6OEFkaqET%2BUmcE%3D"}],"group":"cf-nel","max_age":604800}', 'NEL': '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}', 'Server-Timing': 'processing;dur=38, verdict_flag_enabled;desc="count=3";dur=0.175, _y;desc="98b0a584-f864-4939-a161-938f5296c43a", _s;desc="70aaeca5-876c-4078-9cd2-5bf935ec12f8"', 'Server': 'cloudflare', 'CF-RAY': '9c7b6977ddcc5163-YYZ'}, msg="Forbidden")
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 286, in _open
+    http_response = self._handle_error(self._urlopen(request))
+                                       ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 316, in _urlopen
+    return urllib.request.urlopen(request, timeout=self.timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 521, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 630, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 559, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 639, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 403: Forbidden
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 164, in export_to_shopify
+    success = s_product.save()
+              ^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/shopify/resources/product.py", line 43, in save
+    return super(ShopifyResource, self).save()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/activeresource.py", line 836, in save
+    response = self.klass.connection.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 375, in post
+    return self._open('POST', path, headers=headers, data=data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/shopify/base.py", line 23, in _open
+    self.response = super(ShopifyConnection, self)._open(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 288, in _open
+    http_response = self._handle_error(err)
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/pyactiveresource/connection.py", line 417, in _handle_error
+    raise ForbiddenAccess(err)
+pyactiveresource.connection.ForbiddenAccess: Response(code=403, body="b'{"errors":"[API] This action requires merchant approval for write_products scope."}'", headers={'Date': 'Mon, 02 Feb 2026 17:29:39 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'close', 'x-sorting-hat-shopid': '79935570164', 'vary': 'Accept-Encoding', 'referrer-policy': 'origin-when-cross-origin', 'x-frame-options': 'DENY', 'x-shopid': '79935570164', 'x-stats-userid': '', 'x-stats-apiclientid': '317291986945', 'x-stats-apipermissionid': '655588557044', 'x-shopify-api-version': '2025-10', 'x-shopify-shop-api-call-limit': '1/40', 'strict-transport-security': 'max-age=7889238', 'x-request-id': '150dd0d0-ed66-4ab9-84f8-04b17f526bcf-1770053379', 'server-timing': 'processing;dur=38, verdict_flag_enabled;desc="count=3";dur=0.175, _y;desc="98b0a584-f864-4939-a161-938f5296c43a", _s;desc="70aaeca5-876c-4078-9cd2-5bf935ec12f8"', 'content-security-policy': "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' https://* shopify-pos://*; block-all-mixed-content; child-src 'self' https://* shopify-pos://*; connect-src 'self' wss://* https://*; frame-ancestors 'none'; img-src 'self' data: blob: https:; script-src https://cdn.shopify.com https://cdn.shopifycdn.net https://checkout.pci.shopifyinc.com https://checkout.pci.shopifyinc.com/build/04ed4e1/card_fields.js https://api.stripe.com https://mpsnare.iesnare.com https://appcenter.intuit.com https://www.paypal.com https://js.braintreegateway.com https://c.paypal.com https://maps.googleapis.com https://www.google-analytics.com https://v.shopify.com 'self' 'unsafe-inline' 'unsafe-eval'; upgrade-insecure-requests; report-uri /csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=150dd0d0-ed66-4ab9-84f8-04b17f526bcf-1770053379; report-to shopify-csp", 'x-content-type-options': 'nosniff', 'x-download-options': 'noopen', 'x-permitted-cross-domain-policies': 'none', 'x-xss-protection': '1; mode=block', 'reporting-endpoints': 'shopify-csp="/csp-report?source%5Baction%5D=create&source%5Bapp%5D=Shopify&source%5Bcontroller%5D=admin%2Fproducts&source%5Bsection%5D=admin_api&source%5Buuid%5D=150dd0d0-ed66-4ab9-84f8-04b17f526bcf-1770053379"', 'x-dc': 'gcp-us-central1,gcp-us-central1,gcp-us-central1', 'Alt-Svc': 'h3=":443"; ma=86400', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"endpoints":[{"url":"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=2MY8YLRE7w52VeVLaeTn73RampLOVw7%2BH66HxTxAYK3ufl4UI%2Bo9RkpYKlC9jKUL2Znu0nqBbZcRNZwmR9XmI6dTrSU2JUcxWx%2FREPy%2FRI0gR%2FJ38DOXEwTQM6Oc6EJo%2F6YUOnPO%2B6OEFkaqET%2BUmcE%3D"}],"group":"cf-nel","max_age":604800}', 'NEL': '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}', 'Server-Timing': 'processing;dur=38, verdict_flag_enabled;desc="count=3";dur=0.175, _y;desc="98b0a584-f864-4939-a161-938f5296c43a", _s;desc="70aaeca5-876c-4078-9cd2-5bf935ec12f8"', 'Server': 'cloudflare', 'CF-RAY': '9c7b6977ddcc5163-YYZ'}, msg="Forbidden")
+INFO 2026-02-02 17:29:39,929 django.server log 22493 135511428552384 "POST /shopify_models/products/83/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 17:29:40,041 django.server log 22493 135511428552384 "GET /shopify_models/products/83/ HTTP/1.1" 200 29127
+ERROR 2026-02-02 17:30:21,142 shopify_models.views views 22493 135511446386368 Unexpected error while synchronizing product 83 ('JO H2O Tropical Passion Flavored Water-Based Lubricant 1 oz.'): Shopify GraphQL error response: [{'message': 'Access denied for location field. Required access: `read_locations` access scope, `read_inventory` access scope or `read_markets_home` access scope.', 'locations': [{'line': 3, 'column': 7}], 'extensions': {'code': 'ACCESS_DENIED', 'documentation': 'https://shopify.dev/api/usage/access-scopes', 'requiredAccess': '`read_locations` access scope, `read_inventory` access scope or `read_markets_home` access scope.'}, 'path': ['location']}]
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 198, in export_to_shopify
+    _sync_inventory_quantities(
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 288, in _sync_inventory_quantities
+    _debug_validate_location(client, location_gid)
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 387, in _debug_validate_location
+    data, _ = client.execute(query, variables={"id": location_gid})
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/graphql.py", line 57, in execute
+    raise ShopifyGraphQLError(
+shopify_models.graphql.ShopifyGraphQLError: Shopify GraphQL error response: [{'message': 'Access denied for location field. Required access: `read_locations` access scope, `read_inventory` access scope or `read_markets_home` access scope.', 'locations': [{'line': 3, 'column': 7}], 'extensions': {'code': 'ACCESS_DENIED', 'documentation': 'https://shopify.dev/api/usage/access-scopes', 'requiredAccess': '`read_locations` access scope, `read_inventory` access scope or `read_markets_home` access scope.'}, 'path': ['location']}]
+INFO 2026-02-02 17:30:21,154 django.server log 22493 135511446386368 "POST /shopify_models/products/83/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 17:30:21,248 django.server log 22493 135511446386368 "GET /shopify_models/products/83/ HTTP/1.1" 200 25721
+INFO 2026-02-02 17:31:03,938 shopify_models.models models 22493 135511446386368 Validated location: shop_manager_app (gid://shopify/Location/89689161972)
+INFO 2026-02-02 17:31:03,940 shopify_models.models models 22493 135511446386368 Inventory sync quantity for variant 83: None
+INFO 2026-02-02 17:31:03,945 django.server log 22493 135511446386368 "POST /shopify_models/products/83/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 17:31:04,042 django.server log 22493 135511446386368 "GET /shopify_models/products/83/ HTTP/1.1" 200 25076
+INFO 2026-02-02 17:32:40,762 django.server log 22493 135511446386368 "GET /shopify_models/products/ HTTP/1.1" 200 95783
+INFO 2026-02-02 17:32:43,450 django.server log 22493 135511446386368 "GET /shopify_models/products/1/ HTTP/1.1" 200 22062
+INFO 2026-02-02 17:33:13,369 django.server log 22493 135511446386368 "GET /shopify_models/products/ HTTP/1.1" 200 95783
+INFO 2026-02-02 17:33:21,655 django.server log 22493 135511446386368 "GET /shopify_models/products/7/ HTTP/1.1" 200 21660
