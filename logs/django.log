@@ -502,3 +502,26 @@ INFO 2026-02-02 17:32:40,762 django.server log 22493 135511446386368 "GET /shopi
 INFO 2026-02-02 17:32:43,450 django.server log 22493 135511446386368 "GET /shopify_models/products/1/ HTTP/1.1" 200 22062
 INFO 2026-02-02 17:33:13,369 django.server log 22493 135511446386368 "GET /shopify_models/products/ HTTP/1.1" 200 95783
 INFO 2026-02-02 17:33:21,655 django.server log 22493 135511446386368 "GET /shopify_models/products/7/ HTTP/1.1" 200 21660
+INFO 2026-02-02 18:19:10,780 django.utils.autoreload autoreload 36406 139972269531264 Watching for file changes with StatReloader
+INFO 2026-02-02 18:19:36,345 django.server log 36406 139971967051456 "GET / HTTP/1.1" 200 4211
+WARNING 2026-02-02 18:19:37,090 django.server log 36406 139971967051456 "GET /favicon.ico HTTP/1.1" 404 3581
+INFO 2026-02-02 18:19:40,157 django.server log 36406 139971967051456 "GET /suppliers/ HTTP/1.1" 200 6916
+INFO 2026-02-02 18:19:41,891 django.server log 36406 139971967051456 "GET /suppliers/create/ HTTP/1.1" 200 1665
+INFO 2026-02-02 18:19:45,390 django.server log 36406 139971967051456 "GET /suppliers/1/ HTTP/1.1" 200 8868
+INFO 2026-02-02 18:19:53,184 django.server log 36406 139971967051456 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-02 18:19:53,197 django.server log 36406 139971967051456 "GET /suppliers/1/ HTTP/1.1" 200 9363
+INFO 2026-02-02 18:20:10,616 django.server log 36406 139971967051456 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-02 18:20:10,630 django.server log 36406 139971967051456 "GET /suppliers/1/ HTTP/1.1" 200 9363
+INFO 2026-02-02 18:24:39,017 django.utils.autoreload autoreload 36406 139972269531264 /home/alejandro/shop-app/shop_integration/products_parsing/adapters/django_adapter.py changed, reloading.
+INFO 2026-02-02 18:24:40,624 django.utils.autoreload autoreload 37137 130990364213376 Watching for file changes with StatReloader
+INFO 2026-02-02 18:27:36,352 django.utils.autoreload autoreload 37258 138205633802368 Watching for file changes with StatReloader
+INFO 2026-02-02 18:31:53,497 django.server log 37258 138205197235904 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-02 18:31:53,547 django.server log 37258 138205197235904 "GET /suppliers/1/ HTTP/1.1" 200 9445
+INFO 2026-02-02 18:45:01,283 django.server log 37258 138205197235904 "GET /shopify_models/products/ HTTP/1.1" 200 92037
+INFO 2026-02-02 18:45:04,646 django.server log 37258 138205197235904 "GET /shopify_models/products/16774/ HTTP/1.1" 200 24940
+INFO 2026-02-02 18:45:38,739 django.server log 37258 138205197235904 "GET /shopify_models/products/?page=3 HTTP/1.1" 200 92915
+INFO 2026-02-02 18:45:42,200 django.server log 37258 138205197235904 "GET /shopify_models/products/?page=5 HTTP/1.1" 200 97065
+INFO 2026-02-02 18:45:45,841 django.server log 37258 138205197235904 "GET /shopify_models/products/?page=7 HTTP/1.1" 200 96182
+INFO 2026-02-02 18:45:49,679 django.server log 37258 138205197235904 "GET /shopify_models/products/?page=9 HTTP/1.1" 200 98122
+INFO 2026-02-02 18:45:57,077 django.server log 37258 138205197235904 "GET /shopify_models/products/?title=&vendor=a&product_type=&tags= HTTP/1.1" 200 10471
+INFO 2026-02-02 18:45:59,225 django.server log 37258 138205197235904 "GET /shopify_models/products/ HTTP/1.1" 200 92037

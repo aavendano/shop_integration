@@ -14,7 +14,7 @@ from products_parsing.canonical.schema import (
 )
 from django.conf import settings
 
-from shopify_models.models import Image, InventoryItem, Product, Variant
+from shopify_models.models import Image, InventoryItem, InventoryLevel, Product, Variant
 
 
 
@@ -169,8 +169,9 @@ def _sync_variants(
             updated += 1
 
         _update_variant_fields(variant, variant_record)
-        _upsert_inventory_item(variant, record)
         variant.save()
+        inventory_item = _upsert_inventory_item(variant, record)
+        _upsert_inventory_level(inventory_item, record)
 
     return created, updated
 
@@ -192,18 +193,32 @@ def _update_variant_fields(variant: Variant, record: CanonicalVariant) -> None:
     variant.option3 = options[2] if len(options) > 2 else None
 
 
-def _upsert_inventory_item(variant: Variant, record: CanonicalProduct) -> None:
-    if record.pricing.cost is None:
-        return
-    InventoryItem.objects.update_or_create(
+def _upsert_inventory_item(variant: Variant, record: CanonicalProduct) -> InventoryItem:
+    inventory_item, _created = InventoryItem.objects.update_or_create(
         variant=variant,
         defaults={
             "shopify_sku": variant.supplier_sku,
             "tracked": True,
             "requires_shipping": variant.requires_shipping,
-            "source_quantity": _safe_int(record.inventory.quantity, fallback=None),
+            "source_quantity": _safe_int(record.inventory.quantity, fallback=0),
             "unit_cost_amount": _safe_decimal(record.pricing.cost),
             "unit_cost_currency": settings.PROVIDER_CURRENCY,
+        },
+    )
+    return inventory_item
+
+
+def _upsert_inventory_level(inventory_item: InventoryItem, record: CanonicalProduct) -> None:
+    location_gid = settings.SHOPIFY_DEFAULT_LOCATION
+    if not location_gid:
+        return
+    available_quantity = _safe_int(record.inventory.quantity, fallback=0)
+    InventoryLevel.objects.update_or_create(
+        inventory_item=inventory_item,
+        location_gid=location_gid,
+        defaults={
+            "quantities": {"available": available_quantity},
+            "sync_pending": True,
         },
     )
 
