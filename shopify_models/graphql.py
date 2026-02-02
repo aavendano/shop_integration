@@ -2,7 +2,7 @@ import json
 import time
 from urllib import error, request
 
-from .models.session import API_VERSION
+from django.conf import settings
 
 
 class ShopifyGraphQLError(Exception):
@@ -16,7 +16,7 @@ class ShopifyGraphQLClient:
         self,
         session,
         *,
-        api_version=API_VERSION,
+        api_version=settings.API_VERSION,
         timeout=30,
         min_available=50,
         throttle=True,
@@ -54,7 +54,9 @@ class ShopifyGraphQLClient:
         data = json.loads(body)
         errors = data.get("errors") or []
         if errors:
-            raise ShopifyGraphQLError("Shopify GraphQL error response.", errors=errors)
+            raise ShopifyGraphQLError(
+                f"Shopify GraphQL error response: {errors}", errors=errors
+            )
 
         extensions = data.get("extensions") or {}
         if self.throttle:

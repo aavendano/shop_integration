@@ -94,6 +94,7 @@ class Product(ShopifyDataModel):
         from accounts.models import Session
         import shopify
         from django.conf import settings
+        from shopify_models.graphql import ShopifyGraphQLClient
         
         session = Session.objects.first()
         if not session:
@@ -129,6 +130,11 @@ class Product(ShopifyDataModel):
                 s_variant.price = str(v.price)
                 s_variant.sku = v.supplier_sku or ""
                 s_variant.title = v.title or ""
+                s_variant.barcode = v.barcode
+                if settings.INVENTORY_TRACKED:
+                    s_variant.inventory_management = "shopify"
+                else:
+                    s_variant.inventory_management = None
                 
                 # Options
                 if v.option1: s_variant.option1 = v.option1
@@ -139,6 +145,20 @@ class Product(ShopifyDataModel):
             
             if s_variants:
                 s_product.variants = s_variants
+
+            # Prepare images
+            local_images = list(self.images.all().order_by("position"))
+            s_images = []
+            for image in local_images:
+                if not image.src:
+                    continue
+                s_image = shopify.Image()
+                s_image.src = image.src
+                s_image.position = image.position or 1
+                s_images.append(s_image)
+
+            if s_images:
+                s_product.images = s_images
 
             # Save
             success = s_product.save()
@@ -170,12 +190,266 @@ class Product(ShopifyDataModel):
                     local_v.admin_graphql_api_id = s_variant.admin_graphql_api_id
                     local_v.save()
 
+            _sync_inventory_item_unit_costs(
+                ShopifyGraphQLClient(session),
+                local_variants,
+                currency=settings.PROVIDER_CURRENCY,
+            )
+            _sync_inventory_quantities(
+                ShopifyGraphQLClient(session),
+                local_variants,
+                location_gid=settings.SHOPIFY_DEFAULT_LOCATION,
+            )
+
+
+def _sync_inventory_item_unit_costs(
+    client,
+    local_variants,
+    *,
+    currency: str | None,
+):
+    if not currency:
+        log.warning("PROVIDER_CURRENCY missing; skipping unit cost export.")
+        return
+    mutation = """
+    mutation InventoryItemUpdate($id: ID!, $input: InventoryItemInput!) {
+      inventoryItemUpdate(id: $id, input: $input) {
+        inventoryItem {
+          id
+          unitCost {
+            amount
+            currencyCode
+          }
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+    """
+
+    query = """
+    query VariantInventoryItem($id: ID!) {
+      productVariant(id: $id) {
+        inventoryItem {
+          id
+        }
+      }
+    }
+    """
+
+    for local_variant in local_variants:
+        variant_gid = getattr(local_variant, "admin_graphql_api_id", None)
+        if not variant_gid:
+            log.warning("Variant %s missing admin_graphql_api_id", local_variant.id)
+            continue
+        inventory_item = getattr(local_variant, "inventory_item", None)
+        if not inventory_item or inventory_item.unit_cost_amount is None:
+            continue
+        data, _ = client.execute(query, variables={"id": variant_gid})
+        inventory_item_gid = (
+            data.get("productVariant", {})
+            .get("inventoryItem", {})
+            .get("id")
+            if data
+            else None
+        )
+        if not inventory_item_gid:
+            log.warning("No inventory item id for variant %s", variant_gid)
+            continue
+        variables = {
+            "id": inventory_item_gid,
+            "input": {
+                "cost": str(inventory_item.unit_cost_amount),
+            },
+        }
+        data, _ = client.execute(mutation, variables=variables)
+        errors = (
+            data.get("inventoryItemUpdate", {}).get("userErrors", [])
+            if data
+            else []
+        )
+        for error in errors:
+            log.warning("InventoryItem unit cost update error: %s", error)
+
+
+def _sync_inventory_quantities(
+    client,
+    local_variants,
+    *,
+    location_gid: str,
+):
+    if not location_gid:
+        log.warning("SHOPIFY_DEFAULT_LOCATION missing; skipping inventory sync.")
+        return
+    debug_inventory = getattr(settings, "DEBUG_INVENTORY_SYNC", False)
+    if debug_inventory:
+        _debug_validate_location(client, location_gid)
+    mutation = """
+    mutation InventorySetQuantities($input: InventorySetQuantitiesInput!) {
+      inventorySetQuantities(input: $input) {
+        inventoryAdjustmentGroup {
+          createdAt
+          reason
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+    """
+    query = """
+    query VariantInventoryItem($id: ID!) {
+      productVariant(id: $id) {
+        inventoryItem {
+          id
+        }
+      }
+    }
+    """
+
+    quantities = []
+    for variant in local_variants:
+        inventory_item = getattr(variant, "inventory_item", None)
+        source_quantity = (
+            getattr(inventory_item, "source_quantity", None)
+            if inventory_item
+            else None
+        )
+        if debug_inventory:
+            log.info(
+                "Inventory sync quantity for variant %s: %s",
+                getattr(variant, "id", None),
+                source_quantity,
+            )
+        if source_quantity is None:
+            continue
+        variant_gid = getattr(variant, "admin_graphql_api_id", None)
+        if not variant_gid:
+            log.warning("Variant %s missing admin_graphql_api_id", variant.id)
+            continue
+        data, _ = client.execute(query, variables={"id": variant_gid})
+        inventory_item_gid = (
+            data.get("productVariant", {})
+            .get("inventoryItem", {})
+            .get("id")
+            if data
+            else None
+        )
+        if not inventory_item_gid:
+            log.warning("No inventory item id for variant %s", variant_gid)
+            continue
+        quantities.append(
+            {
+                "inventoryItemId": inventory_item_gid,
+                "locationId": location_gid,
+                "quantity": int(source_quantity),
+            }
+        )
+
+    if not quantities:
+        return
+    variables = {
+        "input": {
+            "name": "available",
+            "reason": "correction",
+            "quantities": quantities,
+            "ignoreCompareQuantity": True,
+        }
+    }
+    data, _ = client.execute(mutation, variables=variables)
+    errors = (
+        data.get("inventorySetQuantities", {}).get("userErrors", [])
+        if data
+        else []
+    )
+    for error in errors:
+        log.warning("Inventory set quantities error: %s", error)
+    if debug_inventory and quantities:
+        _debug_verify_inventory_levels(
+            client,
+            quantities,
+            location_gid,
+        )
+
+
+def _debug_validate_location(client, location_gid: str) -> None:
+    query = """
+    query LocationById($id: ID!) {
+      location(id: $id) {
+        id
+        name
+      }
+    }
+    """
+    data, _ = client.execute(query, variables={"id": location_gid})
+    location = data.get("location") if data else None
+    if not location:
+        log.warning("Location gid not found: %s", location_gid)
+        return
+    log.info("Validated location: %s (%s)", location.get("name"), location.get("id"))
+
+
+def _debug_verify_inventory_levels(client, quantities, location_gid: str) -> None:
+    query = """
+    query InventoryLevels($inventoryItemId: ID!) {
+      inventoryItem(id: $inventoryItemId) {
+        inventoryLevels(first: 10) {
+          edges {
+            node {
+              location {
+                id
+                name
+              }
+              quantities(names: ["available"]) {
+                name
+                quantity
+              }
+            }
+          }
+        }
+      }
+    }
+    """
+    for item in quantities:
+        inventory_item_id = item.get("inventoryItemId")
+        if not inventory_item_id:
+            continue
+        data, _ = client.execute(query, variables={"inventoryItemId": inventory_item_id})
+        levels = (
+            data.get("inventoryItem", {})
+            .get("inventoryLevels", {})
+            .get("edges", [])
+            if data
+            else []
+        )
+        matched = False
+        for edge in levels:
+            location = edge.get("node", {}).get("location", {})
+            if location.get("id") == location_gid:
+                matched = True
+                log.info(
+                    "Inventory level for %s at %s: %s",
+                    inventory_item_id,
+                    location.get("name"),
+                    edge.get("node", {}).get("quantities"),
+                )
+        if not matched:
+            log.warning(
+                "Inventory level missing location %s for item %s",
+                location_gid,
+                inventory_item_id,
+            )
+
 
 
 class InventoryItem(ShopifyDataModel):
     shopify_sku = models.CharField(max_length=255, null=True)
     tracked = models.BooleanField(default=True)
     requires_shipping = models.BooleanField(default=False)
+    source_quantity = models.IntegerField(null=True)
     unit_cost_amount = models.DecimalField(
         max_digits=12, decimal_places=2, null=True
     )

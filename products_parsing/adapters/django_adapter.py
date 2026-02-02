@@ -12,7 +12,9 @@ from products_parsing.canonical.schema import (
     CanonicalProduct,
     CanonicalVariant,
 )
-from shopify_models.models import Image, Product, Variant
+from django.conf import settings
+
+from shopify_models.models import Image, InventoryItem, Product, Variant
 
 
 
@@ -167,6 +169,7 @@ def _sync_variants(
             updated += 1
 
         _update_variant_fields(variant, variant_record)
+        _upsert_inventory_item(variant, record)
         variant.save()
 
     return created, updated
@@ -176,6 +179,7 @@ def _update_variant_fields(variant: Variant, record: CanonicalVariant) -> None:
     variant.supplier_sku = record.sku
     variant.title = record.title
     variant.price = _safe_decimal(record.price)
+    variant.cost = _safe_decimal(record.price)
     variant.compare_at_price = _safe_decimal(record.compare_at_price)
     variant.barcode = record.barcode
     #variant.inventory_quantity = record.inventory_quantity
@@ -186,6 +190,22 @@ def _update_variant_fields(variant: Variant, record: CanonicalVariant) -> None:
     variant.option1 = options[0] if len(options) > 0 else None
     variant.option2 = options[1] if len(options) > 1 else None
     variant.option3 = options[2] if len(options) > 2 else None
+
+
+def _upsert_inventory_item(variant: Variant, record: CanonicalProduct) -> None:
+    if record.pricing.cost is None:
+        return
+    InventoryItem.objects.update_or_create(
+        variant=variant,
+        defaults={
+            "shopify_sku": variant.supplier_sku,
+            "tracked": True,
+            "requires_shipping": variant.requires_shipping,
+            "source_quantity": _safe_int(record.inventory.quantity, fallback=None),
+            "unit_cost_amount": _safe_decimal(record.pricing.cost),
+            "unit_cost_currency": settings.PROVIDER_CURRENCY,
+        },
+    )
 
 
 def _sync_images(

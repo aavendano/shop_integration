@@ -79,8 +79,6 @@ class CanonicalInventoryLevel:
     #inventory_quantity: Optional[int] = None
 
 
-
-
 @dataclass
 class CanonicalAttributes:
     values: Dict[str, Any] = field(default_factory=dict)

@@ -165,6 +165,13 @@ SHOP_ADMIN_URL = os.environ.get('SHOP_ADMIN_URL')
 API_VERSION = os.environ.get("API_VERSION", "2025-10")
 SHOPIFY_DEFAULT_LOCATION = os.environ.get("LOCATION", "gid://shopify/Location/89689161972")
 SHOPIFY_FULFILLMENT_SERVICE = os.environ.get("FULFILLMENT_SERVICE", "manual")
+PROVIDER_CURRENCY=os.environ.get("PROVIDER_CURRENCY")
+INVENTORY_TRACKED=os.environ.get("INVENTORY_TRACKED", True)
+DEBUG_INVENTORY_SYNC=os.environ.get("DEBUG_INVENTORY_SYNC", False)
+
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+LOGS_DIR = BASE_DIR / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Contextual Pricing Configuration
 SHOPIFY_COUNTRY = os.environ.get("COUNTRY", "US")
@@ -203,3 +210,55 @@ LOGIN_URL = '/login/'
 # This ensures that correct 'https' URLs are generated when our Django app is running behind a proxy like nginx, or is
 # being tunneled (by ngrok, for example).
 # REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": ["shopify_auth.session_tokens.authentication.ShopifyTokenAuthentication"]}
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {name} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": LOG_LEVEL,
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        "file": {
+            "level": LOG_LEVEL,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOGS_DIR / "django.log",
+            "maxBytes": 1024 * 1024 * 5,
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": LOG_LEVEL,
+            "propagate": True,
+        },
+        "django.request": {
+            "handlers": ["console", "file"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "shopify_models": {
+            "handlers": ["console", "file"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "shop_manager": {
+            "handlers": ["console", "file"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+    },
+}

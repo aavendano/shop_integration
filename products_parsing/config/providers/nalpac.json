@@ -70,15 +70,6 @@
       ]
     },
     {
-      "source": "Cost per item",
-      "destination": "pricing.cost",
-      "transforms": [
-        {
-          "name": "parse_price"
-        }
-      ]
-    },
-    {
       "source": "Compare At Price",
       "destination": "variants.0.compare_at_price",
       "transforms": [
@@ -90,6 +81,15 @@
     {
       "source": "Price",
       "destination": "variants.0.price",
+      "transforms": [
+        {
+          "name": "parse_price"
+        }
+      ]
+    },
+    {
+      "source": "Price",
+      "destination": "pricing.cost",
       "transforms": [
         {
           "name": "parse_price"
@@ -192,6 +192,15 @@
     {
       "source": "Variant Requires Shipping",
       "destination": "attributes.variant_requires_shipping"
+    },
+    {
+      "source": "Inventory Quantity",
+      "destination": "inventory.quantity",
+      "transforms": [
+        {
+          "name": "parse_int"
+        }
+      ]
     }
   ]
 }

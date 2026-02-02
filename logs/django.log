@@ -1,0 +1,43 @@
+INFO 2026-02-02 06:09:14,590 django.utils.autoreload autoreload 61785 137572974166144 Watching for file changes with StatReloader
+INFO 2026-02-02 06:09:59,302 django.utils.autoreload autoreload 61914 139080334839936 Watching for file changes with StatReloader
+INFO 2026-02-02 06:10:19,179 django.server log 61914 139080023140032 "GET / HTTP/1.1" 200 4211
+INFO 2026-02-02 06:10:21,277 django.server log 61914 139080023140032 "GET /shopify_models/products/ HTTP/1.1" 200 53261
+INFO 2026-02-02 06:10:26,243 django.server log 61914 139080023140032 "GET /shopify_models/products/29/ HTTP/1.1" 200 25209
+INFO 2026-02-02 06:10:37,809 django.server log 61914 139080023140032 "POST /shopify_models/products/29/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 06:10:37,824 django.server log 61914 139080023140032 "GET /shopify_models/products/29/ HTTP/1.1" 200 25445
+INFO 2026-02-02 06:14:58,996 django.utils.autoreload autoreload 61914 139080334839936 /home/alejandro/shop-app/shop_integration/shop_manager/settings.py changed, reloading.
+INFO 2026-02-02 06:15:00,443 django.utils.autoreload autoreload 62551 132645045432448 Watching for file changes with StatReloader
+INFO 2026-02-02 06:15:35,942 shopify_models.models models 62551 132644734338752 Validated location: shop_manager_app (gid://shopify/Location/89689161972)
+INFO 2026-02-02 06:15:35,953 django.server log 62551 132644734338752 "POST /shopify_models/products/29/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 06:15:35,995 django.server log 62551 132644734338752 "GET /shopify_models/products/29/ HTTP/1.1" 200 25445
+INFO 2026-02-02 06:17:57,276 django.utils.autoreload autoreload 62551 132645045432448 /home/alejandro/shop-app/shop_integration/shopify_models/models.py changed, reloading.
+INFO 2026-02-02 06:17:58,525 django.utils.autoreload autoreload 62976 137973748686976 Watching for file changes with StatReloader
+INFO 2026-02-02 06:18:50,076 shopify_models.models models 62976 137973437388480 Validated location: shop_manager_app (gid://shopify/Location/89689161972)
+INFO 2026-02-02 06:18:50,077 shopify_models.models models 62976 137973437388480 Inventory sync quantity for variant 29: None
+INFO 2026-02-02 06:18:50,086 django.server log 62976 137973437388480 "POST /shopify_models/products/29/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 06:18:50,127 django.server log 62976 137973437388480 "GET /shopify_models/products/29/ HTTP/1.1" 200 25445
+INFO 2026-02-02 06:20:41,882 django.server log 62976 137973437388480 "GET /shopify_models/products/ HTTP/1.1" 200 53261
+INFO 2026-02-02 06:20:48,698 django.server log 62976 137973437388480 "GET /shopify_models/products/30/ HTTP/1.1" 200 25157
+INFO 2026-02-02 06:21:27,389 django.server log 62976 137973437388480 "GET /shopify_models/products/ HTTP/1.1" 200 53261
+INFO 2026-02-02 06:21:33,184 django.server log 62976 137973437388480 "GET /shopify_models/products/?title=37366&vendor=&product_type=&tags= HTTP/1.1" 200 10475
+INFO 2026-02-02 06:21:46,568 django.server log 62976 137973437388480 "GET /shopify_models/products/?title=Water+Slide+Lubricant+4oz.&vendor=&product_type=&tags= HTTP/1.1" 200 11704
+INFO 2026-02-02 06:21:49,242 django.server log 62976 137973437388480 "GET /shopify_models/products/7/ HTTP/1.1" 200 24123
+INFO 2026-02-02 06:22:14,745 shopify_models.models models 62976 137973437388480 Validated location: shop_manager_app (gid://shopify/Location/89689161972)
+INFO 2026-02-02 06:22:14,746 shopify_models.models models 62976 137973437388480 Inventory sync quantity for variant 7: None
+INFO 2026-02-02 06:22:14,747 django.server log 62976 137973437388480 "POST /shopify_models/products/7/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 06:22:14,762 django.server log 62976 137973437388480 "GET /shopify_models/products/7/ HTTP/1.1" 200 24355
+INFO 2026-02-02 06:27:51,503 django.utils.autoreload autoreload 62976 137973748686976 /home/alejandro/shop-app/shop_integration/shopify_models/models.py changed, reloading.
+INFO 2026-02-02 06:27:52,937 django.utils.autoreload autoreload 63723 136640943669376 Watching for file changes with StatReloader
+INFO 2026-02-02 06:31:31,431 django.utils.autoreload autoreload 63723 136640943669376 /home/alejandro/shop-app/shop_integration/shopify_models/models.py changed, reloading.
+INFO 2026-02-02 06:31:32,598 django.utils.autoreload autoreload 63928 126912925208704 Watching for file changes with StatReloader
+INFO 2026-02-02 06:34:51,469 django.server log 63928 126912748406464 "GET /suppliers/ HTTP/1.1" 200 6916
+INFO 2026-02-02 06:34:51,482 django.server log 63928 126912748406464 "GET /static/style/css/main.min.css HTTP/1.1" 304 0
+INFO 2026-02-02 06:34:53,484 django.server log 63928 126912748406464 "GET /suppliers/1/ HTTP/1.1" 200 8868
+INFO 2026-02-02 06:35:01,146 django.server log 63928 126912748406464 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-02 06:35:01,155 django.server log 63928 126912748406464 "GET /suppliers/1/ HTTP/1.1" 200 9435
+INFO 2026-02-02 06:35:05,585 django.server log 63928 126912748406464 "GET /shopify_models/products/ HTTP/1.1" 200 53261
+INFO 2026-02-02 06:35:15,854 django.server log 63928 126912748406464 "GET /shopify_models/products/7/ HTTP/1.1" 200 24108
+INFO 2026-02-02 06:35:23,086 shopify_models.models models 63928 126912748406464 Validated location: shop_manager_app (gid://shopify/Location/89689161972)
+INFO 2026-02-02 06:35:23,086 shopify_models.models models 63928 126912748406464 Inventory sync quantity for variant 7: None
+INFO 2026-02-02 06:35:23,088 django.server log 63928 126912748406464 "POST /shopify_models/products/7/sync/ HTTP/1.1" 302 0
+INFO 2026-02-02 06:35:23,107 django.server log 63928 126912748406464 "GET /shopify_models/products/7/ HTTP/1.1" 200 24355
