@@ -1,59 +1,62 @@
 # Manual de Integración con Shopify
 
-Este documento describe cómo el proyecto gestiona la autenticación y sincronización con Shopify a través de las aplicaciones `accounts` y `shopify_models`.
+Este documento describe cómo el proyecto gestiona la autenticación, configuración y sincronización con Shopify.
 
-## 1. Autenticación (`accounts`)
+## 1. Arquitectura de la App (`shop-app` vs `shop_manager`)
 
-La aplicación `accounts` maneja la conexión con las tiendas Shopify. A diferencia de implementaciones anteriores, ahora utiliza modelos propios para gestionar la sesión.
+El proyecto utiliza una estructura híbrida:
 
-### Modelos Principales
+1.  **`shop-app` (Shopify CLI)**: Define la configuración de la aplicación ante Shopify.
+    -   Archivo: `shop-app/shopify.app.toml`
+    -   Responsabilidad: Definir Scopes, URLs de redirección y **Webhooks**.
+2.  **`shop_manager` (Django)**: Backend que procesa la lógica de negocio y persiste los datos.
+    -   Apps: `accounts`, `shopify_models`, `prices`.
+    -   Responsabilidad: Autenticación OAuth, gestión de base de datos, parsing de productos y precios contextuales.
 
--   **`Shop`**: Representa una tienda Shopify instalada.
-    -   `myshopify_domain`: Dominio único (ej. `mi-tienda.myshopify.com`).
-    -   `is_authentified`: Estado de la conexión.
-    -   Credenciales OAuth (`client_id`, `client_secret`).
+## 2. Autenticación (`accounts`)
 
--   **`Session`**: Almacena el token de acceso válido.
-    -   `shop`: Relación 1:1 con el modelo `Shop`.
-    -   `token`: El *access token* obtenido de Shopify (Offline access).
-    -   `site`: URL completa del sitio para la API.
+La aplicación `accounts` maneja el flujo OAuth y almacena las credenciales.
 
 ### Flujo de Conexión
 
-1.  El usuario accede a la lista de tiendas en `/accounts/shops/`.
-2.  Agrega una nueva tienda o selecciona "Autenticar" en una existente.
-3.  El sistema redirige a Shopify para solicitar permisos (OAuth).
-4.  Al confirmar, Shopify redirige de vuelta al *callback* (`/accounts/shops/callback/`).
-5.  Se crea o actualiza el registro `Session` con el token permanente.
+1.  La configuración en `shop-app/shopify.app.toml` define la URL de redirección hacia Django:
+    ```toml
+    [auth]
+    redirect_urls = [ "https://<tu-dominio>/accounts/shops/callback/" ]
+    ```
+2.  El usuario inicia el proceso desde Django (`/accounts/shops/`).
+3.  Shopify solicita permisos basados en los scopes definidos en la App.
+4.  Shopify redirige a `/accounts/shops/callback/`.
+5.  Django intercambia el código por un token de acceso permanente (Offline Access) y crea una `Session`.
 
-## 2. Modelos de Datos (`shopify_models`)
+## 3. Webhooks
 
-Esta aplicación contiene los modelos de Django que replican la estructura de recursos de Shopify (Productos, Variantes, Imágenes).
+A diferencia de versiones anteriores donde los webhooks se gestionaban internamente en Django, la configuración actual delega esta responsabilidad.
 
-### Sincronización
+-   **Definición**: Los webhooks se declaran en `shop-app/shopify.app.toml`.
+-   **Destino Actual**: Actualmente están configurados para enviar los eventos a un servicio externo (n8n), no directamente a la aplicación Django.
+-   **Código Legacy**: Existe un archivo `shopify_models/handlers.py` con lógica para procesar webhooks, pero **no se utiliza en tiempo de ejecución** bajo la configuración actual de `shop-app`, ya que los webhooks no apuntan a este backend.
 
-La sincronización se realiza principalmente a través de la importación de proveedores (`suppliers` + `products_parsing`), la cual:
+## 4. Modelos de Datos (`shopify_models` y `prices`)
 
-1.  Parsea el archivo del proveedor.
-2.  Genera objetos canónicos.
-3.  Usa el adaptador de Django (`products_parsing/adapters/django_adapter.py`) para guardar en `shopify_models`.
+-   **`shopify_models`**: Replica la estructura de productos y variantes de Shopify. Se alimenta principalmente del motor de parsing (`products_parsing`).
+-   **`prices`**: Gestiona **Precios Contextuales** usando la API GraphQL de Shopify. Permite crear Catálogos y Listas de Precios específicas por país/proveedor, interactuando directamente con la API de Shopify usando las sesiones almacenadas.
 
-*Nota: La sincronización inversa (descargar de Shopify a Django) o vía Webhooks no está activada por defecto en la configuración actual, aunque los handlers existen en `handlers.py`.*
+## 5. Configuración Requerida
 
-## 3. Configuración Requerida
+En `settings.py` (y `.env`), se deben definir las variables que coincidan con la configuración de Shopify Partners:
 
-En `settings.py` (o variables de entorno), se deben definir:
+-   `SHOPIFY_CLIENT_ID`: Client ID de la App.
+-   `SHOPIFY_CLIENT_SECRET`: Client Secret.
+-   `SHOPIFY_APP_SCOPES`: Scopes (ej. `read_products,write_products`).
+-   `SHOPIFY_REDIRECT_URI`: URL completa del callback.
+-   `API_VERSION`: Versión de la API (ej. `2024-01`).
 
--   `SHOPIFY_CLIENT_ID`: API Key de la App en Shopify Partners.
--   `SHOPIFY_CLIENT_SECRET`: API Secret Key.
--   `SHOPIFY_APP_SCOPES`: Permisos requeridos (ej. `read_products,write_products`).
--   `SHOPIFY_REDIRECT_URI`: URL de callback (debe coincidir con la configurada en el Partner Dashboard).
--   `API_VERSION`: Versión de la API de Shopify (ej. `2024-01`).
+## 6. Uso en Desarrollo
 
-## 4. Uso en Desarrollo
-
-Para probar la integración localmente:
-
-1.  Asegúrate de usar un túnel HTTPS (como `ngrok`) si necesitas recibir callbacks de Shopify.
-2.  Configura `ALLOWED_HOSTS` y `CSRF_TRUSTED_ORIGINS` con tu dominio de túnel.
-3.  Registra la URL de redirección en tu App de Shopify: `https://<tu-dominio>/accounts/shops/callback/`.
+1.  **Túnel**: Usar `ngrok` o Cloudflare Tunnel para exponer localhost.
+2.  **Actualizar URLs**:
+    -   En `.env`: `SHOPIFY_REDIRECT_URI`, `ALLOWED_HOSTS` y `CSRF_TRUSTED_ORIGINS`.
+    -   En `shop-app/shopify.app.toml`: `application_url` y `redirect_urls`.
+3.  **Desplegar Configuración**:
+    Si se cambia `shopify.app.toml`, ejecutar `shopify app deploy` (o `dev`) desde la carpeta `shop-app` para actualizar la configuración en Shopify.

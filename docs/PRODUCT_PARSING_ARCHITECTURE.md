@@ -99,6 +99,12 @@ Esta es la única capa que interactúa con `shopify_models`. Actúa como un puen
     -   Sincroniza `Metafields` si es necesario.
 -   **Aislamiento**: Si los modelos de Django cambian, solo esta capa necesita ser actualizada; el parsing y los JSONs permanecen intactos.
 
+### Gestión de Precios Contextuales (App `prices`)
+Adicionalmente a la sincronización base, el sistema cuenta con la aplicación `prices` para gestionar **Precios Contextuales** (Shopify Markets).
+-   Utiliza los datos base almacenados en `shopify_models`.
+-   Sincroniza precios específicos por país/moneda en Listas de Precios (Price Lists) de Shopify mediante la API GraphQL.
+-   Permite que un mismo producto tenga precios diferentes según el contexto (ej. Catálogo US vs. Catálogo CA).
+
 ## 8. Estrategia para Agregar Nuevos Proveedores
 
 Para integrar un nuevo proveedor, el flujo de trabajo es:
