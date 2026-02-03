@@ -1,17 +1,11 @@
 from dataclasses import dataclass
 from decimal import Decimal
-import json
 from typing import Dict, Iterable, Optional
 
 from django.db import transaction
 from django.utils.text import slugify
 
-from products_parsing.canonical.schema import (
-    CanonicalAttributes,
-    CanonicalImage,
-    CanonicalProduct,
-    CanonicalVariant,
-)
+from products_parsing.canonical.schema_v2 import CanonicalProduct, CanonicalVariant
 from django.conf import settings
 
 from shopify_models.models import Image, InventoryItem, InventoryLevel, Product, Variant
@@ -25,7 +19,7 @@ DEFAULT_PRODUCT_TYPE = "Uncategorized"
 @dataclass
 class PersistOptions:
     session: object
-    unique_identifier: str = "identifiers.sku"
+    unique_identifier: str = "variants.supplier_sku"
 
 
 @dataclass
@@ -81,20 +75,15 @@ def _upsert_product(record: CanonicalProduct, options: PersistOptions):
 
 
 def _build_product_defaults(record: CanonicalProduct) -> Dict[str, object]:
-    title = record.basic_info.title or ""
-    handle = slugify(title) or slugify(record.identifiers.sku or "")
-    product_type = (
-        record.classification.product_type
-        or record.classification.category
-        or DEFAULT_PRODUCT_TYPE
-    )
-    tags = ", ".join(
-        record.classification.tags) if record.classification.tags else ""
+    title = record.title or ""
+    handle = record.handle or slugify(title) or slugify(_primary_variant_sku(record) or "")
+    product_type = record.product_type or DEFAULT_PRODUCT_TYPE
+    tags = record.tags or ""
 
     return {
         "title": title,
-        "description": record.basic_info.description_html or "",
-        "vendor": record.basic_info.brand,
+        "description": record.description or "",
+        "vendor": record.vendor,
         "product_type": product_type,
         "tags": tags,
         "handle": handle,
@@ -106,7 +95,7 @@ def _resolve_product(record: CanonicalProduct, options: PersistOptions) -> Optio
     if identifier is None:
         raise ValueError("Missing unique identifier for product resolution")
 
-    if options.unique_identifier in {"sku", "identifiers.sku"}:
+    if options.unique_identifier in {"supplier_sku", "variants.supplier_sku"}:
         variant = (
             Variant.objects.select_related("product")
             .filter(supplier_sku=identifier)
@@ -121,24 +110,24 @@ def _resolve_product(record: CanonicalProduct, options: PersistOptions) -> Optio
 
 
 def _get_identifier_value(record: CanonicalProduct, identifier: str) -> Optional[str]:
-    if identifier in {"sku", "identifiers.sku"}:
-        return record.identifiers.sku
+    if identifier in {"supplier_sku", "variants.supplier_sku"}:
+        return _primary_variant_sku(record)
     if identifier == "handle":
-        return slugify(record.basic_info.title or "") or None
-    if identifier == "basic_info.title":
-        return record.basic_info.title
-    if identifier == "basic_info.brand":
-        return record.basic_info.brand
-    if identifier == "classification.product_type":
-        return record.classification.product_type
+        return record.handle or slugify(record.title or "") or None
+    if identifier == "title":
+        return record.title
+    if identifier == "vendor":
+        return record.vendor
+    if identifier == "product_type":
+        return record.product_type
     return None
 
 
 _PRODUCT_LOOKUP_FIELDS = {
     "handle": "handle",
-    "basic_info.title": "title",
-    "basic_info.brand": "vendor",
-    "classification.product_type": "product_type",
+    "title": "title",
+    "vendor": "vendor",
+    "product_type": "product_type",
 }
 
 
@@ -154,9 +143,9 @@ def _sync_variants(
     updated = 0
     for variant_record in record.variants:
         variant = None
-        if variant_record.sku:
+        if variant_record.supplier_sku:
             variant = Variant.objects.filter(
-                product=product, supplier_sku=variant_record.sku
+                product=product, supplier_sku=variant_record.supplier_sku
             ).first()
 
         if variant is None:
@@ -170,49 +159,53 @@ def _sync_variants(
 
         _update_variant_fields(variant, variant_record)
         variant.save()
-        inventory_item = _upsert_inventory_item(variant, record)
-        _upsert_inventory_level(inventory_item, record)
+        inventory_item = _upsert_inventory_item(variant, variant_record)
+        _upsert_inventory_level(inventory_item, variant_record)
 
     return created, updated
 
 
 def _update_variant_fields(variant: Variant, record: CanonicalVariant) -> None:
-    variant.supplier_sku = record.sku
+    variant.supplier_sku = record.supplier_sku
     variant.title = record.title
     variant.price = _safe_decimal(record.price)
-    variant.cost = _safe_decimal(record.price)
     variant.compare_at_price = _safe_decimal(record.compare_at_price)
     variant.barcode = record.barcode
     #variant.inventory_quantity = record.inventory_quantity
-    variant.grams = 0
+    variant.grams = record.grams or 0
+    variant.position = record.position or 1
+    variant.taxable = record.taxable if record.taxable is not None else variant.taxable
+    if record.requires_shipping is not None:
+        variant.requires_shipping = record.requires_shipping
+    variant.inventory_policy = record.inventory_policy or variant.inventory_policy
+    variant.inventory_management = (
+        record.inventory_management or variant.inventory_management
+    )
+    variant.option1 = record.option1
+    variant.option2 = record.option2
+    variant.option3 = record.option3
 
-    options = list(record.option_values.values()
-                   ) if record.option_values else []
-    variant.option1 = options[0] if len(options) > 0 else None
-    variant.option2 = options[1] if len(options) > 1 else None
-    variant.option3 = options[2] if len(options) > 2 else None
 
-
-def _upsert_inventory_item(variant: Variant, record: CanonicalProduct) -> InventoryItem:
+def _upsert_inventory_item(variant: Variant, record: CanonicalVariant) -> InventoryItem:
     inventory_item, _created = InventoryItem.objects.update_or_create(
         variant=variant,
         defaults={
-            "shopify_sku": variant.supplier_sku,
-            "tracked": True,
+            "shopify_sku": record.sku or variant.supplier_sku,
+            "tracked": record.tracked if record.tracked is not None else True,
             "requires_shipping": variant.requires_shipping,
-            "source_quantity": _safe_int(record.inventory.quantity, fallback=0),
-            "unit_cost_amount": _safe_decimal(record.pricing.cost),
+            "source_quantity": _safe_int(record.quantity, fallback=0),
+            "unit_cost_amount": _safe_decimal(record.cost),
             "unit_cost_currency": settings.PROVIDER_CURRENCY,
         },
     )
     return inventory_item
 
 
-def _upsert_inventory_level(inventory_item: InventoryItem, record: CanonicalProduct) -> None:
+def _upsert_inventory_level(inventory_item: InventoryItem, record: CanonicalVariant) -> None:
     location_gid = settings.SHOPIFY_DEFAULT_LOCATION
     if not location_gid:
         return
-    available_quantity = _safe_int(record.inventory.quantity, fallback=0)
+    available_quantity = _safe_int(record.quantity, fallback=0)
     InventoryLevel.objects.update_or_create(
         inventory_item=inventory_item,
         location_gid=location_gid,
@@ -226,16 +219,16 @@ def _upsert_inventory_level(inventory_item: InventoryItem, record: CanonicalProd
 def _sync_images(
     product: Product, record: CanonicalProduct
 ) -> tuple[int, int]:
-    if not record.media.images:
+    if not record.images:
         return 0, 0
 
     created = 0
     updated = 0
-    for image_record in record.media.images:
-        if not image_record.url:
+    for image_record in record.images:
+        if not image_record.src:
             continue
         image = Image.objects.filter(
-            product=product, src=image_record.url).first()
+            product=product, src=image_record.src).first()
         if image is None:
             # Let Django auto-generate the id
             image = Image(
@@ -245,7 +238,7 @@ def _sync_images(
         else:
             updated += 1
 
-        image.src = image_record.url
+        image.src = image_record.src
         image.position = image_record.position or 1
         image.save()
 
@@ -262,3 +255,10 @@ def _safe_int(value: Optional[int], fallback: int = 0) -> int:
     if value is None:
         return fallback
     return int(value)
+
+
+def _primary_variant_sku(record: CanonicalProduct) -> Optional[str]:
+    for variant in record.variants:
+        if variant.supplier_sku:
+            return variant.supplier_sku
+    return None

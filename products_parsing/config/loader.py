@@ -30,6 +30,7 @@ class ProviderConfig:
     mappings: List[MappingRule]
     error_policy: str = "continue"
     transform_params: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    schema_version: str = "v1"
 
 
 def load_provider_config(path: str) -> ProviderConfig:
@@ -60,6 +61,7 @@ def load_provider_config_from_dict(
         mappings=mappings,
         error_policy=data.get("error_policy", "continue"),
         transform_params=data.get("transform_params", {}),
+        schema_version=data.get("schema_version", "v1"),
     )
 
 
@@ -79,6 +81,15 @@ def validate_provider_config(data: Any) -> List[ConfigValidationIssue]:
             ConfigValidationIssue(
                 path="error_policy",
                 message="Expected 'continue' or 'fail'",
+            )
+        )
+
+    schema_version = data.get("schema_version", "v1")
+    if schema_version not in {"v1", "v2"}:
+        issues.append(
+            ConfigValidationIssue(
+                path="schema_version",
+                message="Expected 'v1' or 'v2'",
             )
         )
 

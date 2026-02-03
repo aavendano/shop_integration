@@ -1,10 +1,11 @@
 {
   "provider_id": "nalpac",
   "error_policy": "continue",
+  "schema_version": "v2",
   "mappings": [
     {
       "source": "SKU",
-      "destination": "identifiers.sku",
+      "destination": "variants.0.supplier_sku",
       "transforms": [
         {
           "name": "trim"
@@ -22,7 +23,7 @@
     },
     {
       "source": "Barcode",
-      "destination": "identifiers.upc_ean",
+      "destination": "metadata.upc_ean",
       "transforms": [
         {
           "name": "trim"
@@ -40,7 +41,7 @@
     },
     {
       "source": "MPN",
-      "destination": "identifiers.mpn",
+      "destination": "metadata.mpn",
       "transforms": [
         {
           "name": "trim"
@@ -49,7 +50,7 @@
     },
     {
       "source": "Product Title",
-      "destination": "basic_info.title",
+      "destination": "title",
       "transforms": [
         {
           "name": "trim"
@@ -58,11 +59,11 @@
     },
     {
       "source": "Product Description",
-      "destination": "basic_info.description_html"
+      "destination": "description"
     },
     {
       "source": "Vendor",
-      "destination": "basic_info.brand",
+      "destination": "vendor",
       "transforms": [
         {
           "name": "trim"
@@ -89,7 +90,7 @@
     },
     {
       "source": "Price",
-      "destination": "pricing.cost",
+      "destination": "variants.0.cost",
       "transforms": [
         {
           "name": "parse_price"
@@ -99,103 +100,118 @@
 
     {
       "source": "Entrenue qty available",
-      "destination": "attributes.entrenue_qty_available"
+      "destination": "metadata.entrenue_qty_available"
     },
     {
       "source": "Fluid Oz",
-      "destination": "attributes.fluid_oz"
+      "destination": "metadata.fluid_oz"
     },
     {
       "source": "Material",
-      "destination": "attributes.material"
+      "destination": "metadata.material"
     },
     {
       "source": "Color",
-      "destination": "variants.0.option_values.color"
+      "destination": "variants.0.option1"
     },
     {
       "source": "Size",
-      "destination": "variants.0.option_values.size"
+      "destination": "variants.0.option2"
     },
     {
       "source": "Main Category",
-      "destination": "classification.category"
+      "destination": "product_type"
     },
     {
       "source": "Sub-Category",
-      "destination": "attributes.sub_category"
+      "destination": "metadata.sub_category"
     },
     {
       "source": "Variant Image",
-      "destination": "media.images.0.url"
+      "destination": "images.0.src"
     },
     {
       "source": "Image 2",
-      "destination": "media.images.1.url"
+      "destination": "images.1.src"
     },
     {
       "source": "Image 3",
-      "destination": "media.images.2.url"
+      "destination": "images.2.src"
     },
     {
       "source": "Image 4",
-      "destination": "media.images.3.url"
+      "destination": "images.3.src"
     },
     {
       "source": "Image 5",
-      "destination": "media.images.4.url"
+      "destination": "images.4.src"
     },
     {
       "source": "Image 6",
-      "destination": "media.images.5.url"
+      "destination": "images.5.src"
     },
     {
       "source": "Image 7",
-      "destination": "media.images.6.url"
+      "destination": "images.6.src"
     },
     {
       "source": "Image 8",
-      "destination": "media.images.7.url"
+      "destination": "images.7.src"
     },
     {
       "source": "Image 9",
-      "destination": "media.images.8.url"
+      "destination": "images.8.src"
     },
     {
       "source": "Image 10",
-      "destination": "media.images.9.url"
+      "destination": "images.9.src"
     },
     {
       "source": "Fulfillment Service",
-      "destination": "attributes.fulfillment_service"
+      "destination": "metadata.fulfillment_service"
     },
     {
       "source": "Inventory tracked",
-      "destination": "shopify"
+      "destination": "variants.0.tracked",
+      "transforms": [
+        {
+          "name": "parse_bool"
+        }
+      ]
     },
     {
       "source": "Image URL",
-      "destination": "attributes.image_url_raw"
+      "destination": "metadata.image_url_raw"
     },
     {
       "source": "Variant Inventory Policy",
-      "destination": "attributes.variant_inventory_policy"
+      "destination": "variants.0.inventory_policy"
     },
     {
       "source": "Variant Fulfillment Service",
-      "destination": "attributes.variant_fulfillment_service"
+      "destination": "metadata.variant_fulfillment_service"
     },
     {
       "source": "Requires Shipping",
-      "destination": "attributes.requires_shipping"
+      "destination": "variants.0.requires_shipping",
+      "transforms": [
+        {
+          "name": "parse_bool"
+        }
+      ]
     },
     {
       "source": "Variant Requires Shipping",
-      "destination": "attributes.variant_requires_shipping"
+      "destination": "variants.0.requires_shipping",
+      "transforms": [
+        {
+          "name": "parse_bool"
+        }
+      ]
     },
     {
       "source": "Inventory Quantity",
-      "destination": "inventory.quantity",
+      "destination": "variants.0.quantity",
       "transforms": [
         {
           "name": "parse_int"
