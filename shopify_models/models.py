@@ -194,6 +194,7 @@ def _sync_inventory_item_unit_costs(
         errors = client.update_inventory_item_cost(
             inventory_item_id=inventory_item_gid,
             cost=str(inventory_item.unit_cost_amount),
+            currency=currency,
         )
         for error in errors:
             log.warning("InventoryItem unit cost update error: %s", error)

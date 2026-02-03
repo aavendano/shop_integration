@@ -2,7 +2,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
-from shopify_client import ShopifyGraphQLClient
 from ..models import InventoryItem, InventoryLevel
 from shopify_client import ShopifyGraphQLClient
 
