@@ -4,6 +4,11 @@ from django.db import models
 from .encoders import ShopifyDjangoJSONEncoder
 from django.conf import settings
 
+
+log = logging.getLogger(__name__)
+
+
+
 class ShopifyDataModel(models.Model):
     shopify_id = models.CharField(
         max_length=255, unique=True, null=True, blank=True, primary_key=False)
@@ -12,7 +17,6 @@ class ShopifyDataModel(models.Model):
 
     class Meta:
         abstract = True
-
 
 class Image(ShopifyDataModel):
     position = models.IntegerField(null=True, default=1)
@@ -23,13 +27,6 @@ class Image(ShopifyDataModel):
     def __str__(self):
         return self.src
 
-
-
-
-
-log = logging.getLogger(__name__)
-
-
 class Product(ShopifyDataModel):
     description = models.TextField(default="", null=True)
     handle = models.CharField(max_length=255, db_index=True)
@@ -38,35 +35,6 @@ class Product(ShopifyDataModel):
     title = models.CharField(max_length=255, db_index=True)
     vendor = models.CharField(max_length=255, db_index=True, null=True)
 
-    @property
-    def images(self):
-        return Image.objects.filter(product_id=self.id)
-
-    @property
-    def collects(self):
-        return Collect.objects.filter(product_id=self.id)
-
-    @property
-    def variants(self):
-        return Variant.objects.filter(product_id=self.id)
-
-    @property
-    def options(self):
-        return Option.objects.filter(product_id=self.id)
-
-    @property
-    def price(self):
-        return (
-            min([variant.price for variant in self.variants]),
-            max([variant.price for variant in self.variants]),
-        )
-
-    @property
-    def weight(self):
-        return (
-            min([variant.grams for variant in self.variants]),
-            max([variant.grams for variant in self.variants]),
-        )
 
     def _get_tag_list(self):
         # Tags are comma-space delimited.
