@@ -1,136 +1,9 @@
+from django.conf import settings
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
-from ..graphql import ShopifyGraphQLClient
 from ..models import InventoryItem, InventoryLevel
-
-
-LOCATIONS_PAGE_QUERY = """
-query LocationsPage($first: Int!, $after: String, $query: String) {
-  locations(first: $first, after: $after, query: $query) {
-    edges {
-      cursor
-      node {
-        id
-        legacyResourceId
-        name
-        isActive
-        activatable
-        deactivatable
-        deletable
-        fulfillsOnlineOrders
-        hasActiveInventory
-        hasUnfulfilledOrders
-        shipsInventory
-        address {
-          address1
-          address2
-          city
-          country
-          countryCode
-          province
-          provinceCode
-          zip
-        }
-        localPickupSettingsV2 {
-          pickupTime
-          instructions
-        }
-        createdAt
-        updatedAt
-      }
-    }
-    pageInfo {
-      hasNextPage
-      endCursor
-    }
-  }
-}
-"""
-
-
-INVENTORY_ITEMS_PAGE_QUERY = """
-query InventoryItemsPage($first: Int!, $after: String, $query: String) {
-  inventoryItems(first: $first, after: $after, query: $query) {
-    edges {
-      cursor
-      node {
-        id
-        legacyResourceId
-        sku
-        tracked
-        requiresShipping
-        countryCodeOfOrigin
-        provinceCodeOfOrigin
-        harmonizedSystemCode
-        countryHarmonizedSystemCodes(first: 10) {
-          edges {
-            node {
-              harmonizedSystemCode
-              countryCode
-            }
-          }
-        }
-        unitCost {
-          amount
-          currencyCode
-        }
-        locationsCount {
-          count
-        }
-        createdAt
-        updatedAt
-      }
-    }
-    pageInfo {
-      hasNextPage
-      endCursor
-    }
-  }
-}
-"""
-
-
-LOCATION_INVENTORY_LEVELS_QUERY = """
-query LocationInventoryLevelsSince(
-  $locationId: ID!
-  $first: Int!
-  $after: String
-  $updatedAtQuery: String
-  $quantityNames: [String!]!
-) {
-  location(id: $locationId) {
-    id
-    name
-    inventoryLevels(first: $first, after: $after, query: $updatedAtQuery) {
-      edges {
-        cursor
-        node {
-          id
-          quantities(names: $quantityNames) {
-            name
-            quantity
-          }
-          item {
-            id
-            sku
-          }
-          location {
-            id
-            name
-          }
-          createdAt
-          updatedAt
-        }
-      }
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-    }
-  }
-}
-"""
+from shopify_client import ShopifyGraphQLClient
 
 
 # NOTE: Location model has been removed. Location data is now managed via .env
@@ -158,25 +31,20 @@ query LocationInventoryLevelsSince(
 def sync_inventory_items(
     session, *, query=None, page_size=50, max_pages=None, throttle=True
 ):
-    client = ShopifyGraphQLClient(session, throttle=throttle)
-    variables = {"first": page_size, "after": None, "query": query}
-    page = 0
+    client = ShopifyGraphQLClient(
+        session.site,
+        session.token,
+        settings.API_VERSION,
+        throttle=throttle,
+    )
     synced = 0
-    while True:
-        data, _extensions = client.execute(
-            INVENTORY_ITEMS_PAGE_QUERY, variables=variables
-        )
-        connection = data["inventoryItems"]
-        for edge in connection["edges"]:
-            synced += 1
-            _upsert_inventory_item(session, edge["node"])
-        page_info = connection["pageInfo"]
-        if not page_info["hasNextPage"]:
-            break
-        page += 1
-        if max_pages is not None and page >= max_pages:
-            break
-        variables["after"] = page_info["endCursor"]
+    for node in client.list_inventory_items(
+        query=query,
+        page_size=page_size,
+        max_pages=max_pages,
+    ):
+        synced += 1
+        _upsert_inventory_item(session, node)
     return synced
 
 
@@ -206,32 +74,23 @@ def sync_location_inventory_levels(
         Number of inventory levels synced
     """
     quantity_names = quantity_names or ["available", "incoming", "on_hand"]
-    client = ShopifyGraphQLClient(session, throttle=throttle)
-    variables = {
-        "locationId": location_gid,
-        "first": page_size,
-        "after": None,
-        "updatedAtQuery": updated_at_query,
-        "quantityNames": quantity_names,
-    }
-    page = 0
+    client = ShopifyGraphQLClient(
+        session.site,
+        session.token,
+        settings.API_VERSION,
+        throttle=throttle,
+    )
     synced = 0
     now = timezone.now()
-    while True:
-        data, _extensions = client.execute(
-            LOCATION_INVENTORY_LEVELS_QUERY, variables=variables
-        )
-        connection = data["location"]["inventoryLevels"]
-        for edge in connection["edges"]:
-            synced += 1
-            _upsert_inventory_level(location_gid, session, edge["node"], synced_at=now)
-        page_info = connection["pageInfo"]
-        if not page_info["hasNextPage"]:
-            break
-        page += 1
-        if max_pages is not None and page >= max_pages:
-            break
-        variables["after"] = page_info["endCursor"]
+    for node in client.list_location_inventory_levels(
+        location_gid,
+        updated_at_query=updated_at_query,
+        page_size=page_size,
+        max_pages=max_pages,
+        quantity_names=quantity_names,
+    ):
+        synced += 1
+        _upsert_inventory_level(location_gid, session, node, synced_at=now)
     return synced
 
 
