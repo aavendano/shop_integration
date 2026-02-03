@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
-from ..graphql import ShopifyGraphQLClient
+from shopify_client import ShopifyGraphQLClient
 from ..models import InventoryItem, InventoryLevel
 
 
@@ -158,14 +159,16 @@ query LocationInventoryLevelsSince(
 def sync_inventory_items(
     session, *, query=None, page_size=50, max_pages=None, throttle=True
 ):
-    client = ShopifyGraphQLClient(session, throttle=throttle)
+    client = ShopifyGraphQLClient(
+        session.site,
+        session.token,
+        settings.API_VERSION,
+    )
     variables = {"first": page_size, "after": None, "query": query}
     page = 0
     synced = 0
     while True:
-        data, _extensions = client.execute(
-            INVENTORY_ITEMS_PAGE_QUERY, variables=variables
-        )
+        data = client.get_inventory_items_page(**variables)
         connection = data["inventoryItems"]
         for edge in connection["edges"]:
             synced += 1
@@ -206,7 +209,11 @@ def sync_location_inventory_levels(
         Number of inventory levels synced
     """
     quantity_names = quantity_names or ["available", "incoming", "on_hand"]
-    client = ShopifyGraphQLClient(session, throttle=throttle)
+    client = ShopifyGraphQLClient(
+        session.site,
+        session.token,
+        settings.API_VERSION,
+    )
     variables = {
         "locationId": location_gid,
         "first": page_size,
@@ -218,8 +225,12 @@ def sync_location_inventory_levels(
     synced = 0
     now = timezone.now()
     while True:
-        data, _extensions = client.execute(
-            LOCATION_INVENTORY_LEVELS_QUERY, variables=variables
+        data = client.get_location_inventory_levels_page(
+            location_id=variables["locationId"],
+            first=variables["first"],
+            after=variables["after"],
+            updated_at_query=variables["updatedAtQuery"],
+            quantity_names=variables["quantityNames"],
         )
         connection = data["location"]["inventoryLevels"]
         for edge in connection["edges"]:

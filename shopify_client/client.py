@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 from gql.transport.exceptions import TransportQueryError, TransportServerError
@@ -11,6 +11,15 @@ from .exceptions import (
     ShopifyNetworkError,
 )
 from .queries.products import GET_PRODUCT_BY_SKU
+from .queries.inventory import (
+    INVENTORY_ITEMS_PAGE,
+    LOCATION_INVENTORY_LEVELS_PAGE,
+    VARIANT_INVENTORY_ITEM_ID,
+    INVENTORY_ITEM_UPDATE,
+    INVENTORY_SET_QUANTITIES,
+    LOCATION_BY_ID,
+    INVENTORY_LEVELS_BY_ITEM,
+)
 
 
 class ShopifyGraphQLClient:
@@ -106,3 +115,96 @@ class ShopifyGraphQLClient:
 
         # Return the first matching node
         return edges[0].get("node")
+
+    def get_inventory_items_page(
+        self,
+        *,
+        first: int,
+        after: Optional[str] = None,
+        query: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        variables = {"first": first, "after": after, "query": query}
+        return self._execute(INVENTORY_ITEMS_PAGE, variables)
+
+    def get_location_inventory_levels_page(
+        self,
+        *,
+        location_id: str,
+        first: int,
+        after: Optional[str] = None,
+        updated_at_query: Optional[str] = None,
+        quantity_names: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        variables = {
+            "locationId": location_id,
+            "first": first,
+            "after": after,
+            "updatedAtQuery": updated_at_query,
+            "quantityNames": quantity_names or ["available", "incoming", "on_hand"],
+        }
+        return self._execute(LOCATION_INVENTORY_LEVELS_PAGE, variables)
+
+    def get_variant_inventory_item_id(self, variant_id: str) -> Optional[str]:
+        data = self._execute(VARIANT_INVENTORY_ITEM_ID, {"id": variant_id})
+        return (
+            data.get("productVariant", {})
+            .get("inventoryItem", {})
+            .get("id")
+        )
+
+    def update_inventory_item_cost(
+        self,
+        *,
+        inventory_item_id: str,
+        cost: str,
+    ) -> List[Dict[str, Any]]:
+        variables = {
+            "id": inventory_item_id,
+            "input": {"cost": cost},
+        }
+        data = self._execute(INVENTORY_ITEM_UPDATE, variables)
+        return data.get("inventoryItemUpdate", {}).get("userErrors", [])
+
+    def set_inventory_quantities(
+        self,
+        *,
+        name: str,
+        reason: str,
+        quantities: List[Dict[str, Any]],
+        ignore_compare_quantity: bool = True,
+    ) -> List[Dict[str, Any]]:
+        variables = {
+            "input": {
+                "name": name,
+                "reason": reason,
+                "quantities": quantities,
+                "ignoreCompareQuantity": ignore_compare_quantity,
+            }
+        }
+        data = self._execute(INVENTORY_SET_QUANTITIES, variables)
+        return data.get("inventorySetQuantities", {}).get("userErrors", [])
+
+    def get_location(self, location_id: str) -> Optional[Dict[str, Any]]:
+        data = self._execute(LOCATION_BY_ID, {"id": location_id})
+        return data.get("location") if data else None
+
+    def get_inventory_levels(
+        self,
+        *,
+        inventory_item_id: str,
+        first: int = 10,
+        quantity_names: Optional[List[str]] = None,
+    ) -> List[Dict[str, Any]]:
+        variables = {
+            "inventoryItemId": inventory_item_id,
+            "first": first,
+            "quantityNames": quantity_names or ["available"],
+        }
+        data = self._execute(INVENTORY_LEVELS_BY_ITEM, variables)
+        return (
+            data.get("inventoryItem", {})
+            .get("inventoryLevels", {})
+            .get("edges", [])
+            if data
+            else []
+        )
