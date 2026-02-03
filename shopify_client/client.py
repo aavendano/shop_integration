@@ -1,5 +1,6 @@
 import time
 from typing import Optional, Dict, Any, Iterable, List, Tuple, Union
+from typing import Optional, Dict, Any, List
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 from gql.transport.exceptions import TransportQueryError, TransportServerError
@@ -16,6 +17,13 @@ from .queries.inventory import (
     INVENTORY_ITEMS_PAGE_QUERY,
     LOCATION_INVENTORY_LEVELS_QUERY,
     LOCATIONS_PAGE_QUERY,
+    INVENTORY_ITEMS_PAGE,
+    LOCATION_INVENTORY_LEVELS_PAGE,
+    VARIANT_INVENTORY_ITEM_ID,
+    INVENTORY_ITEM_UPDATE,
+    INVENTORY_SET_QUANTITIES,
+    LOCATION_BY_ID,
+    INVENTORY_LEVELS_BY_ITEM,
 )
 
 

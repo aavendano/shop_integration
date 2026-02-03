@@ -1,48 +1,4 @@
-LOCATIONS_PAGE_QUERY = """
-query LocationsPage($first: Int!, $after: String, $query: String) {
-  locations(first: $first, after: $after, query: $query) {
-    edges {
-      cursor
-      node {
-        id
-        legacyResourceId
-        name
-        isActive
-        activatable
-        deactivatable
-        deletable
-        fulfillsOnlineOrders
-        hasActiveInventory
-        hasUnfulfilledOrders
-        shipsInventory
-        address {
-          address1
-          address2
-          city
-          country
-          countryCode
-          province
-          provinceCode
-          zip
-        }
-        localPickupSettingsV2 {
-          pickupTime
-          instructions
-        }
-        createdAt
-        updatedAt
-      }
-    }
-    pageInfo {
-      hasNextPage
-      endCursor
-    }
-  }
-}
-"""
-
-
-INVENTORY_ITEMS_PAGE_QUERY = """
+INVENTORY_ITEMS_PAGE = """
 query InventoryItemsPage($first: Int!, $after: String, $query: String) {
   inventoryItems(first: $first, after: $after, query: $query) {
     edges {
@@ -84,7 +40,7 @@ query InventoryItemsPage($first: Int!, $after: String, $query: String) {
 """
 
 
-LOCATION_INVENTORY_LEVELS_QUERY = """
+LOCATION_INVENTORY_LEVELS_PAGE = """
 query LocationInventoryLevelsSince(
   $locationId: ID!
   $first: Int!
@@ -119,6 +75,84 @@ query LocationInventoryLevelsSince(
       pageInfo {
         hasNextPage
         endCursor
+      }
+    }
+  }
+}
+"""
+
+
+VARIANT_INVENTORY_ITEM_ID = """
+query VariantInventoryItem($id: ID!) {
+  productVariant(id: $id) {
+    inventoryItem {
+      id
+    }
+  }
+}
+"""
+
+
+INVENTORY_ITEM_UPDATE = """
+mutation InventoryItemUpdate($id: ID!, $input: InventoryItemInput!) {
+  inventoryItemUpdate(id: $id, input: $input) {
+    inventoryItem {
+      id
+      unitCost {
+        amount
+        currencyCode
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+"""
+
+
+INVENTORY_SET_QUANTITIES = """
+mutation InventorySetQuantities($input: InventorySetQuantitiesInput!) {
+  inventorySetQuantities(input: $input) {
+    inventoryAdjustmentGroup {
+      createdAt
+      reason
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+"""
+
+
+LOCATION_BY_ID = """
+query LocationById($id: ID!) {
+  location(id: $id) {
+    id
+    name
+  }
+}
+"""
+
+
+INVENTORY_LEVELS_BY_ITEM = """
+query InventoryLevels($inventoryItemId: ID!, $first: Int!, $quantityNames: [String!]!) {
+  inventoryItem(id: $inventoryItemId) {
+    inventoryLevels(first: $first) {
+      edges {
+        node {
+          location {
+            id
+            name
+          }
+          quantities(names: $quantityNames) {
+            name
+            quantity
+          }
+        }
       }
     }
   }

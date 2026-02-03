@@ -2,6 +2,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
+from shopify_client import ShopifyGraphQLClient
 from ..models import InventoryItem, InventoryLevel
 from shopify_client import ShopifyGraphQLClient
 
@@ -35,16 +36,23 @@ def sync_inventory_items(
         session.site,
         session.token,
         settings.API_VERSION,
-        throttle=throttle,
     )
+    variables = {"first": page_size, "after": None, "query": query}
+    page = 0
     synced = 0
-    for node in client.list_inventory_items(
-        query=query,
-        page_size=page_size,
-        max_pages=max_pages,
-    ):
-        synced += 1
-        _upsert_inventory_item(session, node)
+    while True:
+        data = client.get_inventory_items_page(**variables)
+        connection = data["inventoryItems"]
+        for edge in connection["edges"]:
+            synced += 1
+            _upsert_inventory_item(session, edge["node"])
+        page_info = connection["pageInfo"]
+        if not page_info["hasNextPage"]:
+            break
+        page += 1
+        if max_pages is not None and page >= max_pages:
+            break
+        variables["after"] = page_info["endCursor"]
     return synced
 
 
@@ -78,19 +86,36 @@ def sync_location_inventory_levels(
         session.site,
         session.token,
         settings.API_VERSION,
-        throttle=throttle,
     )
+    variables = {
+        "locationId": location_gid,
+        "first": page_size,
+        "after": None,
+        "updatedAtQuery": updated_at_query,
+        "quantityNames": quantity_names,
+    }
+    page = 0
     synced = 0
     now = timezone.now()
-    for node in client.list_location_inventory_levels(
-        location_gid,
-        updated_at_query=updated_at_query,
-        page_size=page_size,
-        max_pages=max_pages,
-        quantity_names=quantity_names,
-    ):
-        synced += 1
-        _upsert_inventory_level(location_gid, session, node, synced_at=now)
+    while True:
+        data = client.get_location_inventory_levels_page(
+            location_id=variables["locationId"],
+            first=variables["first"],
+            after=variables["after"],
+            updated_at_query=variables["updatedAtQuery"],
+            quantity_names=variables["quantityNames"],
+        )
+        connection = data["location"]["inventoryLevels"]
+        for edge in connection["edges"]:
+            synced += 1
+            _upsert_inventory_level(location_gid, session, edge["node"], synced_at=now)
+        page_info = connection["pageInfo"]
+        if not page_info["hasNextPage"]:
+            break
+        page += 1
+        if max_pages is not None and page >= max_pages:
+            break
+        variables["after"] = page_info["endCursor"]
     return synced
 
 
