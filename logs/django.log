@@ -525,3 +525,51 @@ INFO 2026-02-02 18:45:45,841 django.server log 37258 138205197235904 "GET /shopi
 INFO 2026-02-02 18:45:49,679 django.server log 37258 138205197235904 "GET /shopify_models/products/?page=9 HTTP/1.1" 200 98122
 INFO 2026-02-02 18:45:57,077 django.server log 37258 138205197235904 "GET /shopify_models/products/?title=&vendor=a&product_type=&tags= HTTP/1.1" 200 10471
 INFO 2026-02-02 18:45:59,225 django.server log 37258 138205197235904 "GET /shopify_models/products/ HTTP/1.1" 200 92037
+INFO 2026-02-03 04:36:19,014 django.utils.autoreload autoreload 20269 133259150602368 Watching for file changes with StatReloader
+INFO 2026-02-03 04:36:22,024 django.server log 20269 133258838365888 "GET / HTTP/1.1" 200 4211
+INFO 2026-02-03 04:36:22,047 django.server log 20269 133258838365888 "GET /static/style/css/main.min.css HTTP/1.1" 304 0
+WARNING 2026-02-03 04:36:22,238 django.server log 20269 133258838365888 "GET /favicon.ico HTTP/1.1" 404 3581
+INFO 2026-02-03 04:36:26,806 django.server log 20269 133258838365888 "GET /suppliers/ HTTP/1.1" 200 6916
+INFO 2026-02-03 04:36:29,560 django.server log 20269 133258838365888 "GET /suppliers/1/ HTTP/1.1" 200 8868
+INFO 2026-02-03 04:41:21,367 django.server log 20269 133258838365888 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-03 04:41:21,379 django.server log 20269 133258838365888 "GET /suppliers/1/ HTTP/1.1" 200 9449
+INFO 2026-02-03 05:10:51,688 django.server log 20269 133258838365888 "GET /shopify_models/products/ HTTP/1.1" 200 95693
+INFO 2026-02-03 05:10:59,265 django.server log 20269 133258838365888 "GET /shopify_models/products/7/ HTTP/1.1" 200 26058
+INFO 2026-02-03 05:11:16,096 django.server log 20269 133258838365888 "GET /shopify_models/products/ HTTP/1.1" 200 95693
+INFO 2026-02-03 05:11:21,120 django.server log 20269 133258838365888 "GET /shopify_models/products/14/ HTTP/1.1" 200 30503
+ERROR 2026-02-03 05:13:15,451 shopify_models.views views 20269 133258838365888 Unexpected error while synchronizing product 14 ('JO H2O Vanilla Cream Flavored Water-Based Lubricant 4 oz.'): Shopify GraphQL error response: [{'message': 'Access denied for inventoryItemUpdate field. Required access: `write_inventory` access scope. Also: The user must have a permission to update an inventory item.', 'locations': [{'line': 3, 'column': 7}], 'extensions': {'code': 'ACCESS_DENIED', 'documentation': 'https://shopify.dev/api/usage/access-scopes', 'requiredAccess': '`write_inventory` access scope. Also: The user must have a permission to update an inventory item.'}, 'path': ['inventoryItemUpdate']}]
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 193, in export_to_shopify
+    _sync_inventory_item_unit_costs(
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 267, in _sync_inventory_item_unit_costs
+    data, _ = client.execute(mutation, variables=variables)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/graphql.py", line 57, in execute
+    raise ShopifyGraphQLError(
+shopify_models.graphql.ShopifyGraphQLError: Shopify GraphQL error response: [{'message': 'Access denied for inventoryItemUpdate field. Required access: `write_inventory` access scope. Also: The user must have a permission to update an inventory item.', 'locations': [{'line': 3, 'column': 7}], 'extensions': {'code': 'ACCESS_DENIED', 'documentation': 'https://shopify.dev/api/usage/access-scopes', 'requiredAccess': '`write_inventory` access scope. Also: The user must have a permission to update an inventory item.'}, 'path': ['inventoryItemUpdate']}]
+INFO 2026-02-03 05:13:15,453 django.server log 20269 133258838365888 "POST /shopify_models/products/14/sync/ HTTP/1.1" 302 0
+INFO 2026-02-03 05:13:15,467 django.server log 20269 133258838365888 "GET /shopify_models/products/14/ HTTP/1.1" 200 31435
+ERROR 2026-02-03 05:14:41,612 shopify_models.views views 20269 133258838365888 Unexpected error while synchronizing product 14 ('JO H2O Vanilla Cream Flavored Water-Based Lubricant 4 oz.'): Shopify GraphQL error response: [{'message': 'Access denied for name field. Required access: `read_locations` access scope or `read_markets_home` access scope.', 'locations': [{'line': 5, 'column': 9}], 'extensions': {'code': 'ACCESS_DENIED', 'documentation': 'https://shopify.dev/api/usage/access-scopes', 'requiredAccess': '`read_locations` access scope or `read_markets_home` access scope.'}, 'path': ['location', 'name']}]
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 198, in export_to_shopify
+    _sync_inventory_quantities(
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 288, in _sync_inventory_quantities
+    _debug_validate_location(client, location_gid)
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 387, in _debug_validate_location
+    data, _ = client.execute(query, variables={"id": location_gid})
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/graphql.py", line 57, in execute
+    raise ShopifyGraphQLError(
+shopify_models.graphql.ShopifyGraphQLError: Shopify GraphQL error response: [{'message': 'Access denied for name field. Required access: `read_locations` access scope or `read_markets_home` access scope.', 'locations': [{'line': 5, 'column': 9}], 'extensions': {'code': 'ACCESS_DENIED', 'documentation': 'https://shopify.dev/api/usage/access-scopes', 'requiredAccess': '`read_locations` access scope or `read_markets_home` access scope.'}, 'path': ['location', 'name']}]
+INFO 2026-02-03 05:14:41,614 django.server log 20269 133258838365888 "POST /shopify_models/products/14/sync/ HTTP/1.1" 302 0
+INFO 2026-02-03 05:14:41,630 django.server log 20269 133258838365888 "GET /shopify_models/products/14/ HTTP/1.1" 200 31363
+INFO 2026-02-03 05:15:58,408 shopify_models.models models 20269 133258838365888 Validated location: shop_manager_app (gid://shopify/Location/89689161972)
+INFO 2026-02-03 05:15:58,408 shopify_models.models models 20269 133258838365888 Inventory sync quantity for variant 14: 0
+WARNING 2026-02-03 05:15:58,773 shopify_models.models models 20269 133258838365888 Inventory set quantities error: {'field': ['input', 'quantities', '0', 'locationId'], 'message': 'The specified inventory item is not stocked at the location.'}
+WARNING 2026-02-03 05:15:58,992 shopify_models.models models 20269 133258838365888 Inventory level missing location gid://shopify/Location/89689161972 for item gid://shopify/InventoryItem/49704585199860
+INFO 2026-02-03 05:15:58,993 django.server log 20269 133258838365888 "POST /shopify_models/products/14/sync/ HTTP/1.1" 302 0
+INFO 2026-02-03 05:15:59,009 django.server log 20269 133258838365888 "GET /shopify_models/products/14/ HTTP/1.1" 200 30766
