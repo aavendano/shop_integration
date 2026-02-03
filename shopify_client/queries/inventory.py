@@ -39,6 +39,8 @@ query InventoryItemsPage($first: Int!, $after: String, $query: String) {
 }
 """
 
+INVENTORY_ITEMS_PAGE_QUERY = INVENTORY_ITEMS_PAGE
+
 
 LOCATION_INVENTORY_LEVELS_PAGE = """
 query LocationInventoryLevelsSince(
@@ -76,6 +78,28 @@ query LocationInventoryLevelsSince(
         hasNextPage
         endCursor
       }
+    }
+  }
+}
+"""
+
+LOCATION_INVENTORY_LEVELS_QUERY = LOCATION_INVENTORY_LEVELS_PAGE
+
+
+LOCATIONS_PAGE_QUERY = """
+query LocationsPage($first: Int!, $after: String, $query: String) {
+  locations(first: $first, after: $after, query: $query) {
+    edges {
+      cursor
+      node {
+        id
+        name
+        isActive
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
     }
   }
 }

@@ -10,114 +10,45 @@ import logging
 from typing import Dict, List, Tuple, Optional
 from django.conf import settings
 from accounts.models import Session
+from shopify_client import ShopifyGraphQLClient
+from shopify_client.exceptions import ShopifyClientError, ShopifyGraphQLError
 
 logger = logging.getLogger(__name__)
 
 
-def execute_graphql(session: Session, query: str, variables: dict = None) -> dict:
-    """
-    Execute a GraphQL query against Shopify Admin API.
-    
-    Args:
-        session: Shopify session with token and site
-        query: GraphQL query/mutation string
-        variables: Optional variables for the query
-    
-    Returns:
-        Response data dict
-    """
-    import requests
-    
-    url = f"https://{session.site}/admin/api/{settings.API_VERSION}/graphql.json"
-    
-    headers = {
-        "Content-Type": "application/json",
-        "X-Shopify-Access-Token": session.token
-    }
-    
-    payload = {"query": query}
-    if variables:
-        payload["variables"] = variables
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        
-        # Log full response for debugging
-        logger.info(f"GraphQL Response: {data}")
-        
-        # Check for GraphQL errors
-        if "errors" in data:
-            for error in data["errors"]:
-                logger.error(f"GraphQL error: {error.get('message', 'Unknown error')}")
-            return {"errors": data["errors"]}
-        
-        return data.get("data", {})
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Request error: {str(e)}")
-        return {"errors": [{"message": str(e)}]}
-    except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        return {"errors": [{"message": str(e)}]}
+def _get_graphql_client(session: Session) -> ShopifyGraphQLClient:
+    return ShopifyGraphQLClient(
+        session.site,
+        session.token,
+        settings.API_VERSION,
+    )
 
 
 def get_catalog_id_by_title(session: Session, title: str) -> Optional[str]:
     """Retrieve catalog ID by title using GraphQL."""
-    query = """
-    query GetCatalog($query: String!) {
-      catalogs(first: 10, query: $query) {
-        edges {
-          node {
-            id
-            title
-          }
-        }
-      }
-    }
-    """
-    
-    variables = {
-        "query": f"title:{title}"
-    }
-    
-    response = execute_graphql(session, query, variables)
-    
-    edges = response.get("catalogs", {}).get("edges", [])
-    for edge in edges:
-        node = edge.get("node", {})
-        if node.get("title") == title:
-            return node.get("id")
-            
-    return None
+    client = _get_graphql_client(session)
+    try:
+        catalog = client.get_catalog_by_title(title)
+    except ShopifyClientError as exc:
+        logger.error(f"GraphQL error fetching catalog: {exc}")
+        return None
+    if not catalog:
+        return None
+    return catalog.get("id")
 
 
 def get_price_list_id_by_name(session: Session, name: str) -> Optional[str]:
     """Retrieve price list ID by name using GraphQL (filtering in code)."""
     # priceLists query doesn't support 'query' filter, so we fetch and filter manually
-    query = """
-    query GetPriceLists {
-      priceLists(first: 50) {
-        edges {
-          node {
-            id
-            name
-          }
-        }
-      }
-    }
-    """
-    
-    response = execute_graphql(session, query)
-    
-    edges = response.get("priceLists", {}).get("edges", [])
-    for edge in edges:
-        node = edge.get("node", {})
-        if node.get("name") == name:
-            return node.get("id")
-            
-    return None
+    client = _get_graphql_client(session)
+    try:
+        price_list = client.get_price_list_by_name(name)
+    except ShopifyClientError as exc:
+        logger.error(f"GraphQL error fetching price list: {exc}")
+        return None
+    if not price_list:
+        return None
+    return price_list.get("id")
 
 
 def create_catalog(session: Session, title: str, country_code: str) -> Optional[str]:
@@ -132,55 +63,20 @@ def create_catalog(session: Session, title: str, country_code: str) -> Optional[
     Returns:
         Catalog GID if successful, None otherwise
     """
-    mutation = """
-    mutation CreateCatalog($input: CatalogCreateInput!) {
-      catalogCreate(input: $input) {
-        catalog {
-          id
-          title
-          status
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }
-    """
-    
-    variables = {
-        "input": {
-            "title": title,
-            "status": "ACTIVE",
-            "context": {
-                # Must provide exactly one context type
-                # Using empty marketIds array for a general catalog
-                "marketIds": []
-            }
-        }
-    }
-    
+    client = _get_graphql_client(session)
     try:
-        response = execute_graphql(session, mutation, variables)
-        
-        if response.get("errors"):
-            return None
-        
-        if response.get("userErrors"):
-            for error in response["userErrors"]:
-                logger.error(f"Catalog creation error: {error['message']}")
-            return None
-        
-        catalog = response.get("catalogCreate", {}).get("catalog")
-        if catalog:
-            logger.info(f"Created catalog: {catalog['title']} ({catalog['id']})")
-            return catalog["id"]
-        
+        catalog = client.create_catalog(title=title, country_code=country_code)
+    except ShopifyGraphQLError as exc:
+        for error in exc.errors:
+            logger.error(f"Catalog creation error: {error.get('message', str(exc))}")
         return None
-        
-    except Exception as e:
-        logger.error(f"Error creating catalog: {str(e)}")
+    except ShopifyClientError as exc:
+        logger.error(f"Error creating catalog: {exc}")
         return None
+    if catalog:
+        logger.info(f"Created catalog: {catalog['title']} ({catalog['id']})")
+        return catalog["id"]
+    return None
 
 
 def create_price_list(
@@ -201,57 +97,24 @@ def create_price_list(
     Returns:
         Price List GID if successful, None otherwise
     """
-    mutation = """
-    mutation CreatePriceList($input: PriceListCreateInput!) {
-      priceListCreate(input: $input) {
-        priceList {
-          id
-          name
-          currency
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }
-    """
-    
-    variables = {
-        "input": {
-            "name": name,
-            "currency": currency,
-            "parent": {
-                "adjustment": {
-                    "type": "PERCENTAGE_DECREASE",
-                    "value": 0.0
-                }
-            }
-        }
-    }
-    
-    # Add catalog association if provided
-    if catalog_id:
-        variables["input"]["catalogId"] = catalog_id
-    
+    client = _get_graphql_client(session)
     try:
-        response = execute_graphql(session, mutation, variables)
-        
-        if response.get("userErrors"):
-            for error in response["userErrors"]:
-                logger.error(f"Price list creation error: {error['message']}")
-            return None
-        
-        price_list = response.get("priceListCreate", {}).get("priceList")
-        if price_list:
-            logger.info(f"Created price list: {price_list['name']} ({price_list['id']})")
-            return price_list["id"]
-        
+        price_list = client.create_price_list(
+            name=name,
+            currency=currency,
+            catalog_id=catalog_id,
+        )
+    except ShopifyGraphQLError as exc:
+        for error in exc.errors:
+            logger.error(f"Price list creation error: {error.get('message', str(exc))}")
         return None
-        
-    except Exception as e:
-        logger.error(f"Error creating price list: {str(e)}")
+    except ShopifyClientError as exc:
+        logger.error(f"Error creating price list: {exc}")
         return None
+    if price_list:
+        logger.info(f"Created price list: {price_list['name']} ({price_list['id']})")
+        return price_list["id"]
+    return None
 
 
 def get_or_create_catalog_and_price_list(session: Session) -> Tuple[Optional[str], Optional[str], bool]:
@@ -346,26 +209,7 @@ def sync_variant_prices(
     Returns:
         Dict with success_count, error_count, and errors list
     """
-    mutation = """
-    mutation AddFixedPrices($priceListId: ID!, $prices: [PriceListPriceInput!]!) {
-      priceListFixedPricesAdd(priceListId: $priceListId, prices: $prices) {
-        prices {
-          price {
-            amount
-            currencyCode
-          }
-          variant {
-            id
-          }
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }
-    """
-    
+    client = _get_graphql_client(session)
     # Prepare price inputs
     price_inputs = []
     for variant in variants:
@@ -411,35 +255,19 @@ def sync_variant_prices(
     
     for i in range(0, len(price_inputs), batch_size):
         batch = price_inputs[i:i + batch_size]
-        
-        variables = {
-            "priceListId": price_list_id,
-            "prices": batch
-        }
-        
         try:
-            response = execute_graphql(session, mutation, variables)
-            
-            if response.get("errors"):
-                for error in response["errors"]:
-                    error_msg = error.get('message', 'Unknown error')
-                    logger.error(f"Price sync error: {error_msg}")
-                    all_errors.append(error_msg)
-                    total_errors += len(batch)
-                continue
-            
-            if response.get("userErrors"):
-                for error in response["userErrors"]:
-                    error_msg = f"{error.get('field', 'unknown')}: {error['message']}"
-                    logger.error(f"Price sync error: {error_msg}")
-                    all_errors.append(error_msg)
-                    total_errors += 1
-            
-            prices = response.get("priceListFixedPricesAdd", {}).get("prices", [])
+            payload = client.sync_variant_prices(price_list_id, batch)
+            prices = payload.get("prices", [])
             total_success += len(prices)
-            
-        except Exception as e:
-            error_msg = f"Batch {i//batch_size + 1} failed: {str(e)}"
+        except ShopifyGraphQLError as exc:
+            errors = exc.errors or [{"message": str(exc)}]
+            for error in errors:
+                error_msg = error.get("message", str(exc))
+                logger.error(f"Price sync error: {error_msg}")
+                all_errors.append(error_msg)
+            total_errors += len(errors) or len(batch)
+        except ShopifyClientError as exc:
+            error_msg = f"Batch {i//batch_size + 1} failed: {exc}"
             logger.error(error_msg)
             all_errors.append(error_msg)
             total_errors += len(batch)

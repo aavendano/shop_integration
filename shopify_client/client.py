@@ -1,6 +1,5 @@
 import time
 from typing import Optional, Dict, Any, Iterable, List, Tuple, Union
-from typing import Optional, Dict, Any, List
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 from gql.transport.exceptions import TransportQueryError, TransportServerError
@@ -24,6 +23,13 @@ from .queries.inventory import (
     INVENTORY_SET_QUANTITIES,
     LOCATION_BY_ID,
     INVENTORY_LEVELS_BY_ITEM,
+)
+from .queries.pricing import (
+    GET_CATALOG_BY_TITLE,
+    GET_PRICE_LISTS,
+    CREATE_CATALOG,
+    CREATE_PRICE_LIST,
+    PRICE_LIST_FIXED_PRICES_ADD,
 )
 
 
@@ -137,6 +143,18 @@ class ShopifyGraphQLClient:
             return
         time.sleep(wait_seconds)
 
+    def _raise_user_errors(self, payload: Dict[str, Any], *, operation: str) -> None:
+        user_errors = payload.get("userErrors") or []
+        if not user_errors:
+            return
+        messages = "; ".join(
+            error.get("message", "Unknown error") for error in user_errors
+        )
+        raise ShopifyGraphQLError(
+            f"Shopify {operation} user errors: {messages}",
+            errors=user_errors,
+        )
+
     def get_product_by_sku(self, sku: str) -> Optional[Dict[str, Any]]:
         """
         Fetch a single product by its SKU.
@@ -167,6 +185,96 @@ class ShopifyGraphQLClient:
 
         # Return the first matching node
         return edges[0].get("node")
+
+    def get_catalog_by_title(self, title: str) -> Optional[Dict[str, Any]]:
+        query_str = f"title:{title}"
+        variables = {"query": query_str}
+        response, _extensions = self._execute(
+            GET_CATALOG_BY_TITLE,
+            variables,
+            include_extensions=True,
+        )
+        catalogs_data = response.get("catalogs", {})
+        edges = catalogs_data.get("edges", [])
+        for edge in edges:
+            node = edge.get("node", {})
+            if node.get("title") == title:
+                return node
+        return None
+
+    def get_price_list_by_name(self, name: str) -> Optional[Dict[str, Any]]:
+        response, _extensions = self._execute(
+            GET_PRICE_LISTS,
+            include_extensions=True,
+        )
+        price_lists = response.get("priceLists", {})
+        edges = price_lists.get("edges", [])
+        for edge in edges:
+            node = edge.get("node", {})
+            if node.get("name") == name:
+                return node
+        return None
+
+    def create_catalog(self, title: str, country_code: str) -> Optional[Dict[str, Any]]:
+        variables = {
+            "input": {
+                "title": title,
+                "status": "ACTIVE",
+                "context": {"marketIds": []},
+            }
+        }
+        response, _extensions = self._execute(
+            CREATE_CATALOG,
+            variables,
+            include_extensions=True,
+        )
+        payload = response.get("catalogCreate") or {}
+        self._raise_user_errors(payload, operation="catalogCreate")
+        return payload.get("catalog")
+
+    def create_price_list(
+        self,
+        name: str,
+        currency: str,
+        catalog_id: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
+        variables = {
+            "input": {
+                "name": name,
+                "currency": currency,
+                "parent": {
+                    "adjustment": {
+                        "type": "PERCENTAGE_DECREASE",
+                        "value": 0.0,
+                    }
+                },
+            }
+        }
+        if catalog_id:
+            variables["input"]["catalogId"] = catalog_id
+        response, _extensions = self._execute(
+            CREATE_PRICE_LIST,
+            variables,
+            include_extensions=True,
+        )
+        payload = response.get("priceListCreate") or {}
+        self._raise_user_errors(payload, operation="priceListCreate")
+        return payload.get("priceList")
+
+    def sync_variant_prices(
+        self,
+        price_list_id: str,
+        prices: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        variables = {"priceListId": price_list_id, "prices": prices}
+        response, _extensions = self._execute(
+            PRICE_LIST_FIXED_PRICES_ADD,
+            variables,
+            include_extensions=True,
+        )
+        payload = response.get("priceListFixedPricesAdd") or {}
+        self._raise_user_errors(payload, operation="priceListFixedPricesAdd")
+        return payload
 
     def list_inventory_items(
         self,
