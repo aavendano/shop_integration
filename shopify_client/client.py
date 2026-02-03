@@ -1,3 +1,5 @@
+import time
+from typing import Optional, Dict, Any, Iterable, List, Tuple, Union
 from typing import Optional, Dict, Any, List
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
@@ -12,6 +14,9 @@ from .exceptions import (
 )
 from .queries.products import GET_PRODUCT_BY_SKU
 from .queries.inventory import (
+    INVENTORY_ITEMS_PAGE_QUERY,
+    LOCATION_INVENTORY_LEVELS_QUERY,
+    LOCATIONS_PAGE_QUERY,
     INVENTORY_ITEMS_PAGE,
     LOCATION_INVENTORY_LEVELS_PAGE,
     VARIANT_INVENTORY_ITEM_ID,
@@ -23,7 +28,15 @@ from .queries.inventory import (
 
 
 class ShopifyGraphQLClient:
-    def __init__(self, shop_domain: str, access_token: str, api_version: str):
+    def __init__(
+        self,
+        shop_domain: str,
+        access_token: str,
+        api_version: str,
+        *,
+        throttle: bool = True,
+        min_available: int = 50,
+    ):
         """
         Initialize the Shopify GraphQL Client.
 
@@ -36,6 +49,8 @@ class ShopifyGraphQLClient:
         self.api_version = api_version
         self.access_token = access_token
         self._client = self._setup_client()
+        self.throttle = throttle
+        self.min_available = min_available
 
     @property
     def endpoint(self) -> str:
@@ -53,7 +68,13 @@ class ShopifyGraphQLClient:
         )
         return Client(transport=transport, fetch_schema_from_transport=False)
 
-    def _execute(self, query: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _execute(
+        self,
+        query: str,
+        variables: Optional[Dict[str, Any]] = None,
+        *,
+        include_extensions: bool = False,
+    ) -> Union[Dict[str, Any], Tuple[Dict[str, Any], Dict[str, Any]]]:
         """
         Internal method to execute GraphQL queries.
 
@@ -62,7 +83,7 @@ class ShopifyGraphQLClient:
             variables: Optional dictionary of variables.
 
         Returns:
-            The 'data' dictionary from the response.
+            The 'data' dictionary from the response, plus extensions when requested.
 
         Raises:
             ShopifyGraphQLError: If the response contains GraphQL errors.
@@ -72,6 +93,17 @@ class ShopifyGraphQLClient:
         """
         try:
             document = gql(query)
+            if include_extensions:
+                result = self._client.execute(
+                    document,
+                    variable_values=variables,
+                    get_execution_result=True,
+                )
+                data = result.data or {}
+                extensions = result.extensions or {}
+                if self.throttle:
+                    self._apply_throttle(extensions)
+                return data, extensions
             return self._client.execute(document, variable_values=variables)
         except TransportQueryError as e:
             # GraphQL application-level errors
@@ -89,6 +121,22 @@ class ShopifyGraphQLClient:
         except Exception as e:
             raise ShopifyClientError(f"Unexpected error: {str(e)}") from e
 
+    def _apply_throttle(self, extensions: Dict[str, Any]) -> None:
+        cost = extensions.get("cost") or {}
+        throttle_status = cost.get("throttleStatus") or {}
+        available = throttle_status.get("currentlyAvailable")
+        restore_rate = throttle_status.get("restoreRate")
+        if (
+            available is None
+            or restore_rate in (None, 0)
+            or available >= self.min_available
+        ):
+            return
+        wait_seconds = (self.min_available - available) / restore_rate
+        if wait_seconds <= 0:
+            return
+        time.sleep(wait_seconds)
+
     def get_product_by_sku(self, sku: str) -> Optional[Dict[str, Any]]:
         """
         Fetch a single product by its SKU.
@@ -103,7 +151,11 @@ class ShopifyGraphQLClient:
         query_str = f"sku:{sku}"
         variables = {"query": query_str}
 
-        response = self._execute(GET_PRODUCT_BY_SKU, variables)
+        response, _extensions = self._execute(
+            GET_PRODUCT_BY_SKU,
+            variables,
+            include_extensions=True,
+        )
 
         # Normalize response structure
         # Expected path: products -> edges -> node
@@ -116,95 +168,90 @@ class ShopifyGraphQLClient:
         # Return the first matching node
         return edges[0].get("node")
 
-    def get_inventory_items_page(
+    def list_inventory_items(
         self,
         *,
-        first: int,
-        after: Optional[str] = None,
         query: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        variables = {"first": first, "after": after, "query": query}
-        return self._execute(INVENTORY_ITEMS_PAGE, variables)
+        page_size: int = 50,
+        max_pages: Optional[int] = None,
+    ) -> Iterable[Dict[str, Any]]:
+        variables = {"first": page_size, "after": None, "query": query}
+        page = 0
+        while True:
+            data, _extensions = self._execute(
+                INVENTORY_ITEMS_PAGE_QUERY,
+                variables,
+                include_extensions=True,
+            )
+            connection = data.get("inventoryItems", {})
+            for edge in connection.get("edges", []):
+                yield edge.get("node")
+            page_info = connection.get("pageInfo", {})
+            if not page_info.get("hasNextPage"):
+                break
+            page += 1
+            if max_pages is not None and page >= max_pages:
+                break
+            variables["after"] = page_info.get("endCursor")
 
-    def get_location_inventory_levels_page(
+    def list_location_inventory_levels(
         self,
+        location_gid: str,
         *,
-        location_id: str,
-        first: int,
-        after: Optional[str] = None,
         updated_at_query: Optional[str] = None,
+        page_size: int = 50,
+        max_pages: Optional[int] = None,
         quantity_names: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+    ) -> Iterable[Dict[str, Any]]:
+        quantity_names = quantity_names or ["available", "incoming", "on_hand"]
         variables = {
-            "locationId": location_id,
-            "first": first,
-            "after": after,
+            "locationId": location_gid,
+            "first": page_size,
+            "after": None,
             "updatedAtQuery": updated_at_query,
-            "quantityNames": quantity_names or ["available", "incoming", "on_hand"],
+            "quantityNames": quantity_names,
         }
-        return self._execute(LOCATION_INVENTORY_LEVELS_PAGE, variables)
+        page = 0
+        while True:
+            data, _extensions = self._execute(
+                LOCATION_INVENTORY_LEVELS_QUERY,
+                variables,
+                include_extensions=True,
+            )
+            location = data.get("location") or {}
+            connection = location.get("inventoryLevels", {})
+            for edge in connection.get("edges", []):
+                yield edge.get("node")
+            page_info = connection.get("pageInfo", {})
+            if not page_info.get("hasNextPage"):
+                break
+            page += 1
+            if max_pages is not None and page >= max_pages:
+                break
+            variables["after"] = page_info.get("endCursor")
 
-    def get_variant_inventory_item_id(self, variant_id: str) -> Optional[str]:
-        data = self._execute(VARIANT_INVENTORY_ITEM_ID, {"id": variant_id})
-        return (
-            data.get("productVariant", {})
-            .get("inventoryItem", {})
-            .get("id")
-        )
-
-    def update_inventory_item_cost(
+    def list_locations(
         self,
         *,
-        inventory_item_id: str,
-        cost: str,
-    ) -> List[Dict[str, Any]]:
-        variables = {
-            "id": inventory_item_id,
-            "input": {"cost": cost},
-        }
-        data = self._execute(INVENTORY_ITEM_UPDATE, variables)
-        return data.get("inventoryItemUpdate", {}).get("userErrors", [])
-
-    def set_inventory_quantities(
-        self,
-        *,
-        name: str,
-        reason: str,
-        quantities: List[Dict[str, Any]],
-        ignore_compare_quantity: bool = True,
-    ) -> List[Dict[str, Any]]:
-        variables = {
-            "input": {
-                "name": name,
-                "reason": reason,
-                "quantities": quantities,
-                "ignoreCompareQuantity": ignore_compare_quantity,
-            }
-        }
-        data = self._execute(INVENTORY_SET_QUANTITIES, variables)
-        return data.get("inventorySetQuantities", {}).get("userErrors", [])
-
-    def get_location(self, location_id: str) -> Optional[Dict[str, Any]]:
-        data = self._execute(LOCATION_BY_ID, {"id": location_id})
-        return data.get("location") if data else None
-
-    def get_inventory_levels(
-        self,
-        *,
-        inventory_item_id: str,
-        first: int = 10,
-        quantity_names: Optional[List[str]] = None,
-    ) -> List[Dict[str, Any]]:
-        variables = {
-            "inventoryItemId": inventory_item_id,
-            "first": first,
-            "quantityNames": quantity_names or ["available"],
-        }
-        data = self._execute(INVENTORY_LEVELS_BY_ITEM, variables)
-        return (
-            data.get("inventoryItem", {})
-            .get("inventoryLevels", {})
-            .get("edges", [])
-            if data
-            else []
-        )
+        query: Optional[str] = None,
+        page_size: int = 50,
+        max_pages: Optional[int] = None,
+    ) -> Iterable[Dict[str, Any]]:
+        variables = {"first": page_size, "after": None, "query": query}
+        page = 0
+        while True:
+            data, _extensions = self._execute(
+                LOCATIONS_PAGE_QUERY,
+                variables,
+                include_extensions=True,
+            )
+            connection = data.get("locations", {})
+            for edge in connection.get("edges", []):
+                yield edge.get("node")
+            page_info = connection.get("pageInfo", {})
+            if not page_info.get("hasNextPage"):
+                break
+            page += 1
+            if max_pages is not None and page >= max_pages:
+                break
+            variables["after"] = page_info.get("endCursor")
