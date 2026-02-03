@@ -13,7 +13,7 @@ def run_pipeline(
     records: Iterable[dict],
     config_path: str,
     session,
-    unique_identifier: str = "identifiers.sku",
+    unique_identifier: str | None = None,
     report: ParseReport | None = None,
 ) -> Tuple[PersistSummary, ParseReport]:
     config = load_provider_config(config_path)
@@ -21,12 +21,18 @@ def run_pipeline(
 
     options = PersistOptions(
         session=session,
-        unique_identifier=unique_identifier,
+        unique_identifier=unique_identifier or _default_identifier(config),
     )
 
     canonical_records = parse_records(records, config, report=active_report)
     summary = persist_records(canonical_records, options)
     return summary, active_report
+
+
+def _default_identifier(config: ProviderConfig) -> str:
+    if config.schema_version == "v2":
+        return "variants.supplier_sku"
+    return "identifiers.sku"
 
 
 def load_records_from_json(path: str) -> Iterable[dict]:

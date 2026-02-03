@@ -1,6 +1,4 @@
 from typing import Any, Dict, Iterable, Iterator, List, Optional
-
-from products_parsing.canonical.schema import CanonicalProduct
 from products_parsing.config.loader import ProviderConfig
 from products_parsing.transforms import apply_transform
 
@@ -11,11 +9,11 @@ def parse_records(
     records: Iterable[Dict[str, Any]],
     config: ProviderConfig,
     report: Optional[ParseReport] = None,
-) -> Iterator[CanonicalProduct]:
+) -> Iterator[Any]:
     active_report = report or ParseReport()
 
     for record_index, record in enumerate(records):
-        product = CanonicalProduct()
+        product = _new_product(config.schema_version)
         for rule in config.mappings:
             try:
                 value = _extract_value(record, rule.source)
@@ -34,7 +32,7 @@ def parse_records(
                 if value is None:
                     continue
 
-                _assign_value(product, rule.destination, value)
+                _assign_value(product, rule.destination, value, config.schema_version)
             except ParseFailure as exc:
                 active_report.record(exc.error)
                 raise exc.cause from exc
@@ -123,21 +121,27 @@ def _merge_transform_params(transform, config: ProviderConfig) -> Dict[str, Any]
     return params
 
 
-def _assign_value(product: CanonicalProduct, destination: str, value: Any) -> None:
+def _assign_value(product: Any, destination: str, value: Any, schema_version: str) -> None:
     parts = destination.split(".")
     if not parts:
         return
+    if schema_version == "v2":
+        _assign_value_v2(product, parts, value)
+        return
+    _assign_value_v1(product, parts, value)
 
+
+def _assign_value_v1(product: Any, parts: List[str], value: Any) -> None:
     if parts[0] == "variants":
-        _assign_variant_value(product, parts[1:], value)
+        _assign_variant_value_v1(product, parts[1:], value)
         return
 
     if parts[0] == "media":
-        _assign_media_value(product, parts[1:], value)
+        _assign_media_value_v1(product, parts[1:], value)
         return
 
     if parts[0] == "attributes":
-        _assign_attribute_value(product, parts[1:], value)
+        _assign_attribute_value_v1(product, parts[1:], value)
         return
 
     current: Any = product
@@ -146,14 +150,32 @@ def _assign_value(product: CanonicalProduct, destination: str, value: Any) -> No
     setattr(current, parts[-1], value)
 
 
-def _assign_variant_value(product: CanonicalProduct, parts: List[str], value: Any) -> None:
+def _assign_value_v2(product: Any, parts: List[str], value: Any) -> None:
+    if parts[0] == "variants":
+        _assign_variant_value_v2(product, parts[1:], value)
+        return
+
+    if parts[0] == "images":
+        _assign_images_value_v2(product, parts[1:], value)
+        return
+
+    if parts[0] == "metadata":
+        _assign_metadata_value(product, parts[1:], value)
+        return
+
+    setattr(product, parts[0], value)
+
+
+def _assign_variant_value_v1(product: Any, parts: List[str], value: Any) -> None:
     if not parts:
         return
     index = _parse_index(parts[0])
     if index is None:
         return
     if index >= len(product.variants):
-        product.variants.extend([_new_variant()] * (index - len(product.variants) + 1))
+        product.variants.extend(
+            [_new_variant("v1")] * (index - len(product.variants) + 1)
+        )
     variant = product.variants[index]
     if len(parts) == 1:
         return
@@ -166,7 +188,7 @@ def _assign_variant_value(product: CanonicalProduct, parts: List[str], value: An
     setattr(variant, parts[1], value)
 
 
-def _assign_media_value(product: CanonicalProduct, parts: List[str], value: Any) -> None:
+def _assign_media_value_v1(product: Any, parts: List[str], value: Any) -> None:
     if not parts or parts[0] != "images":
         return
     if len(parts) == 1:
@@ -176,7 +198,7 @@ def _assign_media_value(product: CanonicalProduct, parts: List[str], value: Any)
         return
     if index >= len(product.media.images):
         product.media.images.extend(
-            [_new_image()] * (index - len(product.media.images) + 1)
+            [_new_image("v1")] * (index - len(product.media.images) + 1)
         )
     image = product.media.images[index]
     if len(parts) == 2:
@@ -184,11 +206,52 @@ def _assign_media_value(product: CanonicalProduct, parts: List[str], value: Any)
     setattr(image, parts[2], value)
 
 
-def _assign_attribute_value(product: CanonicalProduct, parts: List[str], value: Any) -> None:
+def _assign_attribute_value_v1(product: Any, parts: List[str], value: Any) -> None:
     if not parts:
         return
     key = parts[0]
     product.attributes.values[key] = value
+
+
+def _assign_variant_value_v2(product: Any, parts: List[str], value: Any) -> None:
+    if not parts:
+        return
+    index = _parse_index(parts[0])
+    if index is None:
+        return
+    if index >= len(product.variants):
+        product.variants.extend(
+            [_new_variant("v2")] * (index - len(product.variants) + 1)
+        )
+    variant = product.variants[index]
+    if len(parts) == 1:
+        return
+    if parts[1] == "metadata":
+        if len(parts) < 3:
+            return
+        variant.metadata[parts[2]] = value
+        return
+    setattr(variant, parts[1], value)
+
+
+def _assign_images_value_v2(product: Any, parts: List[str], value: Any) -> None:
+    if not parts:
+        return
+    index = _parse_index(parts[0])
+    if index is None:
+        return
+    if index >= len(product.images):
+        product.images.extend([_new_image("v2")] * (index - len(product.images) + 1))
+    image = product.images[index]
+    if len(parts) == 1:
+        return
+    setattr(image, parts[1], value)
+
+
+def _assign_metadata_value(product: Any, parts: List[str], value: Any) -> None:
+    if not parts:
+        return
+    product.metadata[parts[0]] = value
 
 
 def _parse_index(raw: str):
@@ -198,13 +261,28 @@ def _parse_index(raw: str):
         return None
 
 
-def _new_variant():
-    from products_parsing.canonical.schema import CanonicalVariant
+def _new_product(schema_version: str):
+    if schema_version == "v2":
+        from products_parsing.canonical.schema_v2 import CanonicalProduct
+    else:
+        from products_parsing.canonical.schema import CanonicalProduct
+
+    return CanonicalProduct()
+
+
+def _new_variant(schema_version: str):
+    if schema_version == "v2":
+        from products_parsing.canonical.schema_v2 import CanonicalVariant
+    else:
+        from products_parsing.canonical.schema import CanonicalVariant
 
     return CanonicalVariant()
 
 
-def _new_image():
-    from products_parsing.canonical.schema import CanonicalImage
+def _new_image(schema_version: str):
+    if schema_version == "v2":
+        from products_parsing.canonical.schema_v2 import CanonicalImage
+    else:
+        from products_parsing.canonical.schema import CanonicalImage
 
     return CanonicalImage()

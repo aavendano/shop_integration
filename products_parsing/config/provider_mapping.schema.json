@@ -10,6 +10,11 @@
       "enum": ["continue", "fail"],
       "default": "continue"
     },
+    "schema_version": {
+      "type": "string",
+      "enum": ["v1", "v2"],
+      "default": "v1"
+    },
     "mappings": {
       "type": "array",
       "items": {
