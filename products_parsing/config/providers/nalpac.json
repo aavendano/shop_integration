@@ -62,7 +62,7 @@
       "destination": "description"
     },
     {
-      "source": "Vendor",
+      "source": "Brand",
       "destination": "vendor",
       "transforms": [
         {

@@ -225,8 +225,8 @@
                     </div>
                 </div>
 
-                {% if product.variants %}
-                {% for variant in product.variants %}
+                {% if product.variants.exists %}
+                {% for variant in product.variants.all %}
                 <div class="card mb-4">
                     <header class="card-header">
                         <p class="card-header-title">

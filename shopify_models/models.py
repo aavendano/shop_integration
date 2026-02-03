@@ -12,20 +12,11 @@ log = logging.getLogger(__name__)
 class ShopifyDataModel(models.Model):
     shopify_id = models.CharField(
         max_length=255, unique=True, null=True, blank=True, primary_key=False)
-    created_at = models.DateTimeField(null=True, blank=True)
-    updated_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     class Meta:
         abstract = True
-
-class Image(ShopifyDataModel):
-    position = models.IntegerField(null=True, default=1)
-    product = models.ForeignKey(
-        "shopify_models.Product", on_delete=models.CASCADE)
-    src = models.URLField()
-
-    def __str__(self):
-        return self.src
 
 class Product(ShopifyDataModel):
     description = models.TextField(default="", null=True)
@@ -297,7 +288,13 @@ def _debug_verify_inventory_levels(client, quantities, location_gid: str) -> Non
                 inventory_item_id,
             )
 
+class Image(ShopifyDataModel):
+    position = models.IntegerField(null=True, default=1)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
+    src = models.URLField()
 
+    def __str__(self):
+        return self.src
 
 class InventoryItem(ShopifyDataModel):
     shopify_sku = models.CharField(max_length=255, null=True)
@@ -350,7 +347,7 @@ class Variant(ShopifyDataModel):
         max_digits=10, decimal_places=2, null=True)
     inventory_policy = models.CharField(
         max_length=32, null=True, choices=INVENTORY_POLICY_CHOICES, default="deny")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
     taxable = models.BooleanField(default=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     supplier_sku = models.CharField(max_length=255, null=True)

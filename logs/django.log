@@ -573,3 +573,512 @@ WARNING 2026-02-03 05:15:58,773 shopify_models.models models 20269 1332588383658
 WARNING 2026-02-03 05:15:58,992 shopify_models.models models 20269 133258838365888 Inventory level missing location gid://shopify/Location/89689161972 for item gid://shopify/InventoryItem/49704585199860
 INFO 2026-02-03 05:15:58,993 django.server log 20269 133258838365888 "POST /shopify_models/products/14/sync/ HTTP/1.1" 302 0
 INFO 2026-02-03 05:15:59,009 django.server log 20269 133258838365888 "GET /shopify_models/products/14/ HTTP/1.1" 200 30766
+INFO 2026-02-03 18:43:56,813 django.utils.autoreload autoreload 65862 126904300609664 Watching for file changes with StatReloader
+INFO 2026-02-03 18:44:00,901 django.server log 65862 126903864260288 "GET / HTTP/1.1" 200 4211
+INFO 2026-02-03 18:44:00,974 django.server log 65862 126903864260288 "GET /static/style/css/main.min.css HTTP/1.1" 304 0
+WARNING 2026-02-03 18:44:01,262 django.server log 65862 126903864260288 "GET /favicon.ico HTTP/1.1" 404 3581
+INFO 2026-02-03 18:44:09,494 django.server log 65862 126903864260288 "GET /accounts/shops/ HTTP/1.1" 200 6180
+INFO 2026-02-03 18:44:16,200 django.server log 65862 126903864260288 "GET /suppliers/ HTTP/1.1" 200 6916
+INFO 2026-02-03 18:44:17,760 django.server log 65862 126903864260288 "GET /suppliers/1/ HTTP/1.1" 200 8868
+INFO 2026-02-03 18:48:02,903 django.server log 65862 126903864260288 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-03 18:48:02,922 django.server log 65862 126903864260288 "GET /suppliers/1/ HTTP/1.1" 200 9445
+INFO 2026-02-03 19:01:02,963 django.server log 65862 126903864260288 "GET /shopify_models/products/ HTTP/1.1" 200 90634
+WARNING 2026-02-03 19:01:03,228 django.server log 65862 126903864260288 "GET /favicon.ico HTTP/1.1" 404 3581
+ERROR 2026-02-03 19:01:07,828 django.request log 65862 126903864260288 Internal Server Error: /shopify_models/products/16777/
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 145, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/detail.py", line 113, in get
+    context = self.get_context_data(object=self.object)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 36, in get_context_data
+    context['images'] = product.images.all().order_by('position')
+                        ^^^^^^^^^^^^^^
+AttributeError: 'Product' object has no attribute 'images'
+ERROR 2026-02-03 19:01:07,830 django.server log 65862 126903864260288 "GET /shopify_models/products/16777/ HTTP/1.1" 500 94859
+ERROR 2026-02-03 19:01:21,100 django.request log 65862 126903864260288 Internal Server Error: /shopify_models/products/16800/
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 145, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/detail.py", line 113, in get
+    context = self.get_context_data(object=self.object)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 36, in get_context_data
+    context['images'] = product.images.all().order_by('position')
+                        ^^^^^^^^^^^^^^
+AttributeError: 'Product' object has no attribute 'images'
+ERROR 2026-02-03 19:01:21,103 django.server log 65862 126903864260288 "GET /shopify_models/products/16800/ HTTP/1.1" 500 94959
+ERROR 2026-02-03 19:27:10,605 django.request log 65862 126903864260288 Internal Server Error: /shopify_models/products/16800/
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 145, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/detail.py", line 113, in get
+    context = self.get_context_data(object=self.object)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 36, in get_context_data
+    context['images'] = product.images.all().order_by('position')
+                        ^^^^^^^^^^^^^^
+AttributeError: 'Product' object has no attribute 'images'
+ERROR 2026-02-03 19:27:10,607 django.server log 65862 126903864260288 "GET /shopify_models/products/16800/ HTTP/1.1" 500 95096
+INFO 2026-02-03 19:30:49,752 django.utils.autoreload autoreload 65862 126904300609664 /home/alejandro/shop-app/shop_integration/shopify_models/models.py changed, reloading.
+INFO 2026-02-03 19:30:51,408 django.utils.autoreload autoreload 68271 138192930771072 Watching for file changes with StatReloader
+ERROR 2026-02-03 20:01:34,080 django.request log 68271 138192628573888 Internal Server Error: /shopify_models/products/16800/
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 145, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/detail.py", line 113, in get
+    context = self.get_context_data(object=self.object)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 42, in get_context_data
+    for variant in product.variants.all().order_by('position'):
+                   ^^^^^^^^^^^^^^^^
+AttributeError: 'Product' object has no attribute 'variants'. Did you mean: 'variant_set'?
+ERROR 2026-02-03 20:01:34,082 django.server log 68271 138192628573888 "GET /shopify_models/products/16800/ HTTP/1.1" 500 95533
+WARNING 2026-02-03 20:01:34,505 django.server log 68271 138192628573888 "GET /favicon.ico HTTP/1.1" 404 3581
+ERROR 2026-02-03 20:08:41,913 django.request log 68271 138192628573888 Internal Server Error: /shopify_models/products/16800/
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 145, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/detail.py", line 113, in get
+    context = self.get_context_data(object=self.object)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 42, in get_context_data
+    for variant in product.variants.all().order_by('position'):
+                   ^^^^^^^^^^^^^^^^
+AttributeError: 'Product' object has no attribute 'variants'. Did you mean: 'variant_set'?
+ERROR 2026-02-03 20:08:41,916 django.server log 68271 138192628573888 "GET /shopify_models/products/16800/ HTTP/1.1" 500 95533
+ERROR 2026-02-03 20:08:42,786 django.request log 68271 138192628573888 Internal Server Error: /shopify_models/products/16800/
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 145, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/views/generic/detail.py", line 113, in get
+    context = self.get_context_data(object=self.object)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 42, in get_context_data
+    for variant in product.variants.all().order_by('position'):
+                   ^^^^^^^^^^^^^^^^
+AttributeError: 'Product' object has no attribute 'variants'. Did you mean: 'variant_set'?
+ERROR 2026-02-03 20:08:42,788 django.server log 68271 138192628573888 "GET /shopify_models/products/16800/ HTTP/1.1" 500 95533
+INFO 2026-02-03 20:09:38,924 django.utils.autoreload autoreload 68271 138192930771072 /home/alejandro/shop-app/shop_integration/shopify_models/models.py changed, reloading.
+INFO 2026-02-03 20:09:40,684 django.utils.autoreload autoreload 72707 137028479729792 Watching for file changes with StatReloader
+ERROR 2026-02-03 20:09:53,429 django.request log 72707 137028042749632 Internal Server Error: /shopify_models/products/16800/
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 221, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 174, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 166, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 160, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 166, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 66, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 333, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 201, in render
+    values = list(values)
+             ^^^^^^^^^^^^
+TypeError: 'RelatedManager' object is not iterable
+ERROR 2026-02-03 20:09:53,434 django.server log 72707 137028042749632 "GET /shopify_models/products/16800/ HTTP/1.1" 500 183184
+ERROR 2026-02-03 20:11:16,674 django.request log 72707 137028042749632 Internal Server Error: /shopify_models/products/16800/
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 221, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 174, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 166, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 160, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 166, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 66, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 333, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 201, in render
+    values = list(values)
+             ^^^^^^^^^^^^
+TypeError: 'RelatedManager' object is not iterable
+ERROR 2026-02-03 20:11:16,676 django.server log 72707 137028042749632 "GET /shopify_models/products/16800/ HTTP/1.1" 500 183184
+ERROR 2026-02-03 20:11:18,267 django.request log 72707 137028042749632 Internal Server Error: /shopify_models/products/16800/
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 221, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 174, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 166, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 160, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 166, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 66, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 333, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 201, in render
+    values = list(values)
+             ^^^^^^^^^^^^
+TypeError: 'RelatedManager' object is not iterable
+ERROR 2026-02-03 20:11:18,269 django.server log 72707 137028042749632 "GET /shopify_models/products/16800/ HTTP/1.1" 500 183184
+ERROR 2026-02-03 20:11:20,748 django.request log 72707 137028042749632 Internal Server Error: /shopify_models/products/16800/
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 221, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 174, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 166, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 160, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 166, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 66, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 333, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1091, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/base.py", line 1052, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 201, in render
+    values = list(values)
+             ^^^^^^^^^^^^
+TypeError: 'RelatedManager' object is not iterable
+ERROR 2026-02-03 20:11:20,750 django.server log 72707 137028042749632 "GET /shopify_models/products/16800/ HTTP/1.1" 500 183312
+WARNING 2026-02-03 20:11:20,898 django.server log 72707 137028042749632 "GET /favicon.ico HTTP/1.1" 404 3581
+INFO 2026-02-03 20:46:26,020 django.server log 72707 137028042749632 "GET /shopify_models/products/16800/ HTTP/1.1" 200 24928
+INFO 2026-02-03 20:46:36,269 django.server log 72707 137028042749632 "GET /shopify_models/products/ HTTP/1.1" 200 92037
+INFO 2026-02-03 20:46:54,291 django.server log 72707 137028042749632 "GET /suppliers/ HTTP/1.1" 200 6916
+INFO 2026-02-03 20:46:56,192 django.server log 72707 137028042749632 "GET /suppliers/1/ HTTP/1.1" 200 8868
+INFO 2026-02-03 20:50:52,258 django.server log 72707 137028042749632 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-03 20:50:52,275 django.server log 72707 137028042749632 "GET /suppliers/1/ HTTP/1.1" 200 9445
+INFO 2026-02-03 20:51:18,083 django.server log 72707 137028042749632 "GET /shopify_models/products/ HTTP/1.1" 200 92037
+INFO 2026-02-03 20:51:21,997 django.server log 72707 137028042749632 "GET /shopify_models/products/16775/ HTTP/1.1" 200 24846
+INFO 2026-02-03 20:51:33,839 django.server log 72707 137028042749632 "GET /shopify_models/products/ HTTP/1.1" 200 92037
+WARNING 2026-02-03 20:51:39,846 django.server log 72707 137028042749632 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 20:53:43,084 django.utils.autoreload autoreload 72707 137028479729792 /home/alejandro/shop-app/shop_integration/shopify_models/models.py changed, reloading.
+INFO 2026-02-03 20:53:44,741 django.utils.autoreload autoreload 75204 140257184538752 Watching for file changes with StatReloader
+INFO 2026-02-03 20:56:14,521 django.utils.autoreload autoreload 75204 140257184538752 /home/alejandro/shop-app/shop_integration/shopify_models/models.py changed, reloading.
+INFO 2026-02-03 20:56:16,104 django.utils.autoreload autoreload 75410 123466130854016 Watching for file changes with StatReloader
+INFO 2026-02-03 20:58:51,355 django.server log 75410 123465962698432 "GET /shopify_models/products/ HTTP/1.1" 200 92037
+WARNING 2026-02-03 20:58:51,455 django.server log 75410 123465962698432 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 21:00:28,425 django.server log 75410 123465962698432 "GET /shopify_models/products/ HTTP/1.1" 200 94553
+INFO 2026-02-03 21:00:28,441 django.server log 75410 123465962698432 "GET /static/style/css/main.min.css HTTP/1.1" 200 275898
+WARNING 2026-02-03 21:00:28,537 django.server log 75410 123465962698432 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+WARNING 2026-02-03 21:00:30,727 django.server log 75410 123465962698432 "GET /favicon.ico HTTP/1.1" 404 3581
+INFO 2026-02-03 21:01:43,298 django.utils.autoreload autoreload 75410 123466130854016 /home/alejandro/shop-app/shop_integration/shopify_models/models.py changed, reloading.
+INFO 2026-02-03 21:01:44,831 django.utils.autoreload autoreload 75848 123216404611200 Watching for file changes with StatReloader
+INFO 2026-02-03 21:02:13,832 django.utils.autoreload autoreload 76021 128660650061952 Watching for file changes with StatReloader
+INFO 2026-02-03 21:02:33,896 django.server log 76021 128660347913920 "GET /shopify_models/products/ HTTP/1.1" 200 94553
+WARNING 2026-02-03 21:02:34,012 django.server log 76021 128660347913920 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 21:03:52,786 django.server log 76021 128660347913920 "GET /shopify_models/products/ HTTP/1.1" 200 93737
+WARNING 2026-02-03 21:03:52,923 django.server log 76021 128660347913920 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 21:04:12,743 django.server log 76021 128660347913920 "GET /shopify_models/products/16801/ HTTP/1.1" 200 25991
+WARNING 2026-02-03 21:04:12,861 django.server log 76021 128660347913920 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+ERROR 2026-02-03 21:04:29,968 shopify_models.views views 76021 128660347913920 Unexpected error while synchronizing product 16801 ('TitanMen - Intimidator Black'): Shopify GraphQL Error: Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal '{"amount" => "0.00", "currencyCode" => "USD"}')
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 104, in _execute
+    result = self._client.execute(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 497, in execute
+    return self.execute_sync(
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 248, in execute_sync
+    return session.execute(
+           ^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 997, in execute
+    raise TransportQueryError(
+gql.transport.exceptions.TransportQueryError: {'message': 'Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal \'{"amount" => "0.00", "currencyCode" => "USD"}\')', 'locations': [{'line': 1, 'column': 40}], 'extensions': {'value': {'cost': {'amount': '0.00', 'currencyCode': 'USD'}}, 'problems': [{'path': ['cost'], 'explanation': 'invalid decimal \'{"amount" => "0.00", "currencyCode" => "USD"}\'', 'message': 'invalid decimal \'{"amount" => "0.00", "currencyCode" => "USD"}\''}]}}
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 152, in export_to_shopify
+    _sync_inventory_item_unit_costs(
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 185, in _sync_inventory_item_unit_costs
+    errors = client.update_inventory_item_cost(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 324, in update_inventory_item_cost
+    response, _extensions = self._execute(
+                            ^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 119, in _execute
+    raise ShopifyGraphQLError(f"Shopify GraphQL Error: {msg}", errors=errors) from e
+shopify_client.exceptions.ShopifyGraphQLError: Shopify GraphQL Error: Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal '{"amount" => "0.00", "currencyCode" => "USD"}')
+INFO 2026-02-03 21:04:29,978 django.server log 76021 128660347913920 "POST /shopify_models/products/16801/sync/ HTTP/1.1" 302 0
+INFO 2026-02-03 21:04:30,018 django.server log 76021 128660347913920 "GET /shopify_models/products/16801/ HTTP/1.1" 200 26496
+WARNING 2026-02-03 21:04:30,154 django.server log 76021 128660347913920 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 21:11:37,790 django.server log 76021 128660347913920 "POST /prices/sync/16801/ HTTP/1.1" 302 0
+INFO 2026-02-03 21:11:37,814 django.server log 76021 128660347913920 "GET /shopify_models/products/16801/ HTTP/1.1" 200 26213
+WARNING 2026-02-03 21:11:37,977 django.server log 76021 128660347913920 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 21:12:06,595 django.server log 76021 128660347913920 "GET /shopify_models/products/ HTTP/1.1" 200 93737
+WARNING 2026-02-03 21:12:06,713 django.server log 76021 128660347913920 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 21:13:29,885 django.server log 76021 128660347913920 "GET /shopify_models/products/ HTTP/1.1" 200 95409
+WARNING 2026-02-03 21:13:29,995 django.server log 76021 128660347913920 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 21:13:50,093 django.server log 76021 128660347913920 "GET /shopify_models/products/ HTTP/1.1" 200 95427
+WARNING 2026-02-03 21:13:50,178 django.server log 76021 128660347913920 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 21:13:55,125 django.server log 76021 128660347913920 "GET /shopify_models/products/ HTTP/1.1" 200 95427
+WARNING 2026-02-03 21:13:55,224 django.server log 76021 128660347913920 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 21:14:48,688 django.server log 76021 128660347913920 "GET /shopify_models/products/ HTTP/1.1" 200 95409
+INFO 2026-02-03 21:14:48,721 django.server log 76021 128660347913920 "GET /static/style/css/main.min.css HTTP/1.1" 200 275898
+WARNING 2026-02-03 21:14:48,787 django.server log 76021 128660339521216 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+WARNING 2026-02-03 21:14:49,313 django.server log 76021 128660339521216 "GET /favicon.ico HTTP/1.1" 404 3581
+INFO 2026-02-03 21:16:25,673 django.server log 76021 128660339521216 "GET /shopify_models/products/ HTTP/1.1" 200 95409
+WARNING 2026-02-03 21:16:25,813 django.server log 76021 128660339521216 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 21:22:11,880 django.server log 76021 128660339521216 "GET /shopify_models/products/ HTTP/1.1" 200 94954
+WARNING 2026-02-03 21:22:11,992 django.server log 76021 128660339521216 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-03 21:22:39,633 django.server log 76021 128660339521216 "GET /shopify_models/products/16821/ HTTP/1.1" 200 28961
+INFO 2026-02-03 21:27:08,140 django.server log 76021 128660339521216 "GET /shopify_models/products/ HTTP/1.1" 200 94954
+INFO 2026-02-03 21:27:14,637 django.server log 76021 128660339521216 "GET / HTTP/1.1" 200 4207
+INFO 2026-02-03 21:27:17,049 django.server log 76021 128660339521216 "GET /shopify_models/products/ HTTP/1.1" 200 94954
+INFO 2026-02-03 21:27:20,001 django.server log 76021 128660339521216 "GET /suppliers/ HTTP/1.1" 200 6912
+INFO 2026-02-03 21:27:24,284 django.server log 76021 128660339521216 "GET /suppliers/1/ HTTP/1.1" 200 8864
+INFO 2026-02-03 21:29:42,925 django.server log 76021 128660347913920 "GET /shopify_models/products/ HTTP/1.1" 200 95242
+INFO 2026-02-03 21:30:05,503 django.server log 76021 128660347913920 "GET /shopify_models/products/?page=2 HTTP/1.1" 200 97799
+INFO 2026-02-03 21:30:15,819 django.server log 76021 128660347913920 "GET /shopify_models/products/16825/ HTTP/1.1" 200 29242
+INFO 2026-02-03 21:33:16,679 django.server log 76021 128660339521216 "GET /shopify_models/products/16825/ HTTP/1.1" 200 29215
+INFO 2026-02-03 21:34:32,587 django.server log 76021 128660339521216 "GET /shopify_models/products/16825/ HTTP/1.1" 200 29269
+INFO 2026-02-03 21:34:32,604 django.server log 76021 128660339521216 "GET /static/style/css/main.min.css HTTP/1.1" 200 275898
+WARNING 2026-02-03 21:34:32,858 django.server log 76021 128660339521216 "GET /favicon.ico HTTP/1.1" 404 3581
+INFO 2026-02-03 21:34:52,210 django.server log 76021 128660339521216 "GET /login/ HTTP/1.1" 200 5127
+INFO 2026-02-03 21:34:54,453 django.server log 76021 128660339521216 "POST /login/ HTTP/1.1" 302 0
+INFO 2026-02-03 21:34:54,463 django.server log 76021 128660339521216 "GET / HTTP/1.1" 200 4325
+INFO 2026-02-03 21:34:56,055 django.server log 76021 128660339521216 "GET /shopify_models/products/ HTTP/1.1" 200 95360
+INFO 2026-02-03 21:35:04,361 django.server log 76021 128660339521216 "GET /shopify_models/products/?page=3 HTTP/1.1" 200 96197
+INFO 2026-02-03 21:35:08,243 django.server log 76021 128660339521216 "GET /shopify_models/products/16916/ HTTP/1.1" 200 29452
+INFO 2026-02-03 21:35:35,625 django.server log 76021 128660339521216 "GET /shopify_models/products/ HTTP/1.1" 200 95360
+INFO 2026-02-03 21:35:40,352 django.server log 76021 128660339521216 "GET /shopify_models/products/?page=3 HTTP/1.1" 200 96197
+INFO 2026-02-03 21:35:47,119 django.server log 76021 128660339521216 "GET /shopify_models/products/16917/ HTTP/1.1" 200 29388

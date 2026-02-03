@@ -79,12 +79,13 @@
                                 <input type="checkbox" name="product_ids" value="{{ product.id }}" class="product-checkbox">
                             </td>
                             <td>
+                                
                                 {% if product.images.first %}
-                                <figure class="image is-48x48">
+                                <figure class="image is-96x96">
                                     <img src="{{ product.images.first.src }}" alt="{{ product.title }}">
                                 </figure>
                                 {% else %}
-                                <span class="icon is-large has-text-grey-light"><i class="lucide-image"></i></span>
+                                <span class="icon is-large has-text-grey-light"><span class="material-symbols-outlined">broken_image</span></span>
                                 {% endif %}
                             </td>
                             <td><strong>{{ product.title }}</strong></td>

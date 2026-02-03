@@ -22,7 +22,7 @@ fields = [
  "Entrenue qty available", 
  "Inventory Quantity", 
  "Fluid Oz", 
- "Vendor", 
+ "Brand", 
  "Material", 
  "Color", 
  "Main Category", 
