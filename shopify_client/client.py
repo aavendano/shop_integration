@@ -299,6 +299,135 @@ class ShopifyGraphQLClient:
         self._raise_user_errors(payload, operation="fulfillmentServiceCreate")
         return payload.get("fulfillmentService")
 
+    def get_variant_inventory_item_id(self, variant_id: str) -> Optional[str]:
+        variables = {"id": variant_id}
+        response, _extensions = self._execute(
+            VARIANT_INVENTORY_ITEM_ID,
+            variables,
+            include_extensions=True,
+        )
+        product_variant = response.get("productVariant") or {}
+        inventory_item = product_variant.get("inventoryItem") or {}
+        return inventory_item.get("id")
+
+    def update_inventory_item_cost(
+        self,
+        *,
+        inventory_item_id: str,
+        cost: str,
+        currency: Optional[str] = None,
+    ) -> List[str]:
+        input_payload: Dict[str, Any] = {"cost": {"amount": cost}}
+        if currency:
+            input_payload["cost"]["currencyCode"] = currency
+        variables = {"id": inventory_item_id, "input": input_payload}
+        response, _extensions = self._execute(
+            INVENTORY_ITEM_UPDATE,
+            variables,
+            include_extensions=True,
+        )
+        payload = response.get("inventoryItemUpdate") or {}
+        return [
+            error.get("message", "Unknown error")
+            for error in payload.get("userErrors") or []
+        ]
+
+    def set_inventory_quantities(
+        self,
+        *,
+        name: str,
+        reason: str,
+        quantities: List[Dict[str, Any]],
+        ignore_compare_quantity: bool = False,
+    ) -> List[str]:
+        variables = {
+            "input": {
+                "name": name,
+                "reason": reason,
+                "quantities": quantities,
+                "ignoreCompareQuantity": ignore_compare_quantity,
+            }
+        }
+        response, _extensions = self._execute(
+            INVENTORY_SET_QUANTITIES,
+            variables,
+            include_extensions=True,
+        )
+        payload = response.get("inventorySetQuantities") or {}
+        return [
+            error.get("message", "Unknown error")
+            for error in payload.get("userErrors") or []
+        ]
+
+    def get_location(self, location_id: str) -> Optional[Dict[str, Any]]:
+        variables = {"id": location_id}
+        response, _extensions = self._execute(
+            LOCATION_BY_ID,
+            variables,
+            include_extensions=True,
+        )
+        return response.get("location")
+
+    def get_inventory_levels(
+        self,
+        *,
+        inventory_item_id: str,
+        quantity_names: List[str],
+        first: int = 20,
+    ) -> List[Dict[str, Any]]:
+        variables = {
+            "inventoryItemId": inventory_item_id,
+            "first": first,
+            "quantityNames": quantity_names,
+        }
+        response, _extensions = self._execute(
+            INVENTORY_LEVELS_BY_ITEM,
+            variables,
+            include_extensions=True,
+        )
+        inventory_item = response.get("inventoryItem") or {}
+        levels = inventory_item.get("inventoryLevels") or {}
+        return levels.get("edges", [])
+
+    def get_inventory_items_page(
+        self,
+        *,
+        first: int,
+        after: Optional[str] = None,
+        query: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        variables = {"first": first, "after": after, "query": query}
+        response, _extensions = self._execute(
+            INVENTORY_ITEMS_PAGE_QUERY,
+            variables,
+            include_extensions=True,
+        )
+        return response
+
+    def get_location_inventory_levels_page(
+        self,
+        *,
+        location_id: str,
+        first: int,
+        after: Optional[str] = None,
+        updated_at_query: Optional[str] = None,
+        quantity_names: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        quantity_names = quantity_names or ["available", "incoming", "on_hand"]
+        variables = {
+            "locationId": location_id,
+            "first": first,
+            "after": after,
+            "updatedAtQuery": updated_at_query,
+            "quantityNames": quantity_names,
+        }
+        response, _extensions = self._execute(
+            LOCATION_INVENTORY_LEVELS_QUERY,
+            variables,
+            include_extensions=True,
+        )
+        return response
+
     def list_inventory_items(
         self,
         *,
