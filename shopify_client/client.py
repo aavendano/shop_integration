@@ -75,7 +75,7 @@ class ShopifyGraphQLClient:
             variables: Optional dictionary of variables.
 
         Returns:
-            The 'data' dictionary from the response.
+            The 'data' dictionary from the response, plus extensions when requested.
 
         Raises:
             ShopifyGraphQLError: If the response contains GraphQL errors.
@@ -143,7 +143,11 @@ class ShopifyGraphQLClient:
         query_str = f"sku:{sku}"
         variables = {"query": query_str}
 
-        response = self._execute(GET_PRODUCT_BY_SKU, variables)
+        response, _extensions = self._execute(
+            GET_PRODUCT_BY_SKU,
+            variables,
+            include_extensions=True,
+        )
 
         # Normalize response structure
         # Expected path: products -> edges -> node
