@@ -31,6 +31,7 @@ from .queries.pricing import (
     CREATE_PRICE_LIST,
     PRICE_LIST_FIXED_PRICES_ADD,
 )
+from .queries.fulfillment import FULFILLMENT_SERVICE_CREATE
 
 
 class ShopifyGraphQLClient:
@@ -275,6 +276,28 @@ class ShopifyGraphQLClient:
         payload = response.get("priceListFixedPricesAdd") or {}
         self._raise_user_errors(payload, operation="priceListFixedPricesAdd")
         return payload
+
+    def register_fulfillment_service(
+        self,
+        callback_url: str,
+        name: str,
+        tracking_support: bool,
+        inventory_management: bool,
+    ) -> Optional[Dict[str, Any]]:
+        variables = {
+            "callbackUrl": callback_url,
+            "name": name,
+            "trackingSupport": tracking_support,
+            "inventoryManagement": inventory_management,
+        }
+        response, _extensions = self._execute(
+            FULFILLMENT_SERVICE_CREATE,
+            variables,
+            include_extensions=True,
+        )
+        payload = response.get("fulfillmentServiceCreate") or {}
+        self._raise_user_errors(payload, operation="fulfillmentServiceCreate")
+        return payload.get("fulfillmentService")
 
     def list_inventory_items(
         self,

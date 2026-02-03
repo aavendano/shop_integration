@@ -1,7 +1,7 @@
-import os
-import requests
-import json
 from django.conf import settings
+
+from shopify_client import ShopifyGraphQLClient
+from shopify_client.exceptions import ShopifyClientError
 
 SHOP_URL = settings.SHOP_ADMIN_URL
 ACCESS_TOKEN = settings.SHOPIFY_ACCESS_TOKEN
@@ -12,59 +12,40 @@ def register_fulfillment_service():
     # For n8n, this is typically https://your-n8n-instance.com/webhook
     callback_url = WEBHOOK_URL
 
-    mutation = f'''
-    mutation {{
-      fulfillmentServiceCreate(
-        name: "Mi Servicio Fulfillment"
-        callbackUrl: "{callback_url}"
-        trackingSupport: true
-        inventoryManagement: true
-      ) {{
-        fulfillmentService {{
-          id
-          serviceName
-          location {{
-            id
-            name
-          }}
-        }}
-        userErrors {{
-          field
-          message
-        }}
-      }}
-    }}
-    '''
-
     if not ACCESS_TOKEN:
         print("Error: SHOPIFY_ACCESS_TOKEN environment variable is not set.")
         return
+    if not SHOP_URL:
+        print("Error: SHOP_ADMIN_URL environment variable is not set.")
+        return
+    if not callback_url:
+        print("Error: WEBHOOK_URL environment variable is not set.")
+        return
 
-    url = f'https://{SHOP_URL}/admin/api/2025-01/graphql.json'
-    headers = {
-        'Content-Type': 'application/json',
-        'X-Shopify-Access-Token': ACCESS_TOKEN
-    }
+    client = ShopifyGraphQLClient(
+        SHOP_URL,
+        ACCESS_TOKEN,
+        settings.API_VERSION,
+    )
 
     try:
-        response = requests.post(
-            url,
-            json={'query': mutation},
-            headers=headers
+        fulfillment_service = client.register_fulfillment_service(
+            callback_url=callback_url,
+            name="Mi Servicio Fulfillment",
+            tracking_support=True,
+            inventory_management=True,
         )
-        response.raise_for_status()
-        result = response.json()
-        print(json.dumps(result, indent=2))
+    except ShopifyClientError as e:
+        print(f"Error registering fulfillment service: {e}")
+        return
 
-        # Guardar location_id para uso posterior
-        data = result.get('data', {})
-        if data and data.get('fulfillmentServiceCreate', {}).get('fulfillmentService'):
-            location_id = data['fulfillmentServiceCreate']['fulfillmentService']['location']['id']
+    if fulfillment_service:
+        location = fulfillment_service.get("location") or {}
+        location_id = location.get("id")
+        if location_id:
             print(f"\n✅ Location ID: {location_id}")
             print("Guarda este ID en tu .env como FULFILLMENT_LOCATION_ID")
         else:
-             print("\n⚠️ No fulfillment service returned. Check userErrors.")
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error making request: {e}")
-
+            print("\n⚠️ Fulfillment service created without location ID.")
+    else:
+        print("\n⚠️ No fulfillment service returned. Check userErrors.")
