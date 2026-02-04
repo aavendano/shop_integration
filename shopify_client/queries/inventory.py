@@ -182,3 +182,39 @@ query InventoryLevels($inventoryItemId: ID!, $first: Int!, $quantityNames: [Stri
   }
 }
 """
+
+
+INVENTORY_ACTIVATE = """
+mutation InventoryActivate($inventoryItemId: ID!, $locationId: ID!) {
+  inventoryActivate(inventoryItemId: $inventoryItemId, locationId: $locationId) {
+    inventoryLevel {
+      id
+      item {
+        id
+      }
+      location {
+        id
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+"""
+
+INVENTORY_ITEM_UPDATE_FULFILLMENT = """
+mutation InventoryItemUpdateFulfillment($id: ID!, $input: InventoryItemInput!) {
+  inventoryItemUpdate(id: $id, input: $input) {
+    inventoryItem {
+      id
+      tracked
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+"""

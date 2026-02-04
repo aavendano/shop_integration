@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (
     ProductListView, ProductDetailView, ProductSyncView,
-    VariantCreateView, UpdateView, VariantUpdateView, VariantDeleteView
+    VariantCreateView, UpdateView, VariantUpdateView, VariantDeleteView,
+    VariantAddLocationView
 )
 
 app_name = 'shopify_models'
@@ -18,4 +19,6 @@ urlpatterns = [
          VariantUpdateView.as_view(), name='variant_update'),
     path('products/<int:product_pk>/variants/<int:pk>/delete/',
          VariantDeleteView.as_view(), name='variant_delete'),
+    path('products/<int:product_pk>/variants/<int:pk>/add-location/',
+         VariantAddLocationView.as_view(), name='variant_add_location'),
 ]

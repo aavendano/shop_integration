@@ -8,6 +8,7 @@ from django_filters.views import FilterView
 from .models import Product, Variant
 from .filters import ProductFilter
 from .forms import VariantForm
+from shopify_client.utils.add_location_to_variant import add_location_to_variant
 
 logger = logging.getLogger(__name__)
 
@@ -155,3 +156,18 @@ class VariantDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('shopify_models:product_detail', kwargs={'pk': self.kwargs['product_pk']})
+
+class VariantAddLocationView(View):
+    def post(self, request, product_pk, pk):
+        variant = get_object_or_404(Variant, pk=pk, product_id=product_pk)
+        try:
+            success = add_location_to_variant(variant)
+            if success:
+                messages.success(request, f'Location added to variant "{variant.title or "Default"}" successfully.')
+            else:
+                messages.error(request, f'Failed to add location to variant "{variant.title or "Default"}". Check if barcode is set.')
+        except Exception as e:
+            logger.exception(f"Error adding location to variant {pk}: {str(e)}")
+            messages.error(request, f'Error adding location to variant: {str(e)}')
+            
+        return redirect('shopify_models:product_detail', pk=product_pk)

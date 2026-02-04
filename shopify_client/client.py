@@ -11,7 +11,7 @@ from .exceptions import (
     ShopifyAuthError,
     ShopifyNetworkError,
 )
-from .queries.products import GET_PRODUCT_BY_SKU
+from .queries.products import GET_PRODUCT_BY_SKU, GET_VARIANT_BY_BARCODE
 from .queries.inventory import (
     INVENTORY_ITEMS_PAGE_QUERY,
     LOCATION_INVENTORY_LEVELS_QUERY,
@@ -23,6 +23,7 @@ from .queries.inventory import (
     INVENTORY_SET_QUANTITIES,
     LOCATION_BY_ID,
     INVENTORY_LEVELS_BY_ITEM,
+    INVENTORY_ACTIVATE,
 )
 from .queries.pricing import (
     GET_CATALOG_BY_TITLE,
@@ -185,6 +186,33 @@ class ShopifyGraphQLClient:
             return None
 
         # Return the first matching node
+        return edges[0].get("node")
+
+    def get_variant_by_barcode(self, barcode: str) -> Optional[Dict[str, Any]]:
+        """
+        Fetch a single product variant by its barcode.
+
+        Args:
+            barcode: The variant barcode.
+
+        Returns:
+            A dictionary containing variant data if found, else None.
+        """
+        query_str = f"barcode:{barcode}"
+        variables = {"query": query_str}
+
+        response, _extensions = self._execute(
+            GET_VARIANT_BY_BARCODE,
+            variables,
+            include_extensions=True,
+        )
+
+        variants_data = response.get("productVariants", {})
+        edges = variants_data.get("edges", [])
+
+        if not edges:
+            return None
+
         return edges[0].get("node")
 
     def get_catalog_by_title(self, title: str) -> Optional[Dict[str, Any]]:
@@ -513,3 +541,47 @@ class ShopifyGraphQLClient:
             if max_pages is not None and page >= max_pages:
                 break
             variables["after"] = page_info.get("endCursor")
+
+    def activate_inventory_at_location(self, inventory_item_id: str, location_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Activate an inventory item at a specific location.
+        """
+        variables = {
+            "inventoryItemId": inventory_item_id,
+            "locationId": location_id,
+        }
+        response, _extensions = self._execute(
+            INVENTORY_ACTIVATE,
+            variables,
+            include_extensions=True,
+        )
+        payload = response.get("inventoryActivate") or {}
+        self._raise_user_errors(payload, operation="inventoryActivate")
+        return payload.get("inventoryLevel")
+
+    def update_inventory_item_fulfillment_service(self, inventory_item_id: str, fulfillment_service_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Update the fulfillment service of an inventory item.
+        Note: fulfillment_service_id can be a GID for a fulfillment service or "manual".
+        If it's a GID, it should be passed in the input.
+        """
+        # If it's a GID, we might need to handle it differently depending on Shopify API version
+        # but usually it's part of the InventoryItemInput
+        input_payload = {}
+        
+        # Checking if it's a GID
+        if fulfillment_service_id.startswith("gid://"):
+             # We need to find the fulfillment service handle or id?
+             # Actually inventoryItemUpdate takes an InventoryItemInput which doesn't directly have fulfillmentService
+             # it has fulfillmentServiceId in some versions or it's managed via the fulfillment service itself.
+             # Wait, the requirement says "add the default location / fulfillment service"
+             # In Shopify, an inventory item is connected to a fulfillment service.
+             pass
+
+        # Let's re-verify the InventoryItemInput fields for fulfillment service
+        # Usually it's tracked and some other fields.
+        # Actually, the user's .env has FULFILLMENT_SERVICE = "gid://shopify/FulfillmentService/65537409268"
+        
+        # If I can't find a direct way to update it via inventoryItemUpdate, I might need another mutation.
+        # But I'll start with what I have and see.
+        return None

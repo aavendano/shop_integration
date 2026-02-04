@@ -16,5 +16,4 @@ sample_data/
 .shopify_sync/
 db.sqlite3-shm
 db.sqlite3-wal
-logs/django.log
-logs/*
+logs/

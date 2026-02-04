@@ -32,7 +32,7 @@
                     <form action="{% url 'shopify_models:product_sync' product.id %}" method="post">
                         {% csrf_token %}
                         <button type="submit" class="button is-primary">
-                            <span class="icon"><i class="lucide-refresh-cw"></i></span>
+                            <span class="icon"><span class="material-symbols-outlined">refresh</span></span>
                             <span>Sync to Shopify</span>
                         </button>
                     </form>
@@ -43,13 +43,13 @@
                     <form action="{% url 'prices:sync_product' product.id %}" method="post">
                         {% csrf_token %}
                         <button type="submit" class="button is-success">
-                            <span class="icon"><i class="lucide-dollar-sign"></i></span>
+                            <span class="icon"><span class="material-symbols-outlined">attach_money</span></span>
                             <span>Sync Prices</span>
                         </button>
                     </form>
                     {% else %}
                     <a href="{% url 'prices:setup' %}" class="button is-warning">
-                        <span class="icon"><i class="lucide-alert-circle"></i></span>
+                        <span class="icon"><span class="material-symbols-outlined">warning</span></span>
                         <span>Setup Pricing</span>
                     </a>
                     {% endif %}
@@ -62,25 +62,25 @@
             <ul>
                 <li class="is-active" data-tab="overview">
                     <a>
-                        <span class="icon is-small"><i class="lucide-info"></i></span>
+                        <span class="icon is-small"><span class="material-symbols-outlined">info</span></span>
                         <span>Overview</span>
                     </a>
                 </li>
                 <li data-tab="images">
                     <a>
-                        <span class="icon is-small"><i class="lucide-image"></i></span>
+                        <span class="icon is-small"><span class="material-symbols-outlined">image</span></span>
                         <span>Images ({{ images.count }})</span>
                     </a>
                 </li>
                 <li data-tab="variants">
                     <a>
-                        <span class="icon is-small"><i class="lucide-package"></i></span>
+                        <span class="icon is-small"><span class="material-symbols-outlined">inventory_2</span></span>
                         <span>Variants ({{ product.variants.count }})</span>
                     </a>
                 </li>
                 <li data-tab="inventory">
                     <a>
-                        <span class="icon is-small"><i class="lucide-warehouse"></i></span>
+                        <span class="icon is-small"><span class="material-symbols-outlined">warehouse</span></span>
                         <span>Inventory</span>
                     </a>
                 </li>
@@ -102,7 +102,7 @@
                                 </figure>
                                 {% else %}
                                 <div class="has-text-centered py-6 has-background-light">
-                                    <span class="icon is-large has-text-grey-light"><i class="lucide-image"></i></span>
+                                    <span class="icon is-large has-text-grey-light"><span class="material-symbols-outlined">image</span></span>
                                     <p class="has-text-grey">No image available</p>
                                 </div>
                                 {% endif %}
@@ -201,7 +201,7 @@
                 </div>
                 {% else %}
                 <div class="notification is-light">
-                    <span class="icon"><i class="lucide-image"></i></span>
+                    <span class="icon"><span class="material-symbols-outlined">image</span></span>
                     <span>No images found for this product.</span>
                 </div>
                 {% endif %}
@@ -218,7 +218,7 @@
                     <div class="level-right">
                         <div class="level-item">
                             <a href="{% url 'shopify_models:variant_create' product.id %}" class="button is-primary">
-                                <span class="icon"><i class="lucide-plus"></i></span>
+                                <span class="icon"><span class="material-symbols-outlined">add</span></span>
                                 <span>Add Variant</span>
                             </a>
                         </div>
@@ -230,7 +230,7 @@
                 <div class="card mb-4">
                     <header class="card-header">
                         <p class="card-header-title">
-                            <span class="icon"><i class="lucide-package"></i></span>
+                            <span class="icon"><span class="material-symbols-outlined">inventory_2</span></span>
                             <span>{{ variant.title|placeholder:"Default" }} - {{ variant.supplier_sku|placeholder:"No
                                 SKU" }}</span>
                         </p>
@@ -238,12 +238,18 @@
                             <div class="buttons are-small">
                                 <a href="{% url 'shopify_models:variant_update' product.id variant.id %}"
                                     class="button is-info">
-                                    <span class="icon is-small"><i class="lucide-edit"></i></span>
+                                    <span class="icon is-small"><span class="material-symbols-outlined">edit</span></span>
                                 </a>
                                 <a href="{% url 'shopify_models:variant_delete' product.id variant.id %}"
                                     class="button is-danger">
-                                    <span class="icon is-small"><i class="lucide-trash"></i></span>
+                                    <span class="icon is-small"><span class="material-symbols-outlined">delete</span></span>
                                 </a>
+                                <form action="{% url 'shopify_models:variant_add_location' product.id variant.id %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button is-warning" title="Add Location (Find by Barcode)">
+                                        <span class="icon is-small"><span class="material-symbols-outlined">location_on</span></span>
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </header>
@@ -321,7 +327,7 @@
                 {% endfor %}
                 {% else %}
                 <div class="notification is-light">
-                    <span class="icon"><i class="lucide-package"></i></span>
+                    <span class="icon"><span class="material-symbols-outlined">inventory_2</span></span>
                     <span>No variants found for this product.</span>
                 </div>
                 {% endif %}
@@ -334,7 +340,7 @@
                 <div class="card mb-4">
                     <header class="card-header has-background-light">
                         <p class="card-header-title">
-                            <span class="icon"><i class="lucide-package"></i></span>
+                            <span class="icon"><span class="material-symbols-outlined">inventory_2</span></span>
                             <span>{{ variant_info.variant.title|placeholder:"Default" }} ({{
                                 variant_info.variant.supplier_sku|placeholder:"No SKU" }})</span>
                         </p>
@@ -344,7 +350,7 @@
                         {# Inventory Item Details #}
                         <div class="box">
                             <h4 class="title is-5">
-                                <span class="icon"><i class="lucide-box"></i></span>
+                                <span class="icon"><span class="material-symbols-outlined">inventory</span></span>
                                 <span>Inventory Item</span>
                             </h4>
                             <div class="columns is-multiline">
@@ -386,7 +392,7 @@
                         {% if variant_info.inventory_levels %}
                         <div class="box mt-4">
                             <h4 class="title is-5">
-                                <span class="icon"><i class="lucide-warehouse"></i></span>
+                                <span class="icon"><span class="material-symbols-outlined">warehouse</span></span>
                                 <span>Inventory Levels ({{ variant_info.inventory_levels.count }})</span>
                             </h4>
                             <div class="table-container">
@@ -425,13 +431,13 @@
                         </div>
                         {% else %}
                         <div class="notification is-light mt-4">
-                            <span class="icon"><i class="lucide-info"></i></span>
+                            <span class="icon"><span class="material-symbols-outlined">info</span></span>
                             <span>No inventory levels found for this item.</span>
                         </div>
                         {% endif %}
                         {% else %}
                         <div class="notification is-warning is-light">
-                            <span class="icon"><i class="lucide-alert-triangle"></i></span>
+                            <span class="icon"><span class="material-symbols-outlined">warning</span></span>
                             <span>No inventory item linked to this variant.</span>
                         </div>
                         {% endif %}
@@ -440,7 +446,7 @@
                 {% endfor %}
                 {% else %}
                 <div class="notification is-light">
-                    <span class="icon"><i class="lucide-package"></i></span>
+                    <span class="icon"><span class="material-symbols-outlined">inventory_2</span></span>
                     <span>No variants found for this product.</span>
                 </div>
                 {% endif %}
