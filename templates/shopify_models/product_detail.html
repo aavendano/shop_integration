@@ -17,8 +17,13 @@
             <div class="level-left">
                 <div class="level-item">
                     <div>
-                        <span><h1 class="title is-3">{{ product.title }}</h1></span>
-                        <span><p class="subtitle is-5">{{ product.vendor|placeholder:"No vendor" }} | {{ product.product_type|placeholder:"No type" }}</p></span>
+                        <span>
+                            <h1 class="title is-3">{{ product.title }}</h1>
+                        </span>
+                        <span>
+                            <p class="subtitle is-5">{{ product.vendor|placeholder:"No vendor" }} | {{
+                                product.product_type|placeholder:"No type" }}</p>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -32,7 +37,7 @@
                         </button>
                     </form>
                 </div>
-                
+
                 <div class="level-item">
                     {% if price_list_configured %}
                     <form action="{% url 'prices:sync_product' product.id %}" method="post">
@@ -79,12 +84,7 @@
                         <span>Inventory</span>
                     </a>
                 </li>
-                <!-- <li data-tab="locations">
-                    <a>
-                        <span class="icon is-small"><i class="lucide-map-pin"></i></span>
-                        <span>Locations ({{ locations.count }})</span>
-                    </a>
-                </li> -->
+
             </ul>
         </div>
 
@@ -141,8 +141,8 @@
                                         <p class="heading">Vendor</p>
                                         <p>{{ product.vendor|placeholder }}</p>
                                     </div>
-                   
-                                    
+
+
                                     <div class="column is-half">
                                         <p class="heading">Created At</p>
                                         <p>{{ product.created_at|date:"Y-m-d H:i"|placeholder }}</p>
@@ -231,14 +231,17 @@
                     <header class="card-header">
                         <p class="card-header-title">
                             <span class="icon"><i class="lucide-package"></i></span>
-                            <span>{{ variant.title|placeholder:"Default" }} - {{ variant.supplier_sku|placeholder:"No SKU" }}</span>
+                            <span>{{ variant.title|placeholder:"Default" }} - {{ variant.supplier_sku|placeholder:"No
+                                SKU" }}</span>
                         </p>
                         <div class="card-header-icon">
                             <div class="buttons are-small">
-                                <a href="{% url 'shopify_models:variant_update' product.id variant.id %}" class="button is-info">
+                                <a href="{% url 'shopify_models:variant_update' product.id variant.id %}"
+                                    class="button is-info">
                                     <span class="icon is-small"><i class="lucide-edit"></i></span>
                                 </a>
-                                <a href="{% url 'shopify_models:variant_delete' product.id variant.id %}" class="button is-danger">
+                                <a href="{% url 'shopify_models:variant_delete' product.id variant.id %}"
+                                    class="button is-danger">
                                     <span class="icon is-small"><i class="lucide-trash"></i></span>
                                 </a>
                             </div>
@@ -274,10 +277,7 @@
                                 <p class="heading">Weight</p>
                                 <p>{{ variant.grams|format_weight }}</p>
                             </div>
-                            <!-- <div class="column is-one-quarter">
-                                <p class="heading">Inventory Quantity</p>
-                                <p>{{ variant.inventory_quantity|placeholder:"0" }}</p>
-                            </div> -->
+
                             <div class="column is-one-quarter">
                                 <p class="heading">Option 1</p>
                                 <p>{{ variant.option1|placeholder }}</p>
@@ -290,10 +290,7 @@
                                 <p class="heading">Option 3</p>
                                 <p>{{ variant.option3|placeholder }}</p>
                             </div>
-                            <!-- <div class="column is-one-quarter">
-                                <p class="heading">Fulfillment Service</p>
-                                <p>{{ variant.fulfillment_service|placeholder }}</p>
-                            </div> -->
+
                             <div class="column is-one-quarter">
                                 <p class="heading">Inventory Management</p>
                                 <p>{{ variant.inventory_management|placeholder }}</p>
@@ -338,7 +335,8 @@
                     <header class="card-header has-background-light">
                         <p class="card-header-title">
                             <span class="icon"><i class="lucide-package"></i></span>
-                            <span>{{ variant_info.variant.title|placeholder:"Default" }} ({{ variant_info.variant.supplier_sku|placeholder:"No SKU" }})</span>
+                            <span>{{ variant_info.variant.title|placeholder:"Default" }} ({{
+                                variant_info.variant.supplier_sku|placeholder:"No SKU" }})</span>
                         </p>
                     </header>
                     <div class="card-content">
@@ -368,12 +366,11 @@
                                 </div>
                                 <div class="column is-one-quarter">
                                     <p class="heading">Unit Cost</p>
-                                    <p>{{ variant_info.inventory_item.unit_cost_amount|currency:variant_info.inventory_item.unit_cost_currency|placeholder }}</p>
+                                    <p>{{
+                                        variant_info.inventory_item.unit_cost_amount|currency:variant_info.inventory_item.unit_cost_currency|placeholder
+                                        }}</p>
                                 </div>
-                                <!-- <div class="column is-one-quarter">
-                                    <p class="heading">Locations Count</p>
-                                    <p>{{ variant_info.inventory_item.locations_count|placeholder }}</p>
-                                </div> -->
+
                                 <div class="column is-one-quarter">
                                     <p class="heading">Created At</p>
                                     <p>{{ variant_info.inventory_item.created_at|date:"Y-m-d H:i"|placeholder }}</p>
@@ -415,30 +412,12 @@
                                                 —
                                                 {% endif %}
                                             </td>
-                                            <!-- <td>{{ level.can_deactivate|boolean_badge }}</td> -->
+
                                             <td>{{ level.sync_pending|sync_status_badge }}</td>
                                             <td>{{ level.source_updated_at|date:"Y-m-d H:i"|placeholder }}</td>
                                             <td>{{ level.synced_at|date:"Y-m-d H:i"|placeholder }}</td>
                                         </tr>
-                                        <!-- {% if level.deactivation_alert %}
-                                        <tr>
-                                            <td colspan="6">
-                                                <div class="notification is-warning is-light">
-                                                    <strong>Deactivation Alert:</strong> {{ level.deactivation_alert }}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endif %} -->
-                                        <!-- {% if level.scheduled_changes %}
-                                        <tr>
-                                            <td colspan="6">
-                                                <details>
-                                                    <summary class="has-text-weight-semibold">Scheduled Changes</summary>
-                                                    <pre class="is-size-7 mt-2">{{ level.scheduled_changes|format_json }}</pre>
-                                                </details>
-                                            </td>
-                                        </tr>
-                                        {% endif %} -->
+
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -467,150 +446,63 @@
                 {% endif %}
             </div>
 
-            {# LOCATIONS TAB - REMOVED: Location model has been removed, location is now managed via .env #}
-            <!-- <div class="tab-pane" id="locations">
-                {% if locations %}
-                <div class="columns is-multiline">
-                    {% for location in locations %}
-                    <div class="column is-half">
-                        <div class="card">
-                            <header class="card-header">
-                                <p class="card-header-title">
-                                    <span class="icon"><i class="lucide-map-pin"></i></span>
-                                    <span>{{ location.name }}</span>
-                                </p>
-                                <div class="card-header-icon">
-                                    {{ location.is_active|active_badge }}
-                                </div>
-                            </header>
-                            <div class="card-content">
-                                <div class="columns is-multiline">
-                                    <div class="column is-half">
-                                        <p class="heading">Shopify ID</p>
-                                        <p>{{ location.shopify_id|truncate_id:12|placeholder }}</p>
-                                    </div>
-                                    <div class="column is-half">
-                                        <p class="heading">Last Inventory Sync</p>
-                                        <p>{{ location.last_inventory_sync_at|date:"Y-m-d H:i"|placeholder }}</p>
-                                    </div>
-                                    <div class="column is-full">
-                                        <p class="heading">Address</p>
-                                        <p>{{ location.address|format_address }}</p>
-                                    </div>
-                                    <div class="column is-one-third">
-                                        <p class="heading">Activatable</p>
-                                        <p>{{ location.activatable|boolean_badge }}</p>
-                                    </div>
-                                    <div class="column is-one-third">
-                                        <p class="heading">Deactivatable</p>
-                                        <p>{{ location.deactivatable|boolean_badge }}</p>
-                                    </div>
-                                    <div class="column is-one-third">
-                                        <p class="heading">Deletable</p>
-                                        <p>{{ location.deletable|boolean_badge }}</p>
-                                    </div>
-                                    <div class="column is-one-third">
-                                        <p class="heading">Fulfills Online Orders</p>
-                                        <p>{{ location.fulfills_online_orders|boolean_badge }}</p>
-                                    </div>
-                                    <div class="column is-one-third">
-                                        <p class="heading">Has Active Inventory</p>
-                                        <p>{{ location.has_active_inventory|boolean_badge }}</p>
-                                    </div>
-                                    <div class="column is-one-third">
-                                        <p class="heading">Ships Inventory</p>
-                                        <p>{{ location.ships_inventory|boolean_badge }}</p>
-                                    </div>
-                                    <div class="column is-full">
-                                        <p class="heading">Has Unfulfilled Orders</p>
-                                        <p>{{ location.has_unfulfilled_orders|boolean_badge }}</p>
-                                    </div>
-                                    {% if location.local_pickup_settings %}
-                                    <div class="column is-full">
-                                        <details>
-                                            <summary class="has-text-weight-semibold">Local Pickup Settings</summary>
-                                            <pre class="is-size-7 mt-2">{{ location.local_pickup_settings|format_json }}</pre>
-                                        </details>
-                                    </div>
-                                    {% endif %}
-                                    <div class="column is-half">
-                                        <p class="heading">Created At</p>
-                                        <p>{{ location.created_at|date:"Y-m-d H:i"|placeholder }}</p>
-                                    </div>
-                                    <div class="column is-half">
-                                        <p class="heading">Updated At</p>
-                                        <p>{{ location.updated_at|date:"Y-m-d H:i"|placeholder }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="notification is-light">
-                    <span class="icon"><i class="lucide-map-pin"></i></span>
-                    <span>No locations found.</span>
-                </div>
-                {% endif %}
-            </div> -->
         </div>
     </div>
 </section>
 
 <script>
-// Simple tab switching functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const tabs = document.querySelectorAll('.tabs li');
-    const tabPanes = document.querySelectorAll('.tab-pane');
+    // Simple tab switching functionality
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabs = document.querySelectorAll('.tabs li');
+        const tabPanes = document.querySelectorAll('.tab-pane');
 
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            const targetTab = this.getAttribute('data-tab');
-            
-            // Remove active class from all tabs and panes
-            tabs.forEach(t => t.classList.remove('is-active'));
-            tabPanes.forEach(pane => pane.classList.remove('is-active'));
-            
-            // Add active class to clicked tab and corresponding pane
-            this.classList.add('is-active');
-            document.getElementById(targetTab).classList.add('is-active');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function () {
+                const targetTab = this.getAttribute('data-tab');
+
+                // Remove active class from all tabs and panes
+                tabs.forEach(t => t.classList.remove('is-active'));
+                tabPanes.forEach(pane => pane.classList.remove('is-active'));
+
+                // Add active class to clicked tab and corresponding pane
+                this.classList.add('is-active');
+                document.getElementById(targetTab).classList.add('is-active');
+            });
         });
     });
-});
 </script>
 
 <style>
-.tab-pane {
-    display: none;
-}
+    .tab-pane {
+        display: none;
+    }
 
-.tab-pane.is-active {
-    display: block;
-}
+    .tab-pane.is-active {
+        display: block;
+    }
 
-.heading {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: #7a7a7a;
-    margin-bottom: 0.25rem;
-}
+    .heading {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #7a7a7a;
+        margin-bottom: 0.25rem;
+    }
 
-pre {
-    background-color: #f5f5f5;
-    padding: 0.5rem;
-    border-radius: 4px;
-    overflow-x: auto;
-}
+    pre {
+        background-color: #f5f5f5;
+        padding: 0.5rem;
+        border-radius: 4px;
+        overflow-x: auto;
+    }
 
-details summary {
-    cursor: pointer;
-    user-select: none;
-}
+    details summary {
+        cursor: pointer;
+        user-select: none;
+    }
 
-details summary:hover {
-    color: #3273dc;
-}
+    details summary:hover {
+        color: #3273dc;
+    }
 </style>
 {% endblock %}

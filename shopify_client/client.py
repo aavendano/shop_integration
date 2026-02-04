@@ -317,9 +317,7 @@ class ShopifyGraphQLClient:
         cost: str,
         currency: Optional[str] = None,
     ) -> List[str]:
-        input_payload: Dict[str, Any] = {"cost": {"amount": cost}}
-        if currency:
-            input_payload["cost"]["currencyCode"] = currency
+        input_payload: Dict[str, Any] = {"cost": cost}
         variables = {"id": inventory_item_id, "input": input_payload}
         response, _extensions = self._execute(
             INVENTORY_ITEM_UPDATE,

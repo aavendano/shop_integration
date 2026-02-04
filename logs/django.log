@@ -1143,3 +1143,128 @@ INFO 2026-02-04 04:55:28,995 django.server log 30350 132302591665856 "GET /suppl
 WARNING 2026-02-04 04:55:29,076 django.server log 30350 132302591665856 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
 INFO 2026-02-04 05:00:33,947 django.server log 30350 132302591665856 "GET /suppliers/ HTTP/1.1" 200 6939
 INFO 2026-02-04 05:00:35,736 django.server log 30350 132302591665856 "GET /suppliers/1/ HTTP/1.1" 200 8891
+INFO 2026-02-04 16:13:04,394 django.utils.autoreload autoreload 96651 133784718884992 Watching for file changes with StatReloader
+INFO 2026-02-04 16:13:44,430 django.server log 96651 133784204736192 "GET / HTTP/1.1" 200 4325
+INFO 2026-02-04 16:13:44,794 django.server log 96651 133784204736192 "GET /static/style/css/main.min.css HTTP/1.1" 304 0
+WARNING 2026-02-04 16:13:45,283 django.server log 96651 133784204736192 "GET /favicon.ico HTTP/1.1" 404 3581
+INFO 2026-02-04 16:13:52,721 django.server log 96651 133784204736192 "GET /shopify_models/products/ HTTP/1.1" 200 95360
+INFO 2026-02-04 16:15:51,590 django.server log 96651 133784204736192 "GET /suppliers/ HTTP/1.1" 200 7030
+INFO 2026-02-04 16:15:54,555 django.server log 96651 133784204736192 "GET /suppliers/1/ HTTP/1.1" 200 8982
+INFO 2026-02-04 16:16:04,366 django.server log 96651 133784204736192 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-04 16:16:04,379 django.server log 96651 133784204736192 "GET /suppliers/1/ HTTP/1.1" 200 9547
+INFO 2026-02-04 16:16:13,970 django.server log 96651 133784204736192 "GET /shopify_models/products/ HTTP/1.1" 200 96485
+INFO 2026-02-04 16:16:18,402 django.server log 96651 133784204736192 "GET /shopify_models/products/16774/ HTTP/1.1" 200 26297
+ERROR 2026-02-04 16:16:36,682 shopify_models.views views 96651 133784204736192 Unexpected error while synchronizing product 16774 ('Pjur Analyse Me! Anal Silicone Personal Lubricant 3.4 oz.'): Shopify GraphQL Error: Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal '{"amount" => "16.25", "currencyCode" => "USD"}')
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 104, in _execute
+    result = self._client.execute(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 497, in execute
+    return self.execute_sync(
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 248, in execute_sync
+    return session.execute(
+           ^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 997, in execute
+    raise TransportQueryError(
+gql.transport.exceptions.TransportQueryError: {'message': 'Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal \'{"amount" => "16.25", "currencyCode" => "USD"}\')', 'locations': [{'line': 1, 'column': 40}], 'extensions': {'value': {'cost': {'amount': '16.25', 'currencyCode': 'USD'}}, 'problems': [{'path': ['cost'], 'explanation': 'invalid decimal \'{"amount" => "16.25", "currencyCode" => "USD"}\'', 'message': 'invalid decimal \'{"amount" => "16.25", "currencyCode" => "USD"}\''}]}}
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 155, in export_to_shopify
+    _sync_inventory_item_unit_costs(
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 191, in _sync_inventory_item_unit_costs
+    errors = client.update_inventory_item_cost(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 324, in update_inventory_item_cost
+    response, _extensions = self._execute(
+                            ^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 119, in _execute
+    raise ShopifyGraphQLError(f"Shopify GraphQL Error: {msg}", errors=errors) from e
+shopify_client.exceptions.ShopifyGraphQLError: Shopify GraphQL Error: Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal '{"amount" => "16.25", "currencyCode" => "USD"}')
+INFO 2026-02-04 16:16:36,692 django.server log 96651 133784204736192 "POST /shopify_models/products/16774/sync/ HTTP/1.1" 302 0
+INFO 2026-02-04 16:16:36,737 django.server log 96651 133784204736192 "GET /shopify_models/products/16774/ HTTP/1.1" 200 26806
+ERROR 2026-02-04 16:31:32,198 shopify_models.views views 96651 133784204736192 Unexpected error while synchronizing product 16774 ('Pjur Analyse Me! Anal Silicone Personal Lubricant 3.4 oz.'): Shopify GraphQL Error: Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal '{"amount" => "16.25", "currencyCode" => "USD"}')
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 104, in _execute
+    result = self._client.execute(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 497, in execute
+    return self.execute_sync(
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 248, in execute_sync
+    return session.execute(
+           ^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 997, in execute
+    raise TransportQueryError(
+gql.transport.exceptions.TransportQueryError: {'message': 'Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal \'{"amount" => "16.25", "currencyCode" => "USD"}\')', 'locations': [{'line': 1, 'column': 40}], 'extensions': {'value': {'cost': {'amount': '16.25', 'currencyCode': 'USD'}}, 'problems': [{'path': ['cost'], 'explanation': 'invalid decimal \'{"amount" => "16.25", "currencyCode" => "USD"}\'', 'message': 'invalid decimal \'{"amount" => "16.25", "currencyCode" => "USD"}\''}]}}
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 155, in export_to_shopify
+    _sync_inventory_item_unit_costs(
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 191, in _sync_inventory_item_unit_costs
+    errors = client.update_inventory_item_cost(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 324, in update_inventory_item_cost
+    response, _extensions = self._execute(
+                            ^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 119, in _execute
+    raise ShopifyGraphQLError(f"Shopify GraphQL Error: {msg}", errors=errors) from e
+shopify_client.exceptions.ShopifyGraphQLError: Shopify GraphQL Error: Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal '{"amount" => "16.25", "currencyCode" => "USD"}')
+INFO 2026-02-04 16:31:32,212 django.server log 96651 133784204736192 "POST /shopify_models/products/16774/sync/ HTTP/1.1" 302 0
+INFO 2026-02-04 16:31:32,278 django.server log 96651 133784204736192 "GET /shopify_models/products/16774/ HTTP/1.1" 200 26806
+INFO 2026-02-04 16:31:46,747 django.utils.autoreload autoreload 98849 134815347810432 Watching for file changes with StatReloader
+ERROR 2026-02-04 17:41:12,559 shopify_models.views views 98849 134815036303040 Unexpected error while synchronizing product 16774 ('Pjur Analyse Me! Anal Silicone Personal Lubricant 3.4 oz.'): Shopify GraphQL Error: Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal '{"amount" => "16.25", "currencyCode" => "USD"}')
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 104, in _execute
+    result = self._client.execute(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 497, in execute
+    return self.execute_sync(
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 248, in execute_sync
+    return session.execute(
+           ^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/.venv/lib/python3.12/site-packages/gql/client.py", line 997, in execute
+    raise TransportQueryError(
+gql.transport.exceptions.TransportQueryError: {'message': 'Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal \'{"amount" => "16.25", "currencyCode" => "USD"}\')', 'locations': [{'line': 1, 'column': 40}], 'extensions': {'value': {'cost': {'amount': '16.25', 'currencyCode': 'USD'}}, 'problems': [{'path': ['cost'], 'explanation': 'invalid decimal \'{"amount" => "16.25", "currencyCode" => "USD"}\'', 'message': 'invalid decimal \'{"amount" => "16.25", "currencyCode" => "USD"}\''}]}}
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/views.py", line 81, in post
+    product.export_to_shopify()
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 155, in export_to_shopify
+    _sync_inventory_item_unit_costs(
+  File "/home/alejandro/shop-app/shop_integration/shopify_models/models.py", line 191, in _sync_inventory_item_unit_costs
+    errors = client.update_inventory_item_cost(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 324, in update_inventory_item_cost
+    response, _extensions = self._execute(
+                            ^^^^^^^^^^^^^^
+  File "/home/alejandro/shop-app/shop_integration/shopify_client/client.py", line 119, in _execute
+    raise ShopifyGraphQLError(f"Shopify GraphQL Error: {msg}", errors=errors) from e
+shopify_client.exceptions.ShopifyGraphQLError: Shopify GraphQL Error: Variable $input of type InventoryItemInput! was provided invalid value for cost (invalid decimal '{"amount" => "16.25", "currencyCode" => "USD"}')
+INFO 2026-02-04 17:41:12,622 django.server log 98849 134815036303040 "POST /shopify_models/products/16774/sync/ HTTP/1.1" 302 0
+INFO 2026-02-04 17:41:52,949 django.server log 98849 134815027910336 "GET /shopify_models/products/16774/ HTTP/1.1" 200 26806
+INFO 2026-02-04 17:41:53,152 django.utils.autoreload autoreload 98849 134815347810432 /home/alejandro/shop-app/shop_integration/shopify_client/client.py changed, reloading.
+INFO 2026-02-04 17:41:55,095 django.utils.autoreload autoreload 101435 138733849477248 Watching for file changes with StatReloader
+INFO 2026-02-04 17:45:26,549 django.server log 101435 138733414250176 "GET /shopify_models/products/16774/ HTTP/1.1" 200 26841
+INFO 2026-02-04 17:46:01,084 django.server log 101435 138733414250176 "GET /shopify_models/products/16774/ HTTP/1.1" 200 26604
+INFO 2026-02-04 17:46:17,477 django.utils.autoreload autoreload 101702 138891845906560 Watching for file changes with StatReloader
+INFO 2026-02-04 17:46:28,075 django.server log 101702 138891677570752 "GET /shopify_models/products/16774/ HTTP/1.1" 200 26343
+INFO 2026-02-04 17:47:28,743 django.utils.autoreload autoreload 101826 135901012435072 Watching for file changes with StatReloader
+INFO 2026-02-04 17:47:32,508 django.server log 101826 135900709955264 "GET /shopify_models/products/16774/ HTTP/1.1" 200 25467
+INFO 2026-02-04 17:47:37,374 shopify_models.models models 101826 135900709955264 Validated location: shop_manager_app (gid://shopify/Location/89689161972)
+INFO 2026-02-04 17:47:37,375 shopify_models.models models 101826 135900709955264 Inventory sync quantity for variant 16774: 38
+WARNING 2026-02-04 17:47:37,684 shopify_models.models models 101826 135900709955264 Inventory set quantities error: The specified inventory item is not stocked at the location.
+WARNING 2026-02-04 17:47:37,899 shopify_models.models models 101826 135900709955264 Inventory level missing location gid://shopify/Location/89689161972 for item gid://shopify/InventoryItem/49714243305716
+INFO 2026-02-04 17:47:37,912 django.server log 101826 135900709955264 "POST /shopify_models/products/16774/sync/ HTTP/1.1" 302 0
+INFO 2026-02-04 17:47:37,971 django.server log 101826 135900709955264 "GET /shopify_models/products/16774/ HTTP/1.1" 200 25745
