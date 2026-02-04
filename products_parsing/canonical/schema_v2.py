@@ -7,9 +7,6 @@ from typing import Any, Dict, List, Optional
 class CanonicalImage:
     src: Optional[str] = None
     position: Optional[int] = None
-    width: Optional[int] = None
-    height: Optional[int] = None
-    alt: Optional[str] = None
 
 
 @dataclass
@@ -35,6 +32,9 @@ class CanonicalVariant:
     tracked: Optional[bool] = None
     cost: Optional[Decimal] = None
     quantity: Optional[int] = None
+    unit_cost: Optional[Decimal] = None
+    msrp: Optional[Decimal] = None
+    map: Optional[Decimal] = None
 
     metadata: Dict[str, Any] = field(default_factory=dict)
 

@@ -21,17 +21,9 @@
         }
       ]
     },
+
     {
-      "source": "Barcode",
-      "destination": "metadata.upc_ean",
-      "transforms": [
-        {
-          "name": "trim"
-        }
-      ]
-    },
-    {
-      "source": "Barcode",
+      "source": "UPC/barcode",
       "destination": "variants.0.barcode",
       "transforms": [
         {
@@ -39,15 +31,7 @@
         }
       ]
     },
-    {
-      "source": "MPN",
-      "destination": "metadata.mpn",
-      "transforms": [
-        {
-          "name": "trim"
-        }
-      ]
-    },
+
     {
       "source": "Product Title",
       "destination": "title",
@@ -71,8 +55,8 @@
       ]
     },
     {
-      "source": "Compare At Price",
-      "destination": "variants.0.compare_at_price",
+      "source": "Wholesale",
+      "destination": "variants.0.unit_cost",
       "transforms": [
         {
           "name": "parse_price"
@@ -80,8 +64,8 @@
       ]
     },
     {
-      "source": "Price",
-      "destination": "variants.0.price",
+      "source": "MSRP",
+      "destination": "variants.0.msrp",
       "transforms": [
         {
           "name": "parse_price"
@@ -89,19 +73,19 @@
       ]
     },
     {
-      "source": "Price",
-      "destination": "variants.0.cost",
+      "source": "MAP",
+      "destination": "variants.0.map",
       "transforms": [
         {
           "name": "parse_price"
         }
       ]
+    },
+        {
+      "source": "Nalpac qty available",
+      "destination": "variants.0.quantity"
     },
 
-    {
-      "source": "Entrenue qty available",
-      "destination": "metadata.entrenue_qty_available"
-    },
     {
       "source": "Fluid Oz",
       "destination": "metadata.fluid_oz"
@@ -127,7 +111,7 @@
       "destination": "metadata.sub_category"
     },
     {
-      "source": "Variant Image",
+      "source": "Image 1",
       "destination": "images.0.src"
     },
     {

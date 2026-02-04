@@ -28,7 +28,8 @@ class CanonicalValidator:
             value = _get_nested_value(product, field_path)
             if _is_missing(value):
                 issues.append(
-                    ValidationIssue(path=field_path, message="Missing required value")
+                    ValidationIssue(path=field_path,
+                                    message="Missing required value")
                 )
 
         _validate_optional_string(product.title, "title", issues)
@@ -114,21 +115,21 @@ def _validate_images(images: Any, issues: List[ValidationIssue]) -> None:
     for idx, image in enumerate(images):
         if not isinstance(image, CanonicalImage):
             issues.append(
-                ValidationIssue(path=f"images[{idx}]", message="Expected CanonicalImage")
+                ValidationIssue(
+                    path=f"images[{idx}]", message="Expected CanonicalImage")
             )
             continue
         _validate_optional_string(image.src, f"images[{idx}].src", issues)
-        _validate_optional_int(image.position, f"images[{idx}].position", issues)
-        _validate_optional_int(image.width, f"images[{idx}].width", issues)
-        _validate_optional_int(image.height, f"images[{idx}].height", issues)
-        _validate_optional_string(image.alt, f"images[{idx}].alt", issues)
+        _validate_optional_int(
+            image.position, f"images[{idx}].position", issues)
 
 
 def _validate_variants(variants: Any, issues: List[ValidationIssue]) -> None:
     if variants is None:
         return
     if not isinstance(variants, list):
-        issues.append(ValidationIssue(path="variants", message="Expected list"))
+        issues.append(ValidationIssue(
+            path="variants", message="Expected list"))
         return
     for idx, variant in enumerate(variants):
         if not isinstance(variant, CanonicalVariant):
@@ -141,18 +142,26 @@ def _validate_variants(variants: Any, issues: List[ValidationIssue]) -> None:
         _validate_optional_string(
             variant.supplier_sku, f"variants[{idx}].supplier_sku", issues
         )
-        _validate_optional_string(variant.barcode, f"variants[{idx}].barcode", issues)
-        _validate_optional_number(variant.price, f"variants[{idx}].price", issues)
+        _validate_optional_string(
+            variant.barcode, f"variants[{idx}].barcode", issues)
+        _validate_optional_number(
+            variant.price, f"variants[{idx}].price", issues)
         _validate_optional_number(
             variant.compare_at_price, f"variants[{idx}].compare_at_price", issues
         )
-        _validate_optional_string(variant.option1, f"variants[{idx}].option1", issues)
-        _validate_optional_string(variant.option2, f"variants[{idx}].option2", issues)
-        _validate_optional_string(variant.option3, f"variants[{idx}].option3", issues)
-        _validate_optional_string(variant.title, f"variants[{idx}].title", issues)
+        _validate_optional_string(
+            variant.option1, f"variants[{idx}].option1", issues)
+        _validate_optional_string(
+            variant.option2, f"variants[{idx}].option2", issues)
+        _validate_optional_string(
+            variant.option3, f"variants[{idx}].option3", issues)
+        _validate_optional_string(
+            variant.title, f"variants[{idx}].title", issues)
         _validate_optional_int(variant.grams, f"variants[{idx}].grams", issues)
-        _validate_optional_int(variant.position, f"variants[{idx}].position", issues)
-        _validate_optional_bool(variant.taxable, f"variants[{idx}].taxable", issues)
+        _validate_optional_int(
+            variant.position, f"variants[{idx}].position", issues)
+        _validate_optional_bool(
+            variant.taxable, f"variants[{idx}].taxable", issues)
         _validate_optional_bool(
             variant.requires_shipping, f"variants[{idx}].requires_shipping", issues
         )
@@ -165,10 +174,19 @@ def _validate_variants(variants: Any, issues: List[ValidationIssue]) -> None:
             issues,
         )
         _validate_optional_string(variant.sku, f"variants[{idx}].sku", issues)
-        _validate_optional_bool(variant.tracked, f"variants[{idx}].tracked", issues)
-        _validate_optional_number(variant.cost, f"variants[{idx}].cost", issues)
-        _validate_optional_int(variant.quantity, f"variants[{idx}].quantity", issues)
-        _validate_metadata(variant.metadata, f"variants[{idx}].metadata", issues)
+        _validate_optional_bool(
+            variant.tracked, f"variants[{idx}].tracked", issues)
+        _validate_optional_number(
+            variant.cost, f"variants[{idx}].cost", issues)
+        _validate_optional_int(
+            variant.quantity, f"variants[{idx}].quantity", issues)
+        _validate_metadata(
+            variant.metadata, f"variants[{idx}].metadata", issues)
+        _validate_optional_number(
+            variant.unit_cost, f"variants[{idx}].unit_cost", issues)
+        _validate_optional_number(
+            variant.msrp, f"variants[{idx}].msrp", issues)
+        _validate_optional_number(variant.map, f"variants[{idx}].map", issues)
 
 
 def _validate_metadata(
@@ -181,7 +199,8 @@ def _validate_metadata(
         return
     for key in metadata:
         if not isinstance(key, str):
-            issues.append(ValidationIssue(path=path, message="Metadata keys must be strings"))
+            issues.append(ValidationIssue(
+                path=path, message="Metadata keys must be strings"))
             break
 
 

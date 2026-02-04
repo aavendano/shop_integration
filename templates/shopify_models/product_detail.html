@@ -97,7 +97,7 @@
                         <div class="card">
                             <div class="card-image">
                                 {% if product.images.first %}
-                                <figure class="image is-4by3">
+                                <figure class="image is-square">
                                     <img src="{{ product.images.first.src }}" alt="{{ product.title }}">
                                 </figure>
                                 {% else %}
@@ -179,7 +179,7 @@
                     <div class="column is-one-third">
                         <div class="card">
                             <div class="card-image">
-                                <figure class="image is-4by3">
+                                <figure class="image is-square">
                                     <img src="{{ image.src }}" alt="{{ product.title }}">
                                 </figure>
                             </div>

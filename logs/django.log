@@ -573,6 +573,7 @@ WARNING 2026-02-03 05:15:58,773 shopify_models.models models 20269 1332588383658
 WARNING 2026-02-03 05:15:58,992 shopify_models.models models 20269 133258838365888 Inventory level missing location gid://shopify/Location/89689161972 for item gid://shopify/InventoryItem/49704585199860
 INFO 2026-02-03 05:15:58,993 django.server log 20269 133258838365888 "POST /shopify_models/products/14/sync/ HTTP/1.1" 302 0
 INFO 2026-02-03 05:15:59,009 django.server log 20269 133258838365888 "GET /shopify_models/products/14/ HTTP/1.1" 200 30766
+<<<<<<< Updated upstream
 INFO 2026-02-03 18:43:56,813 django.utils.autoreload autoreload 65862 126904300609664 Watching for file changes with StatReloader
 INFO 2026-02-03 18:44:00,901 django.server log 65862 126903864260288 "GET / HTTP/1.1" 200 4211
 INFO 2026-02-03 18:44:00,974 django.server log 65862 126903864260288 "GET /static/style/css/main.min.css HTTP/1.1" 304 0
@@ -1082,3 +1083,63 @@ INFO 2026-02-03 21:35:08,243 django.server log 76021 128660339521216 "GET /shopi
 INFO 2026-02-03 21:35:35,625 django.server log 76021 128660339521216 "GET /shopify_models/products/ HTTP/1.1" 200 95360
 INFO 2026-02-03 21:35:40,352 django.server log 76021 128660339521216 "GET /shopify_models/products/?page=3 HTTP/1.1" 200 96197
 INFO 2026-02-03 21:35:47,119 django.server log 76021 128660339521216 "GET /shopify_models/products/16917/ HTTP/1.1" 200 29388
+=======
+INFO 2026-02-04 03:09:16,373 django.utils.autoreload autoreload 17307 126312570953856 Watching for file changes with StatReloader
+INFO 2026-02-04 03:09:26,434 django.server log 17307 126312392509120 "GET / HTTP/1.1" 200 4211
+INFO 2026-02-04 03:09:26,466 django.server log 17307 126312392509120 "GET /static/style/css/main.min.css HTTP/1.1" 304 0
+WARNING 2026-02-04 03:09:26,646 django.server log 17307 126312392509120 "GET /favicon.ico HTTP/1.1" 404 3581
+INFO 2026-02-04 03:09:33,234 django.server log 17307 126312392509120 "GET /suppliers/ HTTP/1.1" 200 6916
+INFO 2026-02-04 03:09:35,419 django.server log 17307 126312392509120 "GET /suppliers/1/ HTTP/1.1" 200 8868
+INFO 2026-02-04 03:09:38,459 django.server log 17307 126312392509120 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-04 03:09:38,468 django.server log 17307 126312392509120 "GET /suppliers/1/ HTTP/1.1" 200 9245
+INFO 2026-02-04 03:23:42,264 django.server log 17307 126312392509120 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-04 03:23:42,272 django.server log 17307 126312392509120 "GET /suppliers/1/ HTTP/1.1" 200 9433
+INFO 2026-02-04 03:23:46,681 django.server log 17307 126312392509120 "GET /shopify_models/products/ HTTP/1.1" 200 95693
+INFO 2026-02-04 03:25:01,936 django.server log 17307 126312392509120 "GET /shopify_models/products/ HTTP/1.1" 200 10461
+INFO 2026-02-04 03:25:06,467 django.server log 17307 126312392509120 "GET /accounts/shops/ HTTP/1.1" 200 6180
+INFO 2026-02-04 03:25:08,848 django.server log 17307 126312392509120 "GET /suppliers/ HTTP/1.1" 200 6916
+INFO 2026-02-04 03:25:11,122 django.server log 17307 126312392509120 "GET /suppliers/1/ HTTP/1.1" 200 8868
+INFO 2026-02-04 03:25:17,329 django.server log 17307 126312392509120 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-04 03:25:17,336 django.server log 17307 126312392509120 "GET /suppliers/1/ HTTP/1.1" 200 9433
+INFO 2026-02-04 03:25:22,575 django.server log 17307 126312392509120 "GET /shopify_models/products/ HTTP/1.1" 200 52634
+INFO 2026-02-04 03:25:30,647 django.server log 17307 126312392509120 "GET /shopify_models/products/16786/ HTTP/1.1" 200 24937
+>>>>>>> Stashed changes
+INFO 2026-02-04 04:16:32,174 django.utils.autoreload autoreload 25317 139811184705664 Watching for file changes with StatReloader
+INFO 2026-02-04 04:19:34,105 django.utils.autoreload autoreload 25317 139811184705664 /home/alejandro/shop-app/shop_integration/shopify_models/models.py changed, reloading.
+INFO 2026-02-04 04:19:35,371 django.utils.autoreload autoreload 25731 138365420777600 Watching for file changes with StatReloader
+INFO 2026-02-04 04:27:02,154 django.server log 25731 138365108217536 "GET /suppliers/ HTTP/1.1" 200 6939
+INFO 2026-02-04 04:27:03,869 django.server log 25731 138365108217536 "GET /suppliers/1/ HTTP/1.1" 200 8891
+INFO 2026-02-04 04:27:09,562 django.server log 25731 138365108217536 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-04 04:27:09,569 django.server log 25731 138365108217536 "GET /suppliers/1/ HTTP/1.1" 200 9456
+INFO 2026-02-04 04:27:17,107 django.server log 25731 138365108217536 "GET /suppliers/ HTTP/1.1" 200 6939
+INFO 2026-02-04 04:27:22,048 django.server log 25731 138365108217536 "GET /shopify_models/products/ HTTP/1.1" 200 56835
+INFO 2026-02-04 04:27:26,571 django.server log 25731 138365108217536 "GET /shopify_models/products/16847/ HTTP/1.1" 200 30750
+INFO 2026-02-04 04:32:50,193 django.utils.autoreload autoreload 25731 138365420777600 /home/alejandro/shop-app/shop_integration/products_parsing/canonical/schema_v2.py changed, reloading.
+INFO 2026-02-04 04:32:51,544 django.utils.autoreload autoreload 26746 132517105377408 Watching for file changes with StatReloader
+INFO 2026-02-04 04:42:52,167 django.server log 26746 132516652512960 "GET /suppliers/ HTTP/1.1" 200 6939
+INFO 2026-02-04 04:42:54,620 django.server log 26746 132516652512960 "GET /suppliers/1/ HTTP/1.1" 200 8891
+INFO 2026-02-04 04:43:03,112 django.server log 26746 132516652512960 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-04 04:43:03,120 django.server log 26746 132516652512960 "GET /suppliers/1/ HTTP/1.1" 200 9456
+INFO 2026-02-04 04:43:08,692 django.server log 26746 132516652512960 "GET /shopify_models/products/ HTTP/1.1" 200 56835
+INFO 2026-02-04 04:43:14,175 django.server log 26746 132516652512960 "GET /shopify_models/products/16844/ HTTP/1.1" 200 30808
+INFO 2026-02-04 04:47:13,743 django.server log 26746 132516652512960 "GET /suppliers/ HTTP/1.1" 200 6939
+INFO 2026-02-04 04:47:15,012 django.server log 26746 132516652512960 "GET /suppliers/1/ HTTP/1.1" 200 8891
+INFO 2026-02-04 04:47:21,298 django.server log 26746 132516652512960 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-04 04:47:21,305 django.server log 26746 132516652512960 "GET /suppliers/1/ HTTP/1.1" 200 9456
+INFO 2026-02-04 04:47:25,942 django.server log 26746 132516652512960 "GET /shopify_models/products/ HTTP/1.1" 200 56835
+INFO 2026-02-04 04:47:29,623 django.server log 26746 132516652512960 "GET /shopify_models/products/16847/ HTTP/1.1" 200 30763
+WARNING 2026-02-04 04:51:08,225 django.server log 26746 132516652512960 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-04 04:51:39,135 django.utils.autoreload autoreload 26746 132517105377408 /home/alejandro/shop-app/shop_integration/products_parsing/adapters/django_adapter.py changed, reloading.
+INFO 2026-02-04 04:51:40,435 django.utils.autoreload autoreload 29445 139672274145408 Watching for file changes with StatReloader
+INFO 2026-02-04 04:51:52,956 django.server log 29445 139671961687744 "GET /shopify_models/products/16847/ HTTP/1.1" 200 30773
+WARNING 2026-02-04 04:51:53,008 django.server log 29445 139671961687744 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-04 04:54:56,080 django.utils.autoreload autoreload 30350 132302913470592 Watching for file changes with StatReloader
+INFO 2026-02-04 04:55:03,281 django.server log 30350 132302591665856 "GET /suppliers/ HTTP/1.1" 200 6939
+WARNING 2026-02-04 04:55:03,340 django.server log 30350 132302591665856 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-04 04:55:04,598 django.server log 30350 132302591665856 "GET /suppliers/1/ HTTP/1.1" 200 8891
+WARNING 2026-02-04 04:55:04,640 django.server log 30350 132302591665856 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-04 04:55:28,985 django.server log 30350 132302591665856 "POST /suppliers/1/ HTTP/1.1" 302 0
+INFO 2026-02-04 04:55:28,995 django.server log 30350 132302591665856 "GET /suppliers/1/ HTTP/1.1" 200 9456
+WARNING 2026-02-04 04:55:29,076 django.server log 30350 132302591665856 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3692
+INFO 2026-02-04 05:00:33,947 django.server log 30350 132302591665856 "GET /suppliers/ HTTP/1.1" 200 6939
+INFO 2026-02-04 05:00:35,736 django.server log 30350 132302591665856 "GET /suppliers/1/ HTTP/1.1" 200 8891

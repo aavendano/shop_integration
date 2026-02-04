@@ -160,6 +160,9 @@ def _sync_variants(
             "option1": variant_record.option1,
             "option2": variant_record.option2,
             "option3": variant_record.option3,
+            "unit_cost": _safe_decimal(variant_record.unit_cost),
+            "msrp": _safe_decimal(variant_record.msrp),
+            "map": _safe_decimal(variant_record.map),
         }
 
         if variant_record.supplier_sku:
@@ -183,6 +186,7 @@ def _sync_variants(
 
 
 def _upsert_inventory_item(variant: Variant, record: CanonicalVariant) -> InventoryItem:
+    unit_cost = record.unit_cost if record.unit_cost is not None else record.cost
     inventory_item, _created = InventoryItem.objects.update_or_create(
         variant=variant,
         defaults={
@@ -190,7 +194,7 @@ def _upsert_inventory_item(variant: Variant, record: CanonicalVariant) -> Invent
             "tracked": record.tracked if record.tracked is not None else True,
             "requires_shipping": variant.requires_shipping,
             "source_quantity": record.quantity or 0,
-            "unit_cost_amount": _safe_decimal(record.cost),
+            "unit_cost_amount": _safe_decimal(unit_cost),
             "unit_cost_currency": settings.PROVIDER_CURRENCY,
         },
     )
