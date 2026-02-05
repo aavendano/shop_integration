@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'shopify_models.apps.ShopifyModelsConfig',
     'suppliers.apps.SuppliersConfig',
     'prices.apps.PricesConfig',  # Contextual pricing management
+    'api.apps.ApiConfig',  # API for Shopify Polaris UI
     # 'shopify_webhook.apps.ShopifyWebhookConfig',
 
 ]
@@ -69,6 +70,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # 'shopify_auth.session_tokens.middleware.SessionTokensAuthMiddleware',
+    'api.middleware.SessionTokenMiddleware',  # Session token validation for API
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -210,6 +212,24 @@ LOGIN_URL = '/login/'
 # This ensures that correct 'https' URLs are generated when our Django app is running behind a proxy like nginx, or is
 # being tunneled (by ngrok, for example).
 # REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": ["shopify_auth.session_tokens.authentication.ShopifyTokenAuthentication"]}
+
+# Django REST Framework configuration
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Authentication handled by middleware
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50,
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+}
 
 LOGGING = {
     "version": 1,

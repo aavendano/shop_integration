@@ -9,6 +9,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('shopify_models/', include('shopify_models.urls')),
     path('prices/', include('prices.urls')),
-
+    path('api/', include('api.urls')),  # API endpoints for Shopify Polaris UI
 ]
 
