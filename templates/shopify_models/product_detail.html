@@ -21,8 +21,9 @@
                             <h1 class="title is-3">{{ product.title }}</h1>
                         </span>
                         <span>
-                            <p class="subtitle is-5">{{ product.vendor|placeholder:"No vendor" }} | {{
-                                product.product_type|placeholder:"No type" }}</p>
+                        <p class="subtitle is-5">{{ product.vendor|placeholder:"No vendor" }} | 
+                            {{product.product_type|placeholder:"No type" }}
+                        </p>
                         </span>
                     </div>
                 </div>
@@ -341,8 +342,8 @@
                     <header class="card-header has-background-light">
                         <p class="card-header-title">
                             <span class="icon"><span class="material-symbols-outlined">inventory_2</span></span>
-                            <span>{{ variant_info.variant.title|placeholder:"Default" }} ({{
-                                variant_info.variant.supplier_sku|placeholder:"No SKU" }})</span>
+                            <span>{{ variant_info.variant.title|placeholder:"Default" }}</span>
+                            <span> ( {{ variant_info.variant.supplier_sku|placeholder:"No SKU" }} )</span>
                         </p>
                     </header>
                     <div class="card-content">
@@ -372,9 +373,7 @@
                                 </div>
                                 <div class="column is-one-quarter">
                                     <p class="heading">Unit Cost</p>
-                                    <p>{{
-                                        variant_info.inventory_item.unit_cost_amount|currency:variant_info.inventory_item.unit_cost_currency|placeholder
-                                        }}</p>
+                                    <p>{{ variant_info.inventory_item.unit_cost_amount|currency:variant_info.inventory_item.unit_cost_currency|placeholder}}</p>
                                 </div>
 
                                 <div class="column is-one-quarter">
