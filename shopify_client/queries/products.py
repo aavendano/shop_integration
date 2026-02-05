@@ -30,3 +30,21 @@ query GetProductBySku($query: String!) {
   }
 }
 """
+
+GET_VARIANT_BY_BARCODE = """
+query GetVariantByBarcode($query: String!) {
+  productVariants(first: 1, query: $query) {
+    edges {
+      node {
+        id
+        sku
+        barcode
+        inventoryItem {
+          id
+          tracked
+        }
+      }
+    }
+  }
+}
+"""
