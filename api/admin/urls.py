@@ -11,8 +11,8 @@ urlpatterns = [
     # Context / session endpoint
     path('context/', views.ContextView.as_view(), name='context'),
     
-    # Product endpoints (to be implemented in future tasks)
-    # path('products/', views.ProductListView.as_view(), name='product-list'),
+    # Product endpoints
+    path('products/', views.ProductListView.as_view(), name='product-list'),
     # path('products/<int:pk>/overview/', views.ProductOverviewView.as_view(), name='product-overview'),
     # path('products/<int:pk>/sync/', views.ProductSyncView.as_view(), name='product-sync'),
     # path('products/bulk-sync/', views.ProductBulkSyncView.as_view(), name='product-bulk-sync'),
@@ -25,7 +25,7 @@ urlpatterns = [
     # path('orders/', views.OrderListView.as_view(), name='order-list'),
     # path('orders/<int:pk>/overview/', views.OrderOverviewView.as_view(), name='order-overview'),
     
-    # Job endpoints (to be implemented in future tasks)
-    # path('jobs/', views.JobListView.as_view(), name='job-list'),
-    # path('jobs/<int:pk>/status/', views.JobStatusView.as_view(), name='job-status'),
+    # Job endpoints
+    path('jobs/', views.JobListView.as_view(), name='job-list'),
+    path('jobs/<int:pk>/', views.JobDetailView.as_view(), name='job-detail'),
 ]

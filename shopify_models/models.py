@@ -25,6 +25,12 @@ class Product(ShopifyDataModel):
     tags = models.CharField(max_length=255, blank=True)
     title = models.CharField(max_length=255, db_index=True)
     vendor = models.CharField(max_length=255, db_index=True, null=True)
+    catalogs = models.ManyToManyField(
+        "Catalog",
+        related_name="products",
+        blank=True,
+        help_text="Catalogs this product is published to"
+    )
 
     def _get_tag_list(self):
         # Tags are comma-space delimited.
@@ -164,6 +170,32 @@ class Product(ShopifyDataModel):
                 local_variants,
                 location_gid=settings.SHOPIFY_DEFAULT_LOCATION,
             )
+
+    def update_catalog_availability(self, catalog, is_available: bool):
+        """
+        Publish or unpublish this product to/from a catalog.
+        
+        Args:
+            catalog: Catalog instance
+            is_available: If True, publish product to catalog; if False, unpublish
+        """
+        from .sync import sync_product_publication
+        
+        if not catalog.publication:
+            raise Exception(f"Catalog '{catalog.title}' has no associated publication")
+        
+        if not catalog.publication.shopify_id:
+            raise Exception(f"Catalog '{catalog.title}' publication is not synced with Shopify")
+        
+        sync_product_publication(self, catalog.publication, publish=is_available)
+        
+        # Update local relationship
+        if is_available:
+            if catalog not in self.catalogs.all():
+                self.catalogs.add(catalog)
+        else:
+            if catalog in self.catalogs.all():
+                self.catalogs.remove(catalog)
 
 
 def _sync_inventory_item_unit_costs(
@@ -396,3 +428,97 @@ class Variant(ShopifyDataModel):
 
     def __str__(self):
         return f"{self.product} - {self.title}"
+
+
+class Market(ShopifyDataModel):
+    """
+    Represents a Shopify Market - a group of regions for international sales.
+    """
+    name = models.CharField(max_length=255)
+    handle = models.CharField(max_length=255, unique=True, db_index=True)
+    enabled = models.BooleanField(default=True)
+    primary = models.BooleanField(default=False)
+    currency = models.CharField(max_length=3, default="USD")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Market"
+        verbose_name_plural = "Markets"
+
+
+class Publication(ShopifyDataModel):
+    """
+    Represents a Shopify Publication - a group of products published to a catalog.
+    """
+    auto_publish = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Publication {self.shopify_id or self.id}"
+
+    class Meta:
+        verbose_name = "Publication"
+        verbose_name_plural = "Publications"
+
+
+class PriceList(ShopifyDataModel):
+    """
+    Represents a Shopify PriceList - defines pricing for products in different contexts.
+    """
+    name = models.CharField(max_length=255)
+    currency = models.CharField(max_length=3, default="USD")
+    parent = models.JSONField(
+        encoder=ShopifyDjangoJSONEncoder,
+        null=True,
+        blank=True,
+        help_text="Relative adjustments to other prices (JSON format)"
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Price List"
+        verbose_name_plural = "Price Lists"
+
+
+class Catalog(ShopifyDataModel):
+    """
+    Represents a Shopify Catalog - a set of products and prices for a specific context.
+    """
+    STATUS_CHOICES = [
+        ("ACTIVE", "Active"),
+        ("DRAFT", "Draft"),
+    ]
+
+    title = models.CharField(max_length=255)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="ACTIVE")
+    market = models.ForeignKey(
+        Market,
+        on_delete=models.CASCADE,
+        related_name="catalogs",
+        null=True,
+        blank=True
+    )
+    publication = models.OneToOneField(
+        Publication,
+        on_delete=models.CASCADE,
+        related_name="catalog",
+        null=True,
+        blank=True
+    )
+    price_list = models.OneToOneField(
+        PriceList,
+        on_delete=models.CASCADE,
+        related_name="catalog",
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = "Catalog"
+        verbose_name_plural = "Catalogs"

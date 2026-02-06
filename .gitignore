@@ -17,3 +17,4 @@ sample_data/
 db.sqlite3-shm
 db.sqlite3-wal
 logs/
+.hypothesis/
