@@ -2,71 +2,114 @@
 {% load static %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
-        <nav class="breadcrumb" aria-label="breadcrumbs">
-            <ul>
-                <li><a href="{% url 'shopify_models:product_list' %}">Products</a></li>
-                <li><a href="{% url 'shopify_models:product_detail' product.id %}">{{ product.title }}</a></li>
-                <li class="is-active"><a href="#" aria-current="page">{{ action }} Variant</a></li>
-            </ul>
-        </nav>
+<s-page heading="{{ action }} Variant for {{ product.title }}">
+    <s-link slot="breadcrumb-actions" href="{% url 'shopify_models:product_detail' product.id %}">{{ product.title }}</s-link>
 
-        <div class="columns is-centered">
-            <div class="column is-two-thirds">
-                <div class="card">
-                    <header class="card-header">
-                        <p class="card-header-title">
-                            {{ action }} Variant for {{ product.title }}
-                        </p>
-                    </header>
-                    <div class="card-content">
-                        <form method="post">
-                            {% csrf_token %}
+    <s-section>
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <s-banner tone="critical">{{ form.non_field_errors }}</s-banner>
+            {% endif %}
 
-                            <div class="columns is-multiline">
-                                {% for field in form %}
-                                <div
-                                    class="column {% if field.name == 'requires_shipping' or field.name == 'taxable' %}is-one-quarter{% else %}is-half{% endif %}">
-                                    <div class="field">
-                                        {% if field.name == 'requires_shipping' or field.name == 'taxable' %}
-                                        <div class="control">
-                                            <label class="checkbox">
-                                                {{ field }}
-                                                {{ field.label }}
-                                            </label>
-                                        </div>
-                                        {% else %}
-                                        <label class="label">{{ field.label }}</label>
-                                        <div class="control">
-                                            {{ field }}
-                                        </div>
-                                        {% endif %}
-                                        {% if field.help_text %}
-                                        <p class="help">{{ field.help_text }}</p>
-                                        {% endif %}
-                                        {% for error in field.errors %}
-                                        <p class="help is-danger">{{ error }}</p>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
+            <s-form>
+                <s-grid gridTemplateColumns="repeat(auto-fill, minmax(300px, 1fr))" gap="base">
+                    <s-grid-item>
+                        <s-text-field
+                            label="Title"
+                            name="title"
+                            value="{{ form.title.value|default:'' }}"
+                            error="{{ form.title.errors|striptags }}"
+                        ></s-text-field>
+                    </s-grid-item>
+                    <s-grid-item>
+                        <s-text-field
+                            label="Supplier SKU"
+                            name="supplier_sku"
+                            value="{{ form.supplier_sku.value|default:'' }}"
+                            error="{{ form.supplier_sku.errors|striptags }}"
+                        ></s-text-field>
+                    </s-grid-item>
+                    <s-grid-item>
+                        <s-text-field
+                            label="Barcode"
+                            name="barcode"
+                            value="{{ form.barcode.value|default:'' }}"
+                            error="{{ form.barcode.errors|striptags }}"
+                        ></s-text-field>
+                    </s-grid-item>
+                    <s-grid-item>
+                        <s-money-field
+                            label="Price"
+                            name="price"
+                            value="{{ form.price.value|default:'' }}"
+                            error="{{ form.price.errors|striptags }}"
+                        ></s-money-field>
+                    </s-grid-item>
+                    <s-grid-item>
+                        <s-money-field
+                            label="Compare at Price"
+                            name="compare_at_price"
+                            value="{{ form.compare_at_price.value|default:'' }}"
+                            error="{{ form.compare_at_price.errors|striptags }}"
+                        ></s-money-field>
+                    </s-grid-item>
+                    <s-grid-item>
+                        <s-number-field
+                            label="Weight (g)"
+                            name="grams"
+                            value="{{ form.grams.value|default:'' }}"
+                            error="{{ form.grams.errors|striptags }}"
+                        ></s-number-field>
+                    </s-grid-item>
+                    <s-grid-item>
+                        <s-text-field
+                            label="Option 1"
+                            name="option1"
+                            value="{{ form.option1.value|default:'' }}"
+                            error="{{ form.option1.errors|striptags }}"
+                        ></s-text-field>
+                    </s-grid-item>
+                    <s-grid-item>
+                        <s-text-field
+                            label="Option 2"
+                            name="option2"
+                            value="{{ form.option2.value|default:'' }}"
+                            error="{{ form.option2.errors|striptags }}"
+                        ></s-text-field>
+                    </s-grid-item>
+                    <s-grid-item>
+                        <s-text-field
+                            label="Option 3"
+                            name="option3"
+                            value="{{ form.option3.value|default:'' }}"
+                            error="{{ form.option3.errors|striptags }}"
+                        ></s-text-field>
+                    </s-grid-item>
+                    <s-grid-item>
+                        <s-checkbox
+                            label="Requires Shipping"
+                            name="requires_shipping"
+                            {% if form.requires_shipping.value %}checked{% endif %}
+                        ></s-checkbox>
+                        {{ form.requires_shipping.errors }}
+                    </s-grid-item>
+                    <s-grid-item>
+                        <s-checkbox
+                            label="Taxable"
+                            name="taxable"
+                            {% if form.taxable.value %}checked{% endif %}
+                        ></s-checkbox>
+                        {{ form.taxable.errors }}
+                    </s-grid-item>
+                </s-grid>
 
-                            <div class="field is-grouped mt-5">
-                                <div class="control">
-                                    <button type="submit" class="button is-primary">{{ action }} Variant</button>
-                                </div>
-                                <div class="control">
-                                    <a href="{% url 'shopify_models:product_detail' product.id %}"
-                                        class="button is-light">Cancel</a>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+                <s-stack gap="base" direction="inline" style="margin-top: 1rem;">
+                    <s-button type="submit" variant="primary">{{ action }} Variant</s-button>
+                    <s-button href="{% url 'shopify_models:product_detail' product.id %}">Cancel</s-button>
+                </s-stack>
+            </s-form>
+        </form>
+    </s-section>
+</s-page>
 {% endblock %}

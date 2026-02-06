@@ -1,55 +1,71 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
-        <nav class="breadcrumb" aria-label="breadcrumbs">
-            <ul>
-                <li><a href="{% url 'accounts:shop_list' %}">Shops</a></li>
-                <li class="is-active"><a href="#" aria-current="page">{% if object %}Edit{% else %}Add{% endif %}
-                        Shop</a></li>
-            </ul>
-        </nav>
+<s-page heading="{% if object %}Edit Shop: {{ object.name }}{% else %}Add New Shop{% endif %}">
+    <s-link slot="breadcrumb-actions" href="{% url 'accounts:shop_list' %}">Shops</s-link>
 
-        <div class="columns is-centered">
-            <div class="column is-half">
-                <div class="card">
-                    <header class="card-header">
-                        <p class="card-header-title">
-                            {% if object %}Edit Shop: {{ object.name }}{% else %}Add New Shop{% endif %}
-                        </p>
-                    </header>
-                    <div class="card-content">
-                        <form method="post">
-                            {% csrf_token %}
-                            {% for field in form %}
-                            <div class="field">
-                                <label class="label">{{ field.label }}</label>
-                                <div class="control">
-                                    {{ field }}
-                                </div>
-                                {% if field.help_text %}
-                                <p class="help">{{ field.help_text }}</p>
-                                {% endif %}
-                                {% for error in field.errors %}
-                                <p class="help is-danger">{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endfor %}
+    <s-section>
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <s-banner tone="critical">{{ form.non_field_errors }}</s-banner>
+            {% endif %}
 
-                            <div class="field is-grouped mt-5">
-                                <div class="control">
-                                    <button type="submit" class="button is-primary">Save Shop</button>
-                                </div>
-                                <div class="control">
-                                    <a href="{% url 'accounts:shop_list' %}" class="button is-light">Cancel</a>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+            <s-form>
+                <s-stack gap="base">
+                    <s-text-field
+                        label="Name"
+                        name="name"
+                        value="{{ form.name.value|default:'' }}"
+                        error="{{ form.name.errors|striptags }}"
+                        placeholder="Shop Name"
+                    ></s-text-field>
+
+                    <s-text-field
+                        label="Domain"
+                        name="domain"
+                        value="{{ form.domain.value|default:'' }}"
+                        error="{{ form.domain.errors|striptags }}"
+                        placeholder="example.com"
+                    ></s-text-field>
+
+                    <s-text-field
+                        label="MyShopify Domain"
+                        name="myshopify_domain"
+                        value="{{ form.myshopify_domain.value|default:'' }}"
+                        error="{{ form.myshopify_domain.errors|striptags }}"
+                        placeholder="example.myshopify.com"
+                    ></s-text-field>
+
+                    <s-text-field
+                        label="Currency"
+                        name="currency"
+                        value="{{ form.currency.value|default:'' }}"
+                        error="{{ form.currency.errors|striptags }}"
+                        placeholder="USD"
+                    ></s-text-field>
+
+                    <s-text-field
+                        label="Client ID"
+                        name="client_id"
+                        value="{{ form.client_id.value|default:'' }}"
+                        error="{{ form.client_id.errors|striptags }}"
+                    ></s-text-field>
+
+                    <s-password-field
+                        label="Client Secret"
+                        name="client_secret"
+                        value="{{ form.client_secret.value|default:'' }}"
+                        error="{{ form.client_secret.errors|striptags }}"
+                    ></s-password-field>
+
+                    <s-stack gap="base" direction="inline" style="margin-top: 1rem;">
+                        <s-button type="submit" variant="primary">Save Shop</s-button>
+                        <s-button href="{% url 'accounts:shop_list' %}">Cancel</s-button>
+                    </s-stack>
+                </s-stack>
+            </s-form>
+        </form>
+    </s-section>
+</s-page>
 {% endblock %}

@@ -3,511 +3,189 @@
 {% load shopify_extras %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
-        <nav class="breadcrumb" aria-label="breadcrumbs">
-            <ul>
-                <li><a href="{% url 'shopify_models:product_list' %}">Products</a></li>
-                <li class="is-active"><a href="#" aria-current="page">{{ product.title }}</a></li>
-            </ul>
-        </nav>
+<s-page heading="{{ product.title }}">
+    <s-link slot="breadcrumb-actions" href="{% url 'shopify_models:product_list' %}">Products</s-link>
 
-        {# Product Header #}
-        <div class="level mb-5">
-            <div class="level-left">
-                <div class="level-item">
-                    <div>
-                        <span>
-                            <h1 class="title is-3">{{ product.title }}</h1>
-                        </span>
-                        <span>
-                        <p class="subtitle is-5">{{ product.vendor|placeholder:"No vendor" }} | 
-                            {{product.product_type|placeholder:"No type" }}
-                        </p>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="level-right">
-                <div class="level-item">
-                    <form action="{% url 'shopify_models:product_sync' product.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="button is-primary">
-                            <span class="icon"><span class="material-symbols-outlined">refresh</span></span>
-                            <span>Sync to Shopify</span>
-                        </button>
-                    </form>
-                </div>
+    <div slot="primary-action">
+        <form action="{% url 'shopify_models:product_sync' product.id %}" method="post">
+            {% csrf_token %}
+            <s-button type="submit" variant="primary" icon="refresh">Sync to Shopify</s-button>
+        </form>
+    </div>
 
-                <div class="level-item">
-                    {% if price_list_configured %}
-                    <form action="{% url 'prices:sync_product' product.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="button is-success">
-                            <span class="icon"><span class="material-symbols-outlined">attach_money</span></span>
-                            <span>Sync Prices</span>
-                        </button>
-                    </form>
-                    {% else %}
-                    <a href="{% url 'prices:setup' %}" class="button is-warning">
-                        <span class="icon"><span class="material-symbols-outlined">warning</span></span>
-                        <span>Setup Pricing</span>
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+    <div slot="secondary-actions">
+        {% if price_list_configured %}
+        <form action="{% url 'prices:sync_product' product.id %}" method="post">
+            {% csrf_token %}
+            <s-button type="submit" icon="attach-money">Sync Prices</s-button>
+        </form>
+        {% else %}
+        <s-button href="{% url 'prices:setup' %}" tone="warning" icon="alert-circle">Setup Pricing</s-button>
+        {% endif %}
+    </div>
 
-        {# Tabs Navigation #}
-        <div class="tabs is-boxed">
-            <ul>
-                <li class="is-active" data-tab="overview">
-                    <a>
-                        <span class="icon is-small"><span class="material-symbols-outlined">info</span></span>
-                        <span>Overview</span>
-                    </a>
-                </li>
-                <li data-tab="images">
-                    <a>
-                        <span class="icon is-small"><span class="material-symbols-outlined">image</span></span>
-                        <span>Images ({{ images.count }})</span>
-                    </a>
-                </li>
-                <li data-tab="variants">
-                    <a>
-                        <span class="icon is-small"><span class="material-symbols-outlined">inventory_2</span></span>
-                        <span>Variants ({{ product.variants.count }})</span>
-                    </a>
-                </li>
-                <li data-tab="inventory">
-                    <a>
-                        <span class="icon is-small"><span class="material-symbols-outlined">warehouse</span></span>
-                        <span>Inventory</span>
-                    </a>
-                </li>
+    <s-section heading="Product Overview">
+       <s-grid gridTemplateColumns="1fr 2fr" gap="base">
+           <s-grid-item>
+               <s-box border="base" borderRadius="base" padding="base">
+                   {% if product.images.first %}
+                       <s-image src="{{ product.images.first.src }}" alt="{{ product.title }}" inlineSize="fill"></s-image>
+                   {% else %}
+                       <s-stack align-items="center" justify-content="center" style="height: 200px; background: #f4f6f8;">
+                           <s-icon type="image-none" size="large" color="subdued"></s-icon>
+                       </s-stack>
+                   {% endif %}
+                   <s-stack gap="small" class="mt-4" style="margin-top: 1rem;">
+                       <s-text type="strong">Tags:</s-text>
+                       <s-stack direction="inline" wrap>
+                           {% for tag in product.tag_list %}
+                               <s-badge>{{ tag }}</s-badge>
+                           {% empty %}
+                               <s-text color="subdued">No tags</s-text>
+                           {% endfor %}
+                       </s-stack>
+                       <s-text type="strong" style="margin-top: 0.5rem; display: block;">Shopify ID:</s-text>
+                       <s-text>{{ product.shopify_id|shopify_id_badge }}</s-text>
+                   </s-stack>
+               </s-box>
+           </s-grid-item>
+           <s-grid-item>
+               <s-box border="base" borderRadius="base" padding="base">
+                   <s-grid gridTemplateColumns="1fr 1fr" gap="base">
+                       <s-grid-item>
+                           <s-text color="subdued">Handle</s-text>
+                           <p>{{ product.handle|placeholder }}</p>
+                       </s-grid-item>
+                       <s-grid-item>
+                           <s-text color="subdued">Product Type</s-text>
+                           <p>{{ product.product_type|placeholder }}</p>
+                       </s-grid-item>
+                       <s-grid-item>
+                           <s-text color="subdued">Vendor</s-text>
+                           <p>{{ product.vendor|placeholder }}</p>
+                       </s-grid-item>
+                       <s-grid-item>
+                           <s-text color="subdued">Created At</s-text>
+                           <p>{{ product.created_at|date:"Y-m-d H:i"|placeholder }}</p>
+                       </s-grid-item>
+                       <s-grid-item>
+                           <s-text color="subdued">Updated At</s-text>
+                           <p>{{ product.updated_at|date:"Y-m-d H:i"|placeholder }}</p>
+                       </s-grid-item>
+                   </s-grid>
 
-            </ul>
-        </div>
+                   {% if product.description %}
+                   <s-box style="margin-top: 1.5rem; border-top: 1px solid #dfe3e8; padding-top: 1rem;">
+                       <s-text type="strong" style="margin-bottom: 0.5rem; display: block;">Description</s-text>
+                       <div class="content">{{ product.description|safe }}</div>
+                   </s-box>
+                   {% endif %}
+               </s-box>
+           </s-grid-item>
+       </s-grid>
+    </s-section>
 
-        {# Tab Content #}
-        <div class="tab-content">
-            {# OVERVIEW TAB #}
-            <div class="tab-pane is-active" id="overview">
-                <div class="columns">
-                    <div class="column is-one-third">
-                        <div class="card">
-                            <div class="card-image">
-                                {% if product.images.first %}
-                                <figure class="image is-square">
-                                    <img src="{{ product.images.first.src }}" alt="{{ product.title }}">
-                                </figure>
-                                {% else %}
-                                <div class="has-text-centered py-6 has-background-light">
-                                    <span class="icon is-large has-text-grey-light"><span class="material-symbols-outlined">image</span></span>
-                                    <p class="has-text-grey">No image available</p>
-                                </div>
-                                {% endif %}
-                            </div>
-                            <div class="card-content">
-                                <div class="content">
-                                    <div class="tags mb-3">
-                                        {% for tag in product.tag_list %}
-                                        <span class="tag is-info is-light">{{ tag }}</span>
-                                        {% empty %}
-                                        <span class="tag is-light">No tags</span>
-                                        {% endfor %}
-                                    </div>
-                                    <p><strong>Shopify ID:</strong> {{ product.shopify_id|shopify_id_badge }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    {% if images %}
+    <s-section heading="Images ({{ images.count }})">
+        <s-grid gridTemplateColumns="repeat(auto-fill, minmax(150px, 1fr))" gap="base">
+            {% for image in images %}
+            <s-grid-item>
+                <s-box border="base" borderRadius="base" padding="small">
+                    <s-image src="{{ image.src }}" alt="Product Image" inlineSize="fill" style="aspect-ratio: 1; object-fit: cover;"></s-image>
+                    <s-text color="subdued" size="small">Pos: {{ image.position }}</s-text>
+                </s-box>
+            </s-grid-item>
+            {% endfor %}
+        </s-grid>
+    </s-section>
+    {% endif %}
 
-                    <div class="column">
-                        <div class="card">
-                            <header class="card-header">
-                                <p class="card-header-title">Product Details</p>
-                            </header>
-                            <div class="card-content">
-                                <div class="columns is-multiline">
-                                    <div class="column is-half">
-                                        <p class="heading">Handle</p>
-                                        <p>{{ product.handle|placeholder }}</p>
-                                    </div>
-                                    <div class="column is-half">
-                                        <p class="heading">Product Type</p>
-                                        <p>{{ product.product_type|placeholder }}</p>
-                                    </div>
-                                    <div class="column is-half">
-                                        <p class="heading">Vendor</p>
-                                        <p>{{ product.vendor|placeholder }}</p>
-                                    </div>
-
-
-                                    <div class="column is-half">
-                                        <p class="heading">Created At</p>
-                                        <p>{{ product.created_at|date:"Y-m-d H:i"|placeholder }}</p>
-                                    </div>
-                                    <div class="column is-half">
-                                        <p class="heading">Updated At</p>
-                                        <p>{{ product.updated_at|date:"Y-m-d H:i"|placeholder }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {% if product.description %}
-                        <div class="card mt-4">
-                            <header class="card-header">
-                                <p class="card-header-title">Description (HTML)</p>
-                            </header>
-                            <div class="card-content">
-                                <div class="content">
-                                    {{ product.description|safe }}
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            {# IMAGES TAB #}
-            <div class="tab-pane" id="images">
-                {% if images %}
-                <div class="columns is-multiline">
-                    {% for image in images %}
-                    <div class="column is-one-third">
-                        <div class="card">
-                            <div class="card-image">
-                                <figure class="image is-square">
-                                    <img src="{{ image.src }}" alt="{{ product.title }}">
-                                </figure>
-                            </div>
-                            <div class="card-content">
-                                <div class="content">
-                                    <p class="heading">Position</p>
-                                    <p>{{ image.position }}</p>
-                                    <p class="heading">Shopify ID</p>
-                                    <p>{{ image.shopify_id|truncate_id:12|placeholder }}</p>
-                                    <p class="heading">Created At</p>
-                                    <p>{{ image.created_at|date:"Y-m-d H:i"|placeholder }}</p>
-                                    <p class="heading">URL</p>
-                                    <p class="is-size-7" style="word-break: break-all;">{{ image.src }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="notification is-light">
-                    <span class="icon"><span class="material-symbols-outlined">image</span></span>
-                    <span>No images found for this product.</span>
-                </div>
-                {% endif %}
-            </div>
-
-            {# VARIANTS TAB #}
-            <div class="tab-pane" id="variants">
-                <div class="level mb-4">
-                    <div class="level-left">
-                        <div class="level-item">
-                            <p class="subtitle">All product variants</p>
-                        </div>
-                    </div>
-                    <div class="level-right">
-                        <div class="level-item">
-                            <a href="{% url 'shopify_models:variant_create' product.id %}" class="button is-primary">
-                                <span class="icon"><span class="material-symbols-outlined">add</span></span>
-                                <span>Add Variant</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                {% if product.variants.exists %}
+    <s-section heading="Variants ({{ product.variants.count }})">
+        {% if product.variants.exists %}
+            <s-stack gap="base">
                 {% for variant in product.variants.all %}
-                <div class="card mb-4">
-                    <header class="card-header">
-                        <p class="card-header-title">
-                            <span class="icon"><span class="material-symbols-outlined">inventory_2</span></span>
-                            <span>{{ variant.title|placeholder:"Default" }} - {{ variant.supplier_sku|placeholder:"No
-                                SKU" }}</span>
-                        </p>
-                        <div class="card-header-icon">
-                            <div class="buttons are-small">
-                                <a href="{% url 'shopify_models:variant_update' product.id variant.id %}"
-                                    class="button is-info">
-                                    <span class="icon is-small"><span class="material-symbols-outlined">edit</span></span>
-                                </a>
-                                <a href="{% url 'shopify_models:variant_delete' product.id variant.id %}"
-                                    class="button is-danger">
-                                    <span class="icon is-small"><span class="material-symbols-outlined">delete</span></span>
-                                </a>
+                <s-box border="base" borderRadius="base" padding="base">
+                    <s-stack gap="base">
+                        <s-stack direction="inline" justify-content="space-between" align-items="center">
+                            <s-heading>{{ variant.title|placeholder:"Default" }}</s-heading>
+                            <s-button-group>
+                                <s-button href="{% url 'shopify_models:variant_update' product.id variant.id %}" icon="edit" size="small"></s-button>
+                                <s-button href="{% url 'shopify_models:variant_delete' product.id variant.id %}" icon="delete" tone="critical" size="small"></s-button>
                                 <form action="{% url 'shopify_models:variant_add_location' product.id variant.id %}" method="post" style="display: inline;">
                                     {% csrf_token %}
-                                    <button type="submit" class="button is-warning" title="Add Location (Find by Barcode)">
-                                        <span class="icon is-small"><span class="material-symbols-outlined">location_on</span></span>
-                                    </button>
+                                    <s-button type="submit" tone="warning" icon="location" size="small" accessibilityLabel="Add Location"></s-button>
                                 </form>
-                            </div>
-                        </div>
-                    </header>
-                    <div class="card-content">
-                        <div class="columns is-multiline">
-                            <div class="column is-one-quarter">
-                                <p class="heading">Shopify ID</p>
-                                <p>{{ variant.shopify_id|shopify_id_badge }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Supplier SKU</p>
+                            </s-button-group>
+                        </s-stack>
+
+                        <s-grid gridTemplateColumns="repeat(auto-fill, minmax(150px, 1fr))" gap="base">
+                            <s-grid-item>
+                                <s-text color="subdued">SKU</s-text>
                                 <p>{{ variant.supplier_sku|placeholder }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Barcode</p>
+                            </s-grid-item>
+                            <s-grid-item>
+                                <s-text color="subdued">Barcode</s-text>
                                 <p>{{ variant.barcode|placeholder }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Position</p>
-                                <p>{{ variant.position }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Price</p>
+                            </s-grid-item>
+                            <s-grid-item>
+                                <s-text color="subdued">Price</s-text>
                                 <p>{{ variant.price|currency }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Compare at Price</p>
-                                <p>{{ variant.compare_at_price|currency|placeholder }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Weight</p>
-                                <p>{{ variant.grams|format_weight }}</p>
-                            </div>
-
-                            <div class="column is-one-quarter">
-                                <p class="heading">Option 1</p>
-                                <p>{{ variant.option1|placeholder }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Option 2</p>
-                                <p>{{ variant.option2|placeholder }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Option 3</p>
-                                <p>{{ variant.option3|placeholder }}</p>
-                            </div>
-
-                            <div class="column is-one-quarter">
-                                <p class="heading">Inventory Management</p>
+                            </s-grid-item>
+                            <s-grid-item>
+                                <s-text color="subdued">Inventory</s-text>
                                 <p>{{ variant.inventory_management|placeholder }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Inventory Policy</p>
-                                <p>{{ variant.inventory_policy|placeholder }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Requires Shipping</p>
-                                <p>{{ variant.requires_shipping|boolean_badge }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Taxable</p>
-                                <p>{{ variant.taxable|boolean_badge }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Created At</p>
-                                <p>{{ variant.created_at|date:"Y-m-d H:i"|placeholder }}</p>
-                            </div>
-                            <div class="column is-one-quarter">
-                                <p class="heading">Updated At</p>
-                                <p>{{ variant.updated_at|date:"Y-m-d H:i"|placeholder }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            </s-grid-item>
+                        </s-grid>
+                    </s-stack>
+                </s-box>
                 {% endfor %}
+            </s-stack>
+        {% else %}
+            <s-banner tone="info">No variants found.</s-banner>
+        {% endif %}
+
+        <s-box class="mt-4" style="margin-top: 1rem;">
+            <s-button href="{% url 'shopify_models:variant_create' product.id %}" icon="add">Add Variant</s-button>
+        </s-box>
+    </s-section>
+
+    {% if variants_data %}
+    <s-section heading="Inventory Levels">
+        {% for variant_info in variants_data %}
+            <s-box border="base" borderRadius="base" padding="base" class="mb-4" style="margin-bottom: 1rem;">
+                <s-heading>{{ variant_info.variant.title|placeholder:"Default" }} ({{ variant_info.variant.supplier_sku|placeholder:"No SKU" }})</s-heading>
+                {% if variant_info.inventory_levels %}
+                    <s-table>
+                        <s-table-header-row>
+                            <s-table-header>Shopify ID</s-table-header>
+                            <s-table-header>Quantities</s-table-header>
+                            <s-table-header>Sync Status</s-table-header>
+                            <s-table-header>Synced At</s-table-header>
+                        </s-table-header-row>
+                        <s-table-body>
+                            {% for level in variant_info.inventory_levels %}
+                            <s-table-row>
+                                <s-table-cell>{{ level.shopify_id|truncate_id:12|placeholder }}</s-table-cell>
+                                <s-table-cell>
+                                    {% if level.quantities %}
+                                        {{ level.quantities|format_json }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </s-table-cell>
+                                <s-table-cell>{{ level.sync_pending|sync_status_badge }}</s-table-cell>
+                                <s-table-cell>{{ level.synced_at|date:"Y-m-d H:i"|placeholder }}</s-table-cell>
+                            </s-table-row>
+                            {% endfor %}
+                        </s-table-body>
+                    </s-table>
                 {% else %}
-                <div class="notification is-light">
-                    <span class="icon"><span class="material-symbols-outlined">inventory_2</span></span>
-                    <span>No variants found for this product.</span>
-                </div>
+                    <s-text color="subdued">No inventory levels found.</s-text>
                 {% endif %}
-            </div>
+            </s-box>
+        {% endfor %}
+    </s-section>
+    {% endif %}
 
-            {# INVENTORY TAB #}
-            <div class="tab-pane" id="inventory">
-                {% if variants_data %}
-                {% for variant_info in variants_data %}
-                <div class="card mb-4">
-                    <header class="card-header has-background-light">
-                        <p class="card-header-title">
-                            <span class="icon"><span class="material-symbols-outlined">inventory_2</span></span>
-                            <span>{{ variant_info.variant.title|placeholder:"Default" }}</span>
-                            <span> ( {{ variant_info.variant.supplier_sku|placeholder:"No SKU" }} )</span>
-                        </p>
-                    </header>
-                    <div class="card-content">
-                        {% if variant_info.inventory_item %}
-                        {# Inventory Item Details #}
-                        <div class="box">
-                            <h4 class="title is-5">
-                                <span class="icon"><span class="material-symbols-outlined">inventory</span></span>
-                                <span>Inventory Item</span>
-                            </h4>
-                            <div class="columns is-multiline">
-                                <div class="column is-one-quarter">
-                                    <p class="heading">Shopify ID</p>
-                                    <p>{{ variant_info.inventory_item.shopify_id|shopify_id_badge }}</p>
-                                </div>
-                                <div class="column is-one-quarter">
-                                    <p class="heading">Shopify SKU</p>
-                                    <p>{{ variant_info.inventory_item.shopify_sku|placeholder }}</p>
-                                </div>
-                                <div class="column is-one-quarter">
-                                    <p class="heading">Tracked</p>
-                                    <p>{{ variant_info.inventory_item.tracked|boolean_badge }}</p>
-                                </div>
-                                <div class="column is-one-quarter">
-                                    <p class="heading">Requires Shipping</p>
-                                    <p>{{ variant_info.inventory_item.requires_shipping|boolean_badge }}</p>
-                                </div>
-                                <div class="column is-one-quarter">
-                                    <p class="heading">Unit Cost</p>
-                                    <p>{{ variant_info.inventory_item.unit_cost_amount|currency:variant_info.inventory_item.unit_cost_currency|placeholder}}</p>
-                                </div>
-
-                                <div class="column is-one-quarter">
-                                    <p class="heading">Created At</p>
-                                    <p>{{ variant_info.inventory_item.created_at|date:"Y-m-d H:i"|placeholder }}</p>
-                                </div>
-                                <div class="column is-one-quarter">
-                                    <p class="heading">Updated At</p>
-                                    <p>{{ variant_info.inventory_item.updated_at|date:"Y-m-d H:i"|placeholder }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {# Inventory Levels #}
-                        {% if variant_info.inventory_levels %}
-                        <div class="box mt-4">
-                            <h4 class="title is-5">
-                                <span class="icon"><span class="material-symbols-outlined">warehouse</span></span>
-                                <span>Inventory Levels ({{ variant_info.inventory_levels.count }})</span>
-                            </h4>
-                            <div class="table-container">
-                                <table class="table is-fullwidth is-striped is-hoverable">
-                                    <thead>
-                                        <tr>
-                                            <th>Shopify ID</th>
-                                            <th>Quantities</th>
-                                            <th>Can Deactivate</th>
-                                            <th>Sync Status</th>
-                                            <th>Source Updated</th>
-                                            <th>Synced At</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for level in variant_info.inventory_levels %}
-                                        <tr>
-                                            <td>{{ level.shopify_id|truncate_id:12|placeholder }}</td>
-                                            <td>
-                                                {% if level.quantities %}
-                                                <pre class="is-size-7">{{ level.quantities|format_json }}</pre>
-                                                {% else %}
-                                                —
-                                                {% endif %}
-                                            </td>
-
-                                            <td>{{ level.sync_pending|sync_status_badge }}</td>
-                                            <td>{{ level.source_updated_at|date:"Y-m-d H:i"|placeholder }}</td>
-                                            <td>{{ level.synced_at|date:"Y-m-d H:i"|placeholder }}</td>
-                                        </tr>
-
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        {% else %}
-                        <div class="notification is-light mt-4">
-                            <span class="icon"><span class="material-symbols-outlined">info</span></span>
-                            <span>No inventory levels found for this item.</span>
-                        </div>
-                        {% endif %}
-                        {% else %}
-                        <div class="notification is-warning is-light">
-                            <span class="icon"><span class="material-symbols-outlined">warning</span></span>
-                            <span>No inventory item linked to this variant.</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-                {% else %}
-                <div class="notification is-light">
-                    <span class="icon"><span class="material-symbols-outlined">inventory_2</span></span>
-                    <span>No variants found for this product.</span>
-                </div>
-                {% endif %}
-            </div>
-
-        </div>
-    </div>
-</section>
-
-<script>
-    // Simple tab switching functionality
-    document.addEventListener('DOMContentLoaded', function () {
-        const tabs = document.querySelectorAll('.tabs li');
-        const tabPanes = document.querySelectorAll('.tab-pane');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function () {
-                const targetTab = this.getAttribute('data-tab');
-
-                // Remove active class from all tabs and panes
-                tabs.forEach(t => t.classList.remove('is-active'));
-                tabPanes.forEach(pane => pane.classList.remove('is-active'));
-
-                // Add active class to clicked tab and corresponding pane
-                this.classList.add('is-active');
-                document.getElementById(targetTab).classList.add('is-active');
-            });
-        });
-    });
-</script>
-
-<style>
-    .tab-pane {
-        display: none;
-    }
-
-    .tab-pane.is-active {
-        display: block;
-    }
-
-    .heading {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        color: #7a7a7a;
-        margin-bottom: 0.25rem;
-    }
-
-    pre {
-        background-color: #f5f5f5;
-        padding: 0.5rem;
-        border-radius: 4px;
-        overflow-x: auto;
-    }
-
-    details summary {
-        cursor: pointer;
-        user-select: none;
-    }
-
-    details summary:hover {
-        color: #3273dc;
-    }
-</style>
+</s-page>
 {% endblock %}

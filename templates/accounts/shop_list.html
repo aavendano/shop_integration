@@ -1,62 +1,44 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
-        <div class="level">
-            <div class="level-left">
-                <h1 class="title">Shops</h1>
-            </div>
-            <div class="level-right">
-                <a href="{% url 'accounts:shop_add' %}" class="button is-primary">
-                    <span class="icon"><i class="lucide-plus"></i></span>
-                    <span>Add Shop</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-content">
-                <table class="table is-fullwidth is-striped is-hoverable">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Domain</th>
-                            <th>MyShopify Domain</th>
-                            <th>Currency</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for shop in shops %}
-                        <tr>
-                            <td><strong>{{ shop.name|default:"-" }}</strong></td>
-                            <td>{{ shop.domain }}</td>
-                            <td>{{ shop.myshopify_domain }}</td>
-                            <td>{{ shop.currency|default:"-" }}</td>
-                            <td>
-                                <div class="buttons are-small">
-                                    <a href="{% url 'accounts:shop_detail' shop.id %}" class="button is-info">
-                                        <span class="icon is-small"><i class="lucide-eye"></i></span>
-                                    </a>
-                                    <a href="{% url 'accounts:shop_update' shop.id %}" class="button is-light">
-                                        <span class="icon is-small"><i class="lucide-edit"></i></span>
-                                    </a>
-                                    <a href="{% url 'accounts:shop_delete' shop.id %}" class="button is-danger">
-                                        <span class="icon is-small"><i class="lucide-trash"></i></span>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="has-text-centered py-4">No shops found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<s-page heading="Shops">
+    <div slot="primary-action">
+        <s-button href="{% url 'accounts:shop_add' %}" variant="primary" icon="plus">Add Shop</s-button>
     </div>
-</section>
+
+    <s-section padding="none">
+        <s-table>
+            <s-table-header-row>
+                <s-table-header>Name</s-table-header>
+                <s-table-header>Domain</s-table-header>
+                <s-table-header>MyShopify Domain</s-table-header>
+                <s-table-header>Currency</s-table-header>
+                <s-table-header>Actions</s-table-header>
+            </s-table-header-row>
+            <s-table-body>
+                {% for shop in shops %}
+                <s-table-row>
+                    <s-table-cell>
+                        <s-text type="strong">{{ shop.name|default:"-" }}</s-text>
+                    </s-table-cell>
+                    <s-table-cell>{{ shop.domain }}</s-table-cell>
+                    <s-table-cell>{{ shop.myshopify_domain }}</s-table-cell>
+                    <s-table-cell>{{ shop.currency|default:"-" }}</s-table-cell>
+                    <s-table-cell>
+                        <s-button-group>
+                            <s-button href="{% url 'accounts:shop_detail' shop.id %}" icon="eye" size="small" accessibilityLabel="View"></s-button>
+                            <s-button href="{% url 'accounts:shop_update' shop.id %}" icon="edit" size="small" accessibilityLabel="Edit"></s-button>
+                            <s-button href="{% url 'accounts:shop_delete' shop.id %}" icon="delete" tone="critical" size="small" accessibilityLabel="Delete"></s-button>
+                        </s-button-group>
+                    </s-table-cell>
+                </s-table-row>
+                {% empty %}
+                <s-table-row>
+                    <s-table-cell colspan="5">No shops found.</s-table-cell>
+                </s-table-row>
+                {% endfor %}
+            </s-table-body>
+        </s-table>
+    </s-section>
+</s-page>
 {% endblock %}

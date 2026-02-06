@@ -1,47 +1,33 @@
 {% load static %}
-
 <!DOCTYPE html>
-<html lang="en" class="has-aside-left has-aside-mobile-transition has-navbar-fixed-top has-aside-expanded">
-
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin One HTML - Bulma Admin Dashboard</title>
+  <title>Shop Manager</title>
 
-  <!-- Bulma is included -->
-  <link rel="stylesheet" href="{% static 'style/css/main.min.css' %}">
-
-  <!-- Fonts -->
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet" type="text/css">
-  <!-- Alpine Plugins -->
-  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-
-  <!-- Alpine Core -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <meta name="shopify-api-key" content="{{ SHOPIFY_API_KEY }}" />
+  <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+  <script src="https://cdn.shopify.com/shopifycloud/polaris.js"></script>
 </head>
-
 <body>
+
   {% include 'core/navbar.html' %}
 
-  <div class="container mt-4">
-    {% if messages %}
-    {% for message in messages %}
-    <div class="notification {% if message.tags %}is-{{ message.tags }}{% endif %} is-light">
-      <button class="delete" onclick="this.parentElement.remove()"></button>
-      {{ message }}
-    </div>
-    {% endfor %}
-    {% endif %}
-  </div>
+  {% if messages %}
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        {% for message in messages %}
+          shopify.toast.show("{{ message|escapejs }}", {
+            isError: {% if message.tags == 'error' %}true{% else %}false{% endif %}
+          });
+        {% endfor %}
+      });
+    </script>
+  {% endif %}
 
   {% block content %}
   {% endblock %}
 
-
 </body>
-
 </html>

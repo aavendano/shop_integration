@@ -2,185 +2,151 @@
 {% load static %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
-        <div class="level">
-            <div class="level-left">
-                <h1 class="title">Products</h1>
-            </div>
-            <div class="level-right">
-                <div class="level-item">
-                    <button type="submit" form="bulk-sync-form" class="button is-success" id="bulk-sync-btn" disabled>
-                        <span class="icon"><span class="material-symbols-outlined">attach_money</span></span>
-                        <span>Sync Selected Prices</span>
-                    </button>
-                </div>
-                <div class="level-item">
-                    <span id="selected-count" class="tag is-info">0 selected</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="card mb-5">
-            <header class="card-header">
-                <p class="card-header-title">
-                    <span class="icon"><span class="material-symbols-outlined">filter_list</span></span>
-                    Filter Products
-                </p>
-            </header>
-            <div class="card-content">
-                <form method="get">
-                    <div class="columns is-multiline">
-                        {% for field in filter.form %}
-                        <div class="column is-one-quarter">
-                            <div class="field">
-                                <label class="label">{{ field.label }}</label>
-                                <div class="control">
-                                    {{ field }}
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <div class="field is-grouped">
-                        <div class="control">
-                            <button type="submit" class="button is-primary">Filter</button>
-                        </div>
-                        <div class="control">
-                            <a href="{% url 'shopify_models:product_list' %}" class="button is-light">Reset</a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-content">
-                <form id="bulk-sync-form" action="{% url 'prices:bulk_sync' %}" method="post">
-                    {% csrf_token %}
-                <table class="table is-fullwidth is-striped is-hoverable">
-                    <thead>
-                        <tr>
-                            <th style="width: 40px;">
-                                <input type="checkbox" id="select-all" title="Select all">
-                            </th>
-                            <th>Image</th>
-                            <th>Title</th>
-                            <th>Vendor</th>
-                            <th>Type</th>
-                            <th>Tags</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for product in products %}
-                        <tr>
-                            <td>
-                                <input type="checkbox" name="product_ids" value="{{ product.id }}" class="product-checkbox">
-                            </td>
-                            <td>
-                                
-                                {% if product.images.first %}
-                                <figure class="image is-96x96">
-                                    <img src="{{ product.images.first.src }}" alt="{{ product.title }}">
-                                </figure>
-                                {% else %}
-                                <span class="icon is-large has-text-grey-light"><span class="material-symbols-outlined">broken_image</span></span>
-                                {% endif %}
-                            </td>
-                            <td><strong>{{ product.title }}</strong></td>
-                            <td>{{ product.vendor }}</td>
-                            <td>{{ product.product_type }}</td>
-                            <td>
-                                <div class="tags">
-                                    {% for tag in product.tag_list %}
-                                    <span class="tag is-info is-light">{{ tag }}</span>
-                                    {% endfor %}
-                                </div>
-                            </td>
-                            <td>
-                                <a href="{% url 'shopify_models:product_detail' product.id %}" class="button is-small is-info">
-                                    <span class="icon"><span class="material-symbols-outlined">visibility</span></span>
-                                    <span>View</span>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="has-text-centered">No products found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                </form>
-
-                {% if is_paginated %}
-                <nav class="pagination is-centered" role="navigation" aria-label="pagination">
-                    {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-previous">Previous</a>
-                    {% endif %}
-                    {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-next">Next page</a>
-                    {% endif %}
-                    <ul class="pagination-list">
-                        {% for i in paginator.page_range %}
-                        {% if page_obj.number == i %}
-                        <li><a class="pagination-link is-current" aria-label="Page {{ i }}" aria-current="page">{{ i }}</a></li>
-                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
-                        <li><a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-link" aria-label="Goto page {{ i }}">{{ i }}</a></li>
-                        {% endif %}
-                        {% endfor %}
-                    </ul>
-                </nav>
-                {% endif %}
-            </div>
-        </div>
+<s-page heading="Products">
+    <div slot="primary-action">
+        <s-button form="bulk-sync-form" type="submit" disabled id="bulk-sync-btn" variant="primary">Sync Selected Prices</s-button>
     </div>
-</section>
+    <div slot="secondary-actions">
+        <s-button id="selected-count-btn" disabled>0 selected</s-button>
+    </div>
+
+    <s-section heading="Filter Products">
+        <form method="get">
+            <s-grid gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap="base">
+                {% for field in filter.form %}
+                <s-grid-item>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                </s-grid-item>
+                {% endfor %}
+            </s-grid>
+            <s-stack gap="base" direction="inline" style="margin-top: 1rem;">
+                <s-button type="submit" variant="primary">Filter</s-button>
+                <s-button href="{% url 'shopify_models:product_list' %}">Reset</s-button>
+            </s-stack>
+        </form>
+    </s-section>
+
+    <s-section padding="none">
+        <form id="bulk-sync-form" action="{% url 'prices:bulk_sync' %}" method="post">
+            {% csrf_token %}
+            <s-table>
+                <s-table-header-row>
+                    <s-table-header>
+                        <s-checkbox id="select-all"></s-checkbox>
+                    </s-table-header>
+                    <s-table-header>Image</s-table-header>
+                    <s-table-header>Title</s-table-header>
+                    <s-table-header>Vendor</s-table-header>
+                    <s-table-header>Type</s-table-header>
+                    <s-table-header>Tags</s-table-header>
+                    <s-table-header>Actions</s-table-header>
+                </s-table-header-row>
+                <s-table-body>
+                    {% for product in products %}
+                    <s-table-row>
+                        <s-table-cell>
+                            <s-checkbox name="product_ids" value="{{ product.id }}" class="product-checkbox"></s-checkbox>
+                        </s-table-cell>
+                        <s-table-cell>
+                            {% if product.images.first %}
+                                <s-thumbnail src="{{ product.images.first.src }}" alt="{{ product.title }}"></s-thumbnail>
+                            {% else %}
+                                <s-icon type="image-none" color="subdued"></s-icon>
+                            {% endif %}
+                        </s-table-cell>
+                        <s-table-cell>
+                            <s-text type="strong">{{ product.title }}</s-text>
+                        </s-table-cell>
+                        <s-table-cell>{{ product.vendor }}</s-table-cell>
+                        <s-table-cell>{{ product.product_type }}</s-table-cell>
+                        <s-table-cell>
+                            <s-stack direction="inline" gap="small" wrap>
+                                {% for tag in product.tag_list %}
+                                <s-badge>{{ tag }}</s-badge>
+                                {% endfor %}
+                            </s-stack>
+                        </s-table-cell>
+                        <s-table-cell>
+                            <s-button href="{% url 'shopify_models:product_detail' product.id %}" size="small">View</s-button>
+                        </s-table-cell>
+                    </s-table-row>
+                    {% empty %}
+                    <s-table-row>
+                        <s-table-cell colspan="7">No products found.</s-table-cell>
+                    </s-table-row>
+                    {% endfor %}
+                </s-table-body>
+            </s-table>
+        </form>
+
+        {% if is_paginated %}
+        <div style="padding: 1rem; display: flex; justify-content: center;">
+             <s-button-group>
+                {% if page_obj.has_previous %}
+                <s-button href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Previous</s-button>
+                {% else %}
+                <s-button disabled>Previous</s-button>
+                {% endif %}
+
+                <s-button disabled>Page {{ page_obj.number }}</s-button>
+
+                {% if page_obj.has_next %}
+                <s-button href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Next</s-button>
+                {% else %}
+                <s-button disabled>Next</s-button>
+                {% endif %}
+             </s-button-group>
+        </div>
+        {% endif %}
+    </s-section>
+</s-page>
 
 <script>
-// Checkbox selection logic
-const selectAllCheckbox = document.getElementById('select-all');
-const productCheckboxes = document.querySelectorAll('.product-checkbox');
-const bulkSyncBtn = document.getElementById('bulk-sync-btn');
-const selectedCount = document.getElementById('selected-count');
+    document.addEventListener('DOMContentLoaded', () => {
+        const selectAll = document.getElementById('select-all');
+        const checkboxes = document.querySelectorAll('.product-checkbox');
+        const bulkBtn = document.getElementById('bulk-sync-btn');
+        const countBtn = document.getElementById('selected-count-btn');
 
-// Update button state and count
-function updateBulkSyncButton() {
-    const checkedCount = document.querySelectorAll('.product-checkbox:checked').length;
-    bulkSyncBtn.disabled = checkedCount === 0;
-    selectedCount.textContent = `${checkedCount} selected`;
-}
+        function updateState() {
+            let count = 0;
+            checkboxes.forEach(cb => { if(cb.checked) count++; });
 
-// Select all checkbox
-selectAllCheckbox.addEventListener('change', function() {
-    productCheckboxes.forEach(checkbox => {
-        checkbox.checked = this.checked;
-    });
-    updateBulkSyncButton();
-});
-
-// Individual checkboxes
-productCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-        // Update select all checkbox state
-        const allChecked = Array.from(productCheckboxes).every(cb => cb.checked);
-        const someChecked = Array.from(productCheckboxes).some(cb => cb.checked);
-        selectAllCheckbox.checked = allChecked;
-        selectAllCheckbox.indeterminate = someChecked && !allChecked;
-        
-        updateBulkSyncButton();
-    });
-});
-
-// Confirm before bulk sync
-document.getElementById('bulk-sync-form').addEventListener('submit', function(e) {
-    const checkedCount = document.querySelectorAll('.product-checkbox:checked').length;
-    if (checkedCount > 0) {
-        if (!confirm(`Sync prices for ${checkedCount} product(s)?`)) {
-            e.preventDefault();
+            if (bulkBtn) bulkBtn.disabled = count === 0;
+            if (countBtn) countBtn.textContent = `${count} selected`;
         }
-    }
-});
+
+        if (selectAll) {
+            selectAll.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                checkboxes.forEach(cb => {
+                    cb.checked = isChecked;
+                });
+                updateState();
+            });
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                updateState();
+            });
+        });
+
+        const form = document.getElementById('bulk-sync-form');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                let count = 0;
+                checkboxes.forEach(cb => { if(cb.checked) count++; });
+                if (count > 0) {
+                    if (!confirm(`Sync prices for ${count} product(s)?`)) {
+                        e.preventDefault();
+                    }
+                }
+            });
+        }
+    });
 </script>
 {% endblock %}

@@ -1,36 +1,39 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <h1 class="title">Session Management</h1>
-    <a href="{% url 'core:session_add' %}" class="button is-primary">Add Session</a>
-    <table class="table is-fullwidth is-striped" style="margin-top: 1rem;">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Site</th>
-          <th>Token</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for session in sessions %}
-        <tr>
-          <td>{{ session.id }}</td>
-          <td>{{ session.site }}</td>
-          <td>{{ session.token|truncatechars:30 }}</td>
-          <td>
-            <a href="{% url 'core:session_edit' session.id %}" class="button is-small is-info">Edit</a>
-            <a href="{% url 'core:session_delete' session.id %}" class="button is-small is-danger">Delete</a>
-          </td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="4">No sessions found.</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</section>
-{% endblock %}
+<s-page heading="Session Management">
+    <div slot="primary-action">
+        <s-button href="{% url 'core:session_add' %}" variant="primary" icon="plus">Add Session</s-button>
+    </div>
 
+    <s-section padding="none">
+        <s-table>
+            <s-table-header-row>
+                <s-table-header>ID</s-table-header>
+                <s-table-header>Site</s-table-header>
+                <s-table-header>Token</s-table-header>
+                <s-table-header>Actions</s-table-header>
+            </s-table-header-row>
+            <s-table-body>
+                {% for session in sessions %}
+                <s-table-row>
+                    <s-table-cell>{{ session.id }}</s-table-cell>
+                    <s-table-cell>{{ session.site }}</s-table-cell>
+                    <s-table-cell>{{ session.token|truncatechars:30 }}</s-table-cell>
+                    <s-table-cell>
+                        <s-button-group>
+                            <s-button href="{% url 'core:session_edit' session.id %}" icon="edit" size="small" accessibilityLabel="Edit"></s-button>
+                            <s-button href="{% url 'core:session_delete' session.id %}" icon="delete" tone="critical" size="small" accessibilityLabel="Delete"></s-button>
+                        </s-button-group>
+                    </s-table-cell>
+                </s-table-row>
+                {% empty %}
+                <s-table-row>
+                    <s-table-cell colspan="4">No sessions found.</s-table-cell>
+                </s-table-row>
+                {% endfor %}
+            </s-table-body>
+        </s-table>
+    </s-section>
+</s-page>
+{% endblock %}
