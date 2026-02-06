@@ -1,13 +1,13 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-  <section class="section">
-    <div class="container">
-      <div class="content has-text-centered">
-        <h1 class="title">Welcome to Shop Integration</h1>
-        <h2 class="subtitle">A dashboard for managing your Shopify shop integrations.</h2>
-        <p>This is the basic home page. Login required via Shopify Auth.</p>
-      </div>
-    </div>
-  </section>
+<s-page heading="Shop Integration Dashboard">
+    <s-section>
+        <s-stack gap="base" align-items="center">
+            <s-heading>Welcome to Shop Integration</s-heading>
+            <s-text>A dashboard for managing your Shopify shop integrations.</s-text>
+            <s-paragraph>This is the basic home page. Login required via Shopify Auth.</s-paragraph>
+        </s-stack>
+    </s-section>
+</s-page>
 {% endblock %}

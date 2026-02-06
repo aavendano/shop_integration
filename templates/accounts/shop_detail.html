@@ -1,51 +1,44 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
-        <nav class="breadcrumb" aria-label="breadcrumbs">
-            <ul>
-                <li><a href="{% url 'accounts:shop_list' %}">Shops</a></li>
-                <li class="is-active"><a href="#" aria-current="page">{{ shop.name|default:shop.myshopify_domain }}</a>
-                </li>
-            </ul>
-        </nav>
+<s-page heading="{{ shop.name|default:shop.myshopify_domain }}">
+    <s-link slot="breadcrumb-actions" href="{% url 'accounts:shop_list' %}">Shops</s-link>
 
-        <div class="columns is-centered">
-            <div class="column is-two-thirds">
-                <div class="card">
-                    <header class="card-header">
-                        <p class="card-header-title">
-                            Shop Details: {{ shop.name|default:shop.myshopify_domain }}
-                        </p>
-                    </header>
-                    <div class="card-content">
-                        <div class="content">
-                            <div class="columns">
-                                <div class="column">
-                                    <p><strong>Name:</strong> {{ shop.name|default:"-" }}</p>
-                                    <p><strong>Domain:</strong> {{ shop.domain }}</p>
-                                    <p><strong>MyShopify Domain:</strong> {{ shop.myshopify_domain }}</p>
-                                </div>
-                                <div class="column">
-                                    <p><strong>Currency:</strong> {{ shop.currency|default:"-" }}</p>
-                                    <p><strong>Client ID:</strong> {{ shop.client_id }}</p>
-                                    <p><strong>Client Secret:</strong> <span class="has-text-grey">********</span></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <footer class="card-footer">
-                        <a href="{% url 'accounts:shop_registration' shop.id %}"
-                            class="card-footer-item has-text-primary">Shop Registration</a>
-                        <a href="{% url 'accounts:shop_update' shop.id %}" class="card-footer-item">Edit</a>
-                        <a href="{% url 'accounts:shop_delete' shop.id %}"
-                            class="card-footer-item has-text-danger">Delete</a>
-                        <a href="{% url 'accounts:shop_list' %}" class="card-footer-item">Back to List</a>
-                    </footer>
-                </div>
-            </div>
-        </div>
+    <div slot="primary-action">
+        <s-button href="{% url 'accounts:shop_update' shop.id %}" variant="primary" icon="edit">Edit</s-button>
     </div>
-</section>
+    <div slot="secondary-actions">
+        <s-button href="{% url 'accounts:shop_registration' shop.id %}">Shop Registration</s-button>
+        <s-button href="{% url 'accounts:shop_delete' shop.id %}" tone="critical" icon="delete">Delete</s-button>
+    </div>
+
+    <s-section heading="Shop Details">
+        <s-grid gridTemplateColumns="1fr 1fr" gap="base">
+            <s-grid-item>
+                <s-text type="strong">Name</s-text>
+                <p>{{ shop.name|default:"-" }}</p>
+            </s-grid-item>
+            <s-grid-item>
+                <s-text type="strong">Domain</s-text>
+                <p>{{ shop.domain }}</p>
+            </s-grid-item>
+            <s-grid-item>
+                <s-text type="strong">MyShopify Domain</s-text>
+                <p>{{ shop.myshopify_domain }}</p>
+            </s-grid-item>
+            <s-grid-item>
+                <s-text type="strong">Currency</s-text>
+                <p>{{ shop.currency|default:"-" }}</p>
+            </s-grid-item>
+            <s-grid-item>
+                <s-text type="strong">Client ID</s-text>
+                <p>{{ shop.client_id }}</p>
+            </s-grid-item>
+            <s-grid-item>
+                <s-text type="strong">Client Secret</s-text>
+                <p><s-text color="subdued">********</s-text></p>
+            </s-grid-item>
+        </s-grid>
+    </s-section>
+</s-page>
 {% endblock %}

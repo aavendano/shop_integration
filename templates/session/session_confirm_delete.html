@@ -1,21 +1,23 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <h1 class="title">Delete Session</h1>
-    <p>Are you sure you want to delete the session "{{ object }}"?</p>
-    <form method="post">{% csrf_token %}
-      <div class="field is-grouped">
-        <div class="control">
-          <button type="submit" class="button is-danger">Yes, delete</button>
-        </div>
-        <div class="control">
-          <a href="{% url 'core:session_list' %}" class="button is-light">Cancel</a>
-        </div>
-      </div>
-    </form>
-  </div>
-</section>
-{% endblock %}
+<s-page heading="Delete Session">
+    <s-link slot="breadcrumb-actions" href="{% url 'core:session_list' %}">Sessions</s-link>
 
+    <s-section>
+        <s-banner tone="critical" heading="Confirm Deletion">
+            <s-stack gap="base">
+                <s-text>Are you sure you want to delete the session "{{ object }}"?</s-text>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <s-stack direction="inline" gap="base">
+                        <s-button type="submit" tone="critical" variant="primary">Yes, Delete</s-button>
+                        <s-button href="{% url 'core:session_list' %}">Cancel</s-button>
+                    </s-stack>
+                </form>
+            </s-stack>
+        </s-banner>
+    </s-section>
+</s-page>
+{% endblock %}

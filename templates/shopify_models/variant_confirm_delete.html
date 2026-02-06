@@ -2,48 +2,24 @@
 {% load static %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
-        <nav class="breadcrumb" aria-label="breadcrumbs">
-            <ul>
-                <li><a href="{% url 'shopify_models:product_list' %}">Products</a></li>
-                <li><a href="{% url 'shopify_models:product_detail' product.id %}">{{ product.title }}</a></li>
-                <li class="is-active"><a href="#" aria-current="page">Delete Variant</a></li>
-            </ul>
-        </nav>
+<s-page heading="Delete Variant">
+    <s-link slot="breadcrumb-actions" href="{% url 'shopify_models:product_detail' product.id %}">{{ product.title }}</s-link>
 
-        <div class="columns is-centered">
-            <div class="column is-half">
-                <div class="card">
-                    <header class="card-header has-background-danger">
-                        <p class="card-header-title has-text-white">
-                            Confirm Deletion
-                        </p>
-                    </header>
-                    <div class="card-content">
-                        <div class="content">
-                            <p>Are you sure you want to delete the variant <strong>"{{ object.title|default:"Default"
-                                    }}"</strong> (SKU: {{ object.sku|default:"-" }}) from product <strong>"{{
-                                    product.title }}"</strong>?</p>
-                            <p class="has-text-danger">This action cannot be undone.</p>
-                        </div>
+    <s-section>
+        <s-banner tone="critical" heading="Confirm Deletion">
+            <s-stack gap="base">
+                <s-text>Are you sure you want to delete the variant <strong>"{{ object.title|default:"Default" }}"</strong> (SKU: {{ object.sku|default:"-" }}) from product <strong>"{{ product.title }}"</strong>?</s-text>
+                <s-text>This action cannot be undone.</s-text>
 
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="field is-grouped">
-                                <div class="control">
-                                    <button type="submit" class="button is-danger">Yes, Delete</button>
-                                </div>
-                                <div class="control">
-                                    <a href="{% url 'shopify_models:product_detail' product.id %}"
-                                        class="button is-light">Cancel</a>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+                <form method="post">
+                    {% csrf_token %}
+                    <s-stack direction="inline" gap="base">
+                        <s-button type="submit" tone="critical" variant="primary">Yes, Delete</s-button>
+                        <s-button href="{% url 'shopify_models:product_detail' product.id %}">Cancel</s-button>
+                    </s-stack>
+                </form>
+            </s-stack>
+        </s-banner>
+    </s-section>
+</s-page>
 {% endblock %}

@@ -1,35 +1,39 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <h1 class="title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Session</h1>
-    <form method="post">{% csrf_token %}
-      {{ form.non_field_errors }}
-      <div class="field">
-        <label class="label">{{ form.site.label }}</label>
-        <div class="control">
-          {{ form.site }}
-        </div>
-        {{ form.site.errors }}
-      </div>
-      <div class="field">
-        <label class="label">{{ form.token.label }}</label>
-        <div class="control">
-          {{ form.token }}
-        </div>
-        {{ form.token.errors }}
-      </div>
-      <div class="field is-grouped">
-        <div class="control">
-          <button type="submit" class="button is-primary">Save</button>
-        </div>
-        <div class="control">
-          <a href="{% url 'core:session_list' %}" class="button is-light">Cancel</a>
-        </div>
-      </div>
-    </form>
-  </div>
-</section>
-{% endblock %}
+<s-page heading="{% if form.instance.pk %}Edit{% else %}Add{% endif %} Session">
+    <s-link slot="breadcrumb-actions" href="{% url 'core:session_list' %}">Sessions</s-link>
 
+    <s-section>
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <s-banner tone="critical">{{ form.non_field_errors }}</s-banner>
+            {% endif %}
+
+            <s-form>
+                <s-stack gap="base">
+                    <s-text-field
+                        label="Site"
+                        name="site"
+                        value="{{ form.site.value|default:'' }}"
+                        error="{{ form.site.errors|striptags }}"
+                    ></s-text-field>
+
+                    <s-text-field
+                        label="Token"
+                        name="token"
+                        value="{{ form.token.value|default:'' }}"
+                        error="{{ form.token.errors|striptags }}"
+                    ></s-text-field>
+
+                    <s-stack gap="base" direction="inline" style="margin-top: 1rem;">
+                        <s-button type="submit" variant="primary">Save</s-button>
+                        <s-button href="{% url 'core:session_list' %}">Cancel</s-button>
+                    </s-stack>
+                </s-stack>
+            </s-form>
+        </form>
+    </s-section>
+</s-page>
+{% endblock %}
