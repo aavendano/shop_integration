@@ -13,13 +13,14 @@ urlpatterns = [
     
     # Product endpoints
     path('products/', views.ProductListView.as_view(), name='product-list'),
+    path('products/<int:pk>/', views.ProductDetailView.as_view(), name='product-detail'),
+    path('products/<int:pk>/sync/', views.ProductSyncView.as_view(), name='product-sync'),
+    path('products/bulk-sync/', views.ProductBulkSyncView.as_view(), name='product-bulk-sync'),
     # path('products/<int:pk>/overview/', views.ProductOverviewView.as_view(), name='product-overview'),
-    # path('products/<int:pk>/sync/', views.ProductSyncView.as_view(), name='product-sync'),
-    # path('products/bulk-sync/', views.ProductBulkSyncView.as_view(), name='product-bulk-sync'),
     
     # Inventory endpoints (to be implemented in future tasks)
-    # path('inventory/', views.InventoryListView.as_view(), name='inventory-list'),
-    # path('inventory/reconcile/', views.InventoryReconcileView.as_view(), name='inventory-reconcile'),
+    path('inventory/', views.InventoryListView.as_view(), name='inventory-list'),
+    path('inventory/reconcile/', views.InventoryReconcileView.as_view(), name='inventory-reconcile'),
     
     # Order endpoints (to be implemented in future tasks)
     # path('orders/', views.OrderListView.as_view(), name='order-list'),
@@ -28,4 +29,7 @@ urlpatterns = [
     # Job endpoints
     path('jobs/', views.JobListView.as_view(), name='job-list'),
     path('jobs/<int:pk>/', views.JobDetailView.as_view(), name='job-detail'),
+    
+    # Settings endpoints
+    path('settings/', views.SettingsView.as_view(), name='settings'),
 ]

@@ -160,6 +160,7 @@ IPYTHON_KERNEL_DISPLAY_NAME = 'Django Kernel'
 
 SHOPIFY_CLIENT_ID = os.environ.get("SHOPIFY_CLIENT_ID")
 SHOPIFY_CLIENT_SECRET = os.environ.get("SHOPIFY_CLIENT_SECRET")
+SHOPIFY_API_SECRET = os.environ.get("SHOPIFY_API_SECRET") or os.environ.get("SHOPIFY_CLIENT_SECRET")  # Fallback to client secret
 SHOPIFY_APP_SCOPES = os.environ.get("SHOPIFY_APP_SCOPES", "")
 SHOPIFY_REDIRECT_URI = os.environ.get("SHOPIFY_REDIRECT_URI")
 SHOPIFY_APP_NAME = 'shop_manager_app'

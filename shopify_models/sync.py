@@ -195,6 +195,9 @@ def sync_price_list(price_list_instance) -> dict:
     Synchronize a PriceList instance with Shopify.
     Creates or updates the price list in Shopify.
     
+    Note: When creating a PriceList, the 'parent' field is required by Shopify.
+    If not provided in the instance, a default 0% adjustment is used.
+    
     Args:
         price_list_instance: PriceList model instance
         
@@ -245,16 +248,23 @@ def sync_price_list(price_list_instance) -> dict:
             }
         }
         """
-        variables = {
-            "input": {
-                "name": price_list_instance.name,
-                "currency": price_list_instance.currency,
+        # Build input - parent is REQUIRED for PriceList creation
+        input_data = {
+            "name": price_list_instance.name,
+            "currency": price_list_instance.currency,
+            "parent": {
+                "adjustment": {
+                    "type": "PERCENTAGE_DECREASE",
+                    "value": 0.0
+                }
             }
         }
         
-        # Add parent adjustment if provided
-        if price_list_instance.parent:
-            variables["input"]["parent"] = price_list_instance.parent
+        # Override with custom parent if provided
+        if price_list_instance.parent and isinstance(price_list_instance.parent, dict):
+            input_data["parent"] = price_list_instance.parent
+        
+        variables = {"input": input_data}
             
         response, _extensions = client._execute(mutation, variables, include_extensions=True)
         result = response.get("priceListCreate", {})

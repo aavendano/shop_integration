@@ -13,6 +13,9 @@ from .jobs import (
     JobListSerializer,
     JobDetailSerializer,
 )
+from .inventory import (
+    InventoryItemSerializer,
+)
 
 __all__ = [
     'ImageSerializer',
@@ -22,4 +25,5 @@ __all__ = [
     'JobLogSerializer',
     'JobListSerializer',
     'JobDetailSerializer',
+    'InventoryItemSerializer',
 ]

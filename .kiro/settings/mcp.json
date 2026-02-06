@@ -7,6 +7,14 @@
       "disabled": true,
       "autoApprove": []
     },
+      "stitch": {
+      "url": "https://stitch.googleapis.com/mcp",
+      "type": "http",
+      "headers": {
+        "Accept": "application/json",
+        "X-Goog-Api-Key": "AQ.Ab8RN6KEtpHRJ8KPYYVMYhxB4hCdZzzYiakaadyiALlEMmoCYw"
+      }
+    },
     "shopify-dev-mcp": {
       "command": "npx",
       "args": ["-y", "@shopify/dev-mcp@latest"],

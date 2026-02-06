@@ -2,7 +2,7 @@
 
 client_id = "64bf2e7b47bb0196716d5fdcb77089c8"
 name = "shop_manager_app"
-application_url = "https://monkey-tight-lab.ngrok-free.app/"
+application_url = "https://font-elevation-competing-corn.trycloudflare.com/"
 embedded = true
 
 [build]
@@ -22,14 +22,14 @@ api_version = "2025-10"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_locations, read_assigned_fulfillment_orders,read_fulfillments,read_orders,write_fulfillments,write_orders"
-optional_scopes = [ "read_products", "write_products" ]
+scopes = "read_products, write_products, read_publications, write_publications, read_markets, write_markets, read_locations, write_locations, read_assigned_fulfillment_orders,write_assigned_fulfillment_orders, read_fulfillments, write_fulfillments, read_orders, write_orders, read_fulfillments, write_fulfillments,read_orders, write_orders"
+optional_scopes = []
 use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
   "https://127.0.0.1:8000/accounts/shops/callback/",
   "https://127.0.0.1:8000/accounts/shops/callback",
-  "https://monkey-tight-lab.ngrok-free.app/accounts/shops/callback/",
-  "https://monkey-tight-lab.ngrok-free.app/accounts/shops/callback"
+  "https://font-elevation-competing-corn.trycloudflare.com/accounts/shops/callback/",
+  "https://font-elevation-competing-corn.trycloudflare.com/accounts/shops/callback"
 ]

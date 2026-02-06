@@ -5,6 +5,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from accounts.models import Shop, User
 from api.models import Job, JobLog
+from api.test_utils import create_jwt_token, create_test_shop, create_test_session
 from django.utils import timezone
 from datetime import timedelta
 import json
@@ -18,15 +19,10 @@ class ContextViewTestCase(TestCase):
         self.url = '/api/admin/context/'
         
         # Create a test shop
-        self.shop = Shop.objects.create(
-            myshopify_domain='test-shop.myshopify.com',
-            name='Test Shop',
-            currency='USD',
-            is_authentified=True,
-            domain='test-shop.com',
-            client_id='test_client_id',
-            client_secret='test_client_secret'
-        )
+        self.shop = create_test_shop()
+        
+        # Create a test session
+        self.session = create_test_session(shop=self.shop)
         
         # Create a test user
         self.user = User.objects.create_user(
@@ -34,18 +30,21 @@ class ContextViewTestCase(TestCase):
             email='test@example.com',
             password='testpass123'
         )
+        
+        # Create JWT token for authenticated requests
+        self.token = create_jwt_token(self.shop.myshopify_domain)
     
     def test_successful_context_retrieval(self):
         """
         Test successful context retrieval with valid session.
         Requirements: 2.1, 2.2
         """
-        # Simulate authenticated request by attaching shop to request
-        # In real scenario, this would be done by middleware with valid JWT token
-        response = self.client.get(self.url)
+        # Make authenticated request with JWT token
+        response = self.client.get(
+            self.url,
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         
-        # For now, without middleware, we get a response with None shop
-        # This test will be updated once middleware is properly integrated
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/json')
         
@@ -57,35 +56,28 @@ class ContextViewTestCase(TestCase):
         self.assertIn('config', data)
         self.assertIn('permissions', data)
     
-    def test_missing_session_returns_404(self):
+    def test_missing_session_returns_401(self):
         """
-        Test that missing session returns 404.
+        Test that missing authentication returns 401.
         Requirements: 2.5
-        
-        Note: This test validates the expected behavior when no active session exists.
-        The current implementation returns 200 with None values, but according to
-        Requirement 2.5, it should return HTTP 404 with descriptive message.
         """
-        # Make request without session (no shop attached)
+        # Make request without authentication
         response = self.client.get(self.url)
         
-        # Current implementation returns 200, but should return 404
-        # This will need to be updated in the view implementation
-        # Expected behavior:
-        # self.assertEqual(response.status_code, 404)
-        # data = json.loads(response.content)
-        # self.assertIn('detail', data)
-        # self.assertIn('No active session', data['detail'])
-        
-        # For now, verify current behavior
-        self.assertEqual(response.status_code, 200)
+        # Should return 401 Unauthorized
+        self.assertEqual(response.status_code, 401)
+        data = json.loads(response.content)
+        self.assertIn('detail', data)
     
     def test_response_structure(self):
         """
         Test that response has correct structure.
         Requirements: 2.2, 2.3, 2.4
         """
-        response = self.client.get(self.url)
+        response = self.client.get(
+            self.url,
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         self.assertEqual(response.status_code, 200)
         
         data = json.loads(response.content)
@@ -128,10 +120,22 @@ class SessionTokenMiddlewareTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         self.url = '/api/admin/context/'
+        
+        # Create a test shop and token
+        self.shop = create_test_shop()
+        self.token = create_jwt_token(self.shop.myshopify_domain)
     
-    def test_request_without_token_succeeds(self):
-        """Test that requests without token are allowed (for development)."""
+    def test_request_without_token_returns_401(self):
+        """Test that requests without token return 401."""
         response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+    
+    def test_request_with_valid_token_succeeds(self):
+        """Test that requests with valid token succeed."""
+        response = self.client.get(
+            self.url,
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         self.assertEqual(response.status_code, 200)
     
     def test_request_with_invalid_token_returns_401(self):
@@ -149,6 +153,10 @@ class JobListViewTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         self.url = '/api/admin/jobs/'
+        
+        # Create test shop and JWT token
+        self.shop = create_test_shop()
+        self.token = create_jwt_token(self.shop.myshopify_domain)
         
         # Create test jobs with various statuses and types
         self.job1 = Job.objects.create(
@@ -186,7 +194,10 @@ class JobListViewTestCase(TestCase):
         Test listing all jobs without filters.
         Requirements: 6.1
         """
-        response = self.client.get(self.url)
+        response = self.client.get(
+            self.url,
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/json')
@@ -205,7 +216,11 @@ class JobListViewTestCase(TestCase):
         Requirements: 6.3
         """
         # Filter for running jobs
-        response = self.client.get(self.url, {'status': 'running'})
+        response = self.client.get(
+            self.url,
+            {'status': 'running'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -214,7 +229,11 @@ class JobListViewTestCase(TestCase):
         self.assertEqual(data['results'][0]['job_type'], 'bulk_sync')
         
         # Filter for completed jobs
-        response = self.client.get(self.url, {'status': 'completed'})
+        response = self.client.get(
+            self.url,
+            {'status': 'completed'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(data['count'], 1)
@@ -226,7 +245,11 @@ class JobListViewTestCase(TestCase):
         Requirements: 6.3
         """
         # Filter for product_sync jobs
-        response = self.client.get(self.url, {'job_type': 'product_sync'})
+        response = self.client.get(
+            self.url,
+            {'job_type': 'product_sync'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -237,7 +260,11 @@ class JobListViewTestCase(TestCase):
             self.assertEqual(job['job_type'], 'product_sync')
         
         # Filter for inventory_reconcile jobs
-        response = self.client.get(self.url, {'job_type': 'inventory_reconcile'})
+        response = self.client.get(
+            self.url,
+            {'job_type': 'inventory_reconcile'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(data['count'], 1)
@@ -354,6 +381,10 @@ class ProductListViewTestCase(TestCase):
         self.client = Client()
         self.url = '/api/admin/products/'
         
+        # Create test shop and JWT token
+        self.shop = create_test_shop()
+        self.token = create_jwt_token(self.shop.myshopify_domain)
+        
         # Create test products with various attributes
         from shopify_models.models import Product, Variant, InventoryItem
         
@@ -417,7 +448,10 @@ class ProductListViewTestCase(TestCase):
         Test listing all products without filters.
         Requirements: 3.1
         """
-        response = self.client.get(self.url)
+        response = self.client.get(
+            self.url,
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/json')
@@ -436,7 +470,11 @@ class ProductListViewTestCase(TestCase):
         Requirements: 3.3
         """
         # Filter for products with "Test" in title
-        response = self.client.get(self.url, {'title': 'Test'})
+        response = self.client.get(
+            self.url,
+            {'title': 'Test'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -447,7 +485,11 @@ class ProductListViewTestCase(TestCase):
             self.assertIn('Test', product['title'])
         
         # Filter for specific product
-        response = self.client.get(self.url, {'title': 'Special'})
+        response = self.client.get(
+            self.url,
+            {'title': 'Special'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(data['count'], 1)
@@ -459,7 +501,11 @@ class ProductListViewTestCase(TestCase):
         Requirements: 3.3
         """
         # Filter for Vendor A products
-        response = self.client.get(self.url, {'vendor': 'Vendor A'})
+        response = self.client.get(
+            self.url,
+            {'vendor': 'Vendor A'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -470,7 +516,11 @@ class ProductListViewTestCase(TestCase):
             self.assertEqual(product['vendor'], 'Vendor A')
         
         # Filter for Vendor C products
-        response = self.client.get(self.url, {'vendor': 'Vendor C'})
+        response = self.client.get(
+            self.url,
+            {'vendor': 'Vendor C'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(data['count'], 1)
@@ -482,7 +532,11 @@ class ProductListViewTestCase(TestCase):
         Requirements: 3.3
         """
         # Filter for Type A products
-        response = self.client.get(self.url, {'product_type': 'Type A'})
+        response = self.client.get(
+            self.url,
+            {'product_type': 'Type A'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -498,7 +552,11 @@ class ProductListViewTestCase(TestCase):
         Requirements: 3.3
         """
         # Filter for products with tag1
-        response = self.client.get(self.url, {'tags': 'tag1'})
+        response = self.client.get(
+            self.url,
+            {'tags': 'tag1'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -509,7 +567,11 @@ class ProductListViewTestCase(TestCase):
             self.assertIn('tag1', product['tags'])
         
         # Filter for products with special tag
-        response = self.client.get(self.url, {'tags': 'special'})
+        response = self.client.get(
+            self.url,
+            {'tags': 'special'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(data['count'], 1)
@@ -520,10 +582,14 @@ class ProductListViewTestCase(TestCase):
         Test filtering products with multiple filters.
         Requirements: 3.3
         """
-        response = self.client.get(self.url, {
-            'vendor': 'Vendor A',
-            'product_type': 'Type A'
-        })
+        response = self.client.get(
+            self.url,
+            {
+                'vendor': 'Vendor A',
+                'product_type': 'Type A'
+            },
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -539,7 +605,11 @@ class ProductListViewTestCase(TestCase):
         Test sorting products by created_at ascending.
         Requirements: 3.4
         """
-        response = self.client.get(self.url, {'ordering': 'created_at'})
+        response = self.client.get(
+            self.url,
+            {'ordering': 'created_at'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -556,7 +626,11 @@ class ProductListViewTestCase(TestCase):
         Test sorting products by created_at descending (default).
         Requirements: 3.4
         """
-        response = self.client.get(self.url, {'ordering': '-created_at'})
+        response = self.client.get(
+            self.url,
+            {'ordering': '-created_at'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -573,7 +647,11 @@ class ProductListViewTestCase(TestCase):
         Test sorting products by title ascending.
         Requirements: 3.4
         """
-        response = self.client.get(self.url, {'ordering': 'title'})
+        response = self.client.get(
+            self.url,
+            {'ordering': 'title'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -590,7 +668,11 @@ class ProductListViewTestCase(TestCase):
         Test sorting products by title descending.
         Requirements: 3.4
         """
-        response = self.client.get(self.url, {'ordering': '-title'})
+        response = self.client.get(
+            self.url,
+            {'ordering': '-title'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -607,7 +689,11 @@ class ProductListViewTestCase(TestCase):
         Test sorting products by updated_at.
         Requirements: 3.4
         """
-        response = self.client.get(self.url, {'ordering': 'updated_at'})
+        response = self.client.get(
+            self.url,
+            {'ordering': 'updated_at'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -634,7 +720,10 @@ class ProductListViewTestCase(TestCase):
                 handle=f'product-{i}'
             )
         
-        response = self.client.get(self.url)
+        response = self.client.get(
+            self.url,
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -648,7 +737,11 @@ class ProductListViewTestCase(TestCase):
         Test pagination with custom page size.
         Requirements: 3.2
         """
-        response = self.client.get(self.url, {'page_size': '2'})
+        response = self.client.get(
+            self.url,
+            {'page_size': '2'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -662,7 +755,11 @@ class ProductListViewTestCase(TestCase):
         Test pagination enforces maximum page size of 100.
         Requirements: 3.2
         """
-        response = self.client.get(self.url, {'page_size': '200'})
+        response = self.client.get(
+            self.url,
+            {'page_size': '200'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -674,7 +771,11 @@ class ProductListViewTestCase(TestCase):
         Test accessing second page of results.
         Requirements: 3.2
         """
-        response = self.client.get(self.url, {'page': '2', 'page_size': '2'})
+        response = self.client.get(
+            self.url,
+            {'page': '2', 'page_size': '2'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -687,7 +788,10 @@ class ProductListViewTestCase(TestCase):
         Test that response includes all required fields.
         Requirements: 3.5
         """
-        response = self.client.get(self.url)
+        response = self.client.get(
+            self.url,
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -707,7 +811,11 @@ class ProductListViewTestCase(TestCase):
         Test that variant_count is correctly calculated.
         Requirements: 3.5
         """
-        response = self.client.get(self.url, {'title': 'Test Product 1'})
+        response = self.client.get(
+            self.url,
+            {'title': 'Test Product 1'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -721,7 +829,11 @@ class ProductListViewTestCase(TestCase):
         Test that sync_status is 'pending' for products without shopify_id.
         Requirements: 3.5
         """
-        response = self.client.get(self.url, {'title': 'Another Product'})
+        response = self.client.get(
+            self.url,
+            {'title': 'Another Product'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -735,7 +847,11 @@ class ProductListViewTestCase(TestCase):
         Test that sync_status is 'synced' for products with shopify_id.
         Requirements: 3.5
         """
-        response = self.client.get(self.url, {'title': 'Test Product 1'})
+        response = self.client.get(
+            self.url,
+            {'title': 'Test Product 1'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -749,7 +865,11 @@ class ProductListViewTestCase(TestCase):
         Test that invalid ordering parameter uses default ordering.
         Requirements: 3.4
         """
-        response = self.client.get(self.url, {'ordering': 'invalid_field'})
+        response = self.client.get(
+            self.url,
+            {'ordering': 'invalid_field'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
@@ -767,14 +887,22 @@ class ProductListViewTestCase(TestCase):
         Requirements: 3.3
         """
         # Filter with lowercase
-        response = self.client.get(self.url, {'vendor': 'vendor a'})
+        response = self.client.get(
+            self.url,
+            {'vendor': 'vendor a'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['count'], 2)
         
         # Filter with uppercase
-        response = self.client.get(self.url, {'vendor': 'VENDOR A'})
+        response = self.client.get(
+            self.url,
+            {'vendor': 'VENDOR A'},
+            HTTP_AUTHORIZATION=f'Bearer {self.token}'
+        )
         data = json.loads(response.content)
         
         self.assertEqual(response.status_code, 200)

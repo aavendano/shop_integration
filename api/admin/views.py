@@ -9,8 +9,9 @@ from django.conf import settings
 from django.db.models import Q
 from api.models import Job
 from api.serializers.jobs import JobListSerializer
-from api.serializers.products import ProductListSerializer
-from shopify_models.models import Product
+from api.serializers.products import ProductListSerializer, ProductDetailSerializer
+from api.serializers.inventory import InventoryItemSerializer
+from shopify_models.models import Product, InventoryItem
 
 
 class ContextView(APIView):
@@ -221,3 +222,602 @@ class ProductListView(APIView):
         
         # Return paginated response
         return paginator.get_paginated_response(serializer.data)
+
+
+
+class ProductDetailView(APIView):
+    """
+    Returns detailed information for a specific product.
+    
+    Provides complete product information including nested images, variants,
+    and inventory data. Uses select_related and prefetch_related for query
+    optimization to avoid N+1 queries.
+    
+    Optimizations:
+    - prefetch_related('images'): Fetch all images in one query
+    - prefetch_related('variants'): Fetch all variants in one query
+    - prefetch_related('variants__inventory_item'): Fetch inventory items
+    - prefetch_related('variants__inventory_item__inventory_levels'): Fetch inventory levels
+    """
+    
+    def get(self, request, pk):
+        """
+        GET /api/admin/products/{id}/
+        Returns complete product information with variants, images, and inventory.
+        
+        Path parameters:
+        - pk: Product ID
+        
+        Returns:
+        - 200: Product details with nested data
+        - 404: Product not found
+        """
+        try:
+            # Fetch product with all related data using optimized queries
+            # This prevents N+1 query problems by fetching all related data upfront
+            product = Product.objects.prefetch_related(
+                'images',  # Fetch all images
+                'variants',  # Fetch all variants
+                'variants__inventory_item',  # Fetch inventory items for variants
+                'variants__inventory_item__inventory_levels'  # Fetch inventory levels
+            ).get(pk=pk)
+        except Product.DoesNotExist:
+            return Response(
+                {'detail': 'Product not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Serialize and return product data
+        serializer = ProductDetailSerializer(product)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ProductSyncView(APIView):
+    """
+    Synchronizes a single product with Shopify.
+    
+    Calls the existing Product.export_to_shopify() method to create or update
+    the product in Shopify, maintaining all business logic in the model layer.
+    
+    This endpoint delegates to existing business logic without duplication,
+    following the design principle of keeping all sync logic in the model.
+    """
+    
+    def post(self, request, pk):
+        """
+        POST /api/admin/products/{id}/sync/
+        Synchronizes product with Shopify.
+        
+        Path parameters:
+        - pk: Product ID
+        
+        Returns:
+        - 200: Sync successful with results
+        - 404: Product not found
+        - 500: Sync failed with error details
+        """
+        try:
+            # Fetch the product
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response(
+                {'detail': 'Product not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        try:
+            # Call existing business logic to export product to Shopify
+            # This method handles all sync operations including:
+            # - Creating/updating product in Shopify
+            # - Syncing variants
+            # - Syncing images
+            # - Updating inventory
+            # - Updating local shopify_ids
+            product.export_to_shopify()
+            
+            # Refresh product from database to get updated data
+            product.refresh_from_db()
+            
+            # Return success response with sync results
+            return Response(
+                {
+                    'success': True,
+                    'message': 'Product synchronized successfully',
+                    'synced_at': product.updated_at.isoformat() if product.updated_at else None,
+                },
+                status=status.HTTP_200_OK
+            )
+            
+        except Exception as e:
+            # Log the error for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to sync product {pk}: {str(e)}", exc_info=True)
+            
+            # Return error response with details
+            return Response(
+                {
+                    'success': False,
+                    'message': 'Failed to sync product',
+                    'error': str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class ProductBulkSyncView(APIView):
+    """
+    Synchronizes multiple products with Shopify in bulk.
+    
+    Accepts an array of product IDs and processes each product individually,
+    aggregating the results. Each product is synced using the existing
+    Product.export_to_shopify() method to maintain business logic consistency.
+    
+    This endpoint provides batch processing capabilities while delegating
+    to existing business logic without duplication.
+    """
+    
+    def post(self, request):
+        """
+        POST /api/admin/products/bulk-sync/
+        Synchronizes multiple products with Shopify.
+        
+        Request body:
+        {
+            "product_ids": [1, 2, 3, ...]
+        }
+        
+        Returns:
+        - 200: Bulk sync completed with aggregated results
+        - 400: Invalid request (missing or invalid product_ids)
+        
+        Response format:
+        {
+            "success_count": 2,
+            "error_count": 1,
+            "results": [
+                {"id": 1, "success": true},
+                {"id": 2, "success": true},
+                {"id": 3, "success": false, "error": "Error message"}
+            ]
+        }
+        """
+        # Validate request body
+        product_ids = request.data.get('product_ids', [])
+        
+        if not isinstance(product_ids, list):
+            return Response(
+                {'detail': 'product_ids must be an array'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not product_ids:
+            return Response(
+                {'detail': 'product_ids array cannot be empty'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Initialize counters and results
+        success_count = 0
+        error_count = 0
+        results = []
+        
+        # Process each product
+        for product_id in product_ids:
+            try:
+                # Validate product_id is an integer
+                if not isinstance(product_id, int):
+                    results.append({
+                        'id': product_id,
+                        'success': False,
+                        'error': 'Invalid product ID format'
+                    })
+                    error_count += 1
+                    continue
+                
+                # Fetch the product
+                try:
+                    product = Product.objects.get(pk=product_id)
+                except Product.DoesNotExist:
+                    results.append({
+                        'id': product_id,
+                        'success': False,
+                        'error': 'Product not found'
+                    })
+                    error_count += 1
+                    continue
+                
+                # Call existing business logic to export product to Shopify
+                product.export_to_shopify()
+                
+                # Record success
+                results.append({
+                    'id': product_id,
+                    'success': True
+                })
+                success_count += 1
+                
+            except Exception as e:
+                # Log the error for debugging
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Failed to sync product {product_id}: {str(e)}", exc_info=True)
+                
+                # Record failure
+                results.append({
+                    'id': product_id,
+                    'success': False,
+                    'error': str(e)
+                })
+                error_count += 1
+        
+        # Return aggregated results
+        return Response(
+            {
+                'success_count': success_count,
+                'error_count': error_count,
+                'results': results
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class InventoryListView(APIView):
+    """
+    Returns paginated list of inventory items with filtering support.
+    
+    Only returns inventory items for variants with tracking enabled (tracked=True).
+    
+    Supports filtering by:
+    - product_title: Filter by product title (case-insensitive partial match)
+    - sku: Filter by SKU (case-insensitive partial match)
+    
+    Supports pagination with configurable page size (default 50).
+    """
+    
+    def get(self, request):
+        """
+        GET /api/admin/inventory/
+        Returns paginated list of inventory items with optional filters.
+        
+        Query parameters:
+        - page: Page number (default 1)
+        - page_size: Items per page (default 50, max 100)
+        - product_title: Filter by product title
+        - sku: Filter by SKU
+        
+        Returns only inventory items for tracked variants.
+        """
+        # Start with all inventory items for tracked variants
+        # Use select_related to fetch variant and product in one query
+        # Use prefetch_related to fetch inventory_levels efficiently
+        queryset = InventoryItem.objects.filter(
+            tracked=True
+        ).select_related(
+            'variant',
+            'variant__product'
+        ).prefetch_related(
+            'inventory_levels'
+        ).all()
+        
+        # Apply filters
+        product_title_filter = request.query_params.get('product_title')
+        if product_title_filter:
+            queryset = queryset.filter(
+                variant__product__title__icontains=product_title_filter
+            )
+        
+        sku_filter = request.query_params.get('sku')
+        if sku_filter:
+            queryset = queryset.filter(
+                shopify_sku__icontains=sku_filter
+            )
+        
+        # Apply pagination
+        paginator = PageNumberPagination()
+        page_size = request.query_params.get('page_size', 50)
+        try:
+            page_size = int(page_size)
+            # Limit page size to reasonable maximum
+            if page_size > 100:
+                page_size = 100
+            elif page_size < 1:
+                page_size = 50
+        except (ValueError, TypeError):
+            page_size = 50
+        
+        paginator.page_size = page_size
+        paginated_queryset = paginator.paginate_queryset(queryset, request)
+        
+        # Serialize data
+        serializer = InventoryItemSerializer(paginated_queryset, many=True)
+        
+        # Return paginated response
+        return paginator.get_paginated_response(serializer.data)
+
+
+class InventoryReconcileView(APIView):
+    """
+    Reconciles inventory quantities with Shopify.
+    
+    Synchronizes all tracked inventory items with Shopify by pushing current
+    source_quantity values to the default location. This operation ensures that
+    local inventory data is synchronized with Shopify's inventory system.
+    
+    This endpoint delegates to the existing Shopify client's set_inventory_quantities
+    method to maintain consistency with the rest of the system.
+    """
+    
+    def post(self, request):
+        """
+        POST /api/admin/inventory/reconcile/
+        Synchronizes inventory quantities with Shopify.
+        
+        Returns:
+        - 200: Reconciliation successful with results
+        - 500: Reconciliation failed with error details
+        
+        Response format:
+        {
+            "success": true,
+            "reconciled_count": 45,
+            "message": "Inventory reconciled successfully"
+        }
+        """
+        try:
+            # Get shop from session or request
+            shop = getattr(request, 'shop', None)
+            if not shop:
+                return Response(
+                    {'detail': 'Shop not found in session'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Get session for API access
+            from accounts.models import Session
+            try:
+                session = Session.objects.get(shop=shop)
+            except Session.DoesNotExist:
+                return Response(
+                    {'detail': 'Session not found for shop'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Import Shopify client
+            from shopify_client import ShopifyGraphQLClient
+            from django.conf import settings
+            
+            # Create Shopify client
+            client = ShopifyGraphQLClient(
+                session.site,
+                session.token,
+                settings.API_VERSION,
+            )
+            
+            # Get all tracked inventory items with their current quantities
+            inventory_items = InventoryItem.objects.filter(
+                tracked=True,
+                source_quantity__isnull=False
+            ).select_related(
+                'variant',
+                'variant__product'
+            ).prefetch_related(
+                'inventory_levels'
+            ).all()
+            
+            # Build quantities array for Shopify API
+            quantities = []
+            reconciled_count = 0
+            
+            for inventory_item in inventory_items:
+                # Get the inventory level for the default location
+                inventory_level = inventory_item.inventory_levels.filter(
+                    location_gid=settings.SHOPIFY_DEFAULT_LOCATION
+                ).first()
+                
+                if inventory_level and inventory_item.source_quantity is not None:
+                    # Construct GraphQL ID from shopify_id
+                    # If shopify_id is not available, skip this item
+                    if not inventory_item.shopify_id:
+                        continue
+                    
+                    inventory_item_gid = f"gid://shopify/InventoryItem/{inventory_item.shopify_id}"
+                    
+                    # Add to quantities array for batch update
+                    quantities.append({
+                        'inventoryItemId': inventory_item_gid,
+                        'locationId': settings.SHOPIFY_DEFAULT_LOCATION,
+                        'quantities': [
+                            {
+                                'name': 'available',
+                                'quantity': inventory_item.source_quantity
+                            }
+                        ]
+                    })
+                    reconciled_count += 1
+            
+            # If there are quantities to reconcile, push them to Shopify
+            if quantities:
+                errors = client.set_inventory_quantities(
+                    name='Inventory Reconciliation',
+                    reason='Reconciliation from Shop Manager',
+                    quantities=quantities,
+                    ignore_compare_quantity=False
+                )
+                
+                if errors:
+                    # Log errors but still return success with error details
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f"Inventory reconciliation errors: {errors}")
+                    
+                    return Response(
+                        {
+                            'success': False,
+                            'reconciled_count': reconciled_count,
+                            'message': 'Inventory reconciliation completed with errors',
+                            'errors': errors
+                        },
+                        status=status.HTTP_200_OK
+                    )
+            
+            # Return success response
+            return Response(
+                {
+                    'success': True,
+                    'reconciled_count': reconciled_count,
+                    'message': 'Inventory reconciled successfully'
+                },
+                status=status.HTTP_200_OK
+            )
+            
+        except Exception as e:
+            # Log the error for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to reconcile inventory: {str(e)}", exc_info=True)
+            
+            # Return error response with details
+            return Response(
+                {
+                    'success': False,
+                    'message': 'Failed to reconcile inventory',
+                    'error': str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+
+class SettingsView(APIView):
+    """
+    Returns and updates shop settings.
+    
+    Provides access to shop configuration including pricing configuration status
+    and sync preferences. Allows updating sync preferences for the shop.
+    
+    Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7, 12.8
+    """
+    
+    def get(self, request):
+        """
+        GET /api/admin/settings/
+        Returns shop settings including pricing configuration and sync preferences.
+        
+        Returns:
+        - 200: Shop settings
+        - 404: Shop not found
+        """
+        # Get shop from session or request
+        shop = getattr(request, 'shop', None)
+        
+        if not shop:
+            return Response(
+                {'detail': 'Shop not found in session'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Build settings response
+        settings_data = {
+            'id': shop.id,
+            'name': shop.name,
+            'domain': shop.myshopify_domain,
+            'currency': shop.currency,
+            'pricing_config_enabled': getattr(shop, 'pricing_config_enabled', False),
+            'sync_preferences': {
+                'auto_sync_enabled': getattr(shop, 'auto_sync_enabled', False),
+                'sync_frequency': getattr(shop, 'sync_frequency', 'daily'),
+            }
+        }
+        
+        return Response(settings_data, status=status.HTTP_200_OK)
+    
+    def put(self, request):
+        """
+        PUT /api/admin/settings/
+        Updates shop settings.
+        
+        Request body:
+        {
+            "sync_preferences": {
+                "auto_sync_enabled": true,
+                "sync_frequency": "daily"
+            }
+        }
+        
+        Returns:
+        - 200: Settings updated successfully
+        - 404: Shop not found
+        - 400: Invalid request data
+        """
+        # Get shop from session or request
+        shop = getattr(request, 'shop', None)
+        
+        if not shop:
+            return Response(
+                {'detail': 'Shop not found in session'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        try:
+            # Extract sync preferences from request
+            sync_preferences = request.data.get('sync_preferences', {})
+            
+            # Validate sync frequency if provided
+            if 'sync_frequency' in sync_preferences:
+                valid_frequencies = ['hourly', 'daily', 'weekly', 'manual']
+                if sync_preferences['sync_frequency'] not in valid_frequencies:
+                    return Response(
+                        {
+                            'detail': f"Invalid sync_frequency. Must be one of: {', '.join(valid_frequencies)}"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+            # Update shop settings
+            if 'auto_sync_enabled' in sync_preferences:
+                shop.auto_sync_enabled = sync_preferences['auto_sync_enabled']
+            
+            if 'sync_frequency' in sync_preferences:
+                shop.sync_frequency = sync_preferences['sync_frequency']
+            
+            # Save shop
+            shop.save()
+            
+            # Build updated settings response
+            settings_data = {
+                'id': shop.id,
+                'name': shop.name,
+                'domain': shop.myshopify_domain,
+                'currency': shop.currency,
+                'pricing_config_enabled': getattr(shop, 'pricing_config_enabled', False),
+                'sync_preferences': {
+                    'auto_sync_enabled': getattr(shop, 'auto_sync_enabled', False),
+                    'sync_frequency': getattr(shop, 'sync_frequency', 'daily'),
+                }
+            }
+            
+            return Response(
+                {
+                    'success': True,
+                    'message': 'Settings updated successfully',
+                    'settings': settings_data
+                },
+                status=status.HTTP_200_OK
+            )
+            
+        except Exception as e:
+            # Log the error for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to update settings: {str(e)}", exc_info=True)
+            
+            # Return error response with details
+            return Response(
+                {
+                    'success': False,
+                    'message': 'Failed to update settings',
+                    'error': str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

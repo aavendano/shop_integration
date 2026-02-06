@@ -13,6 +13,20 @@ class Shop(models.Model):
     client_id = models.CharField(max_length=255)
     client_secret = models.CharField(max_length=255)
     is_authentified = models.BooleanField(default=False)
+    
+    # Settings fields
+    pricing_config_enabled = models.BooleanField(default=False)
+    auto_sync_enabled = models.BooleanField(default=False)
+    sync_frequency = models.CharField(
+        max_length=20,
+        choices=[
+            ('hourly', 'Hourly'),
+            ('daily', 'Daily'),
+            ('weekly', 'Weekly'),
+            ('manual', 'Manual'),
+        ],
+        default='daily'
+    )
 
 class Session(models.Model):
     shop = models.OneToOneField(Shop, on_delete=models.CASCADE, related_name='session')
